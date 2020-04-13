@@ -1,0 +1,33 @@
+{
+    "countriesList": [
+        {
+            "name": "Australia",
+            "visited": true,
+            "visits": [
+                {
+                    "startDate": "",
+                    "endDate": "",
+                    "citiesVisited": ["Sydney", "Melbourne"]
+                }
+            ]
+        },
+        {
+            "name": "Austria"
+        },
+        {
+            "name": "Beligum"
+        },
+        {
+            "name": "Belize"
+        },
+        {
+            "name": "Brazil"
+        },
+        {
+            "name": "Cameroon"
+        },
+        {
+            "name": "Denmark"
+        }
+    ]
+}
