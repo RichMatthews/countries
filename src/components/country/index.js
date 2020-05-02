@@ -1,38 +1,42 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 
+import { CountryInformation } from 'components/country-information'
+
 const Container = styled.div`
-    background: #000;
-    border: 1px solid #68e7d8;
-    color: #68e7d8;
-    display: flex;
-    justify-content: space-between;
-    margin: 2px;
-    padding: 10px;
-    width: 600px;
-`
-
-const LeftHandSide = styled.div`
-    padding: 4px;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    width: 150px;
-`
-
-const Country_ = styled.div`
-    display: flex;
     align-items: center;
-    margin-left: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 80px;
+    margin: 20px;
+    width: 125px;
 `
 
-export const Country = ({ country }) =>
-    country ? (
-        <Container>
-            <LeftHandSide>
-                <img src={country.flag} width="30" height="20" />
-                <Country_>{country.name}</Country_>
-            </LeftHandSide>
-            <img src={'/images/dropdown.svg'} width="15" />
-        </Container>
+const CountryName = styled.div`
+    font-size: 18px;
+    font-weight: 900;
+    margin-top: 10px;
+`
+
+const CountryVisits = styled.div`
+    color: #b6b6b6;
+    font-size: 14px;
+`
+export const Country = ({ country, selectedContinent }) => {
+    const [showModal, setShowModal] = useState(false)
+
+    return country ? (
+        <>
+            <Container onClick={() => setShowModal(true)} selectedContinent={selectedContinent === country.continent}>
+                <img src={country.flag} width="50" />
+                <CountryName>{country.name}</CountryName>
+                <CountryVisits>{country.visits.length} trips</CountryVisits>
+            </Container>
+            {showModal ? (
+                <CountryInformation country={country} setShowModal={setShowModal} showModal={showModal} />
+            ) : null}
+        </>
     ) : null
+}

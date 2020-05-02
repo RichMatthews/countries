@@ -1,64 +1,79 @@
-import React, { useState } from 'react'
-import { Router, Link } from '@reach/router'
-import { Visited } from 'components/visited'
-import { Nav } from 'components/nav'
-import { Selected } from 'components/selected'
-import { from, Observable, of } from 'rxjs'
-import { map, filter, mergeMap } from 'rxjs/operators'
+import React, { useEffect, useState } from 'react'
+import { Location, Redirect, Router } from '@reach/router'
+import { createGlobalStyle } from 'styled-components'
 
-export const createHttpObservable = (url) => {
-    return Observable.create((observer) => {
-        fetch(url)
-            .then((res) => {
-                return res.json()
-            })
-            .then((body) => {
-                observer.next(body)
-                observer.complete()
-            })
-            .catch((err) => {
-                observer.error(err)
-            })
-    })
-}
+import { Visited } from 'components/visited'
+import { Map } from 'components/map'
+import { Nav } from 'components/nav'
+import { AllCountries } from 'components/countries'
+import { Login } from 'components/login'
+import { Home } from 'components/home'
+
+import { firebaseApp } from '../../config.mjs'
+import { createHttpObservable } from 'utils/'
+
+const GlobalStyle = createGlobalStyle`
+  html {
+    background-image: url(/images/world.svg);
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: 1200px;
+  }
+`
 
 export const MainRouter = () => {
     const [countries, setCountries] = useState([])
-    const [selectedCountry, setSelectedCountry] = useState(null)
-    const http$ = createHttpObservable('/api/countries')
-    const countries$ = http$.pipe(map((res) => Object.values(res['payload'])))
+    const [user, setUser] = useState(null)
+    useEffect(() => {
+        const http$ = createHttpObservable('/api/countries')
+        http$.subscribe((countries) => setCountries(countries))
 
-    const setCountriesHelper = (value) => {
-        if (value.length > 0) {
-            return countries$
-                .pipe(map((data) => data.filter((country) => country.name.toLowerCase().startsWith(value))))
-                .subscribe((data) => setCountries(data))
+        firebaseApp.auth().onAuthStateChanged((user) => {
+            if (user) {
+                setUser(user)
+            } else {
+                console.log(user, 'user not loggedin')
+            }
+        })
+    }, [])
+
+    // const setCountriesHelper = (value) => {
+    //     if (value.length > 0) {
+    //         return countries$
+    //             .pipe(map((data) => data.filter((country) => country.name.toLowerCase().startsWith(value))))
+    //             .subscribe((data) => setCountries(data))
+    //     }
+    //     return setCountries([])
+    // }
+
+    const logUserOut = async () => {
+        try {
+            await firebaseApp.auth().signOut()
+            window.location.reload()
+        } catch (e) {
+            console.err(e)
+            // an error
         }
-        return setCountries([])
-    }
-
-    const setSelectedCountryHelper = ({ name }) => {
-        const https2$ = createHttpObservable(`/api/countries/name/${name.toLowerCase()}`)
-        const selectedCountry$ = https2$.pipe(map((res) => Object.values(res['payload'])))
-
-        return (
-            selectedCountry$
-                // .pipe(map((data) => data.filter((country) => country.name.toLowerCase().startsWith(value))))
-                .subscribe((data) => setSelectedCountry(data[0]))
-        )
     }
 
     return (
         <>
-            <Nav
-                countries={countries}
-                setCountriesHelper={setCountriesHelper}
-                setSelectedCountryHelper={setSelectedCountryHelper}
-            />
-            <Router>
-                <Selected path="/" selectedCountry={selectedCountry} />
-                <Visited path="visited" />
-            </Router>
+            <GlobalStyle />
+            <Location>
+                {({ location }) => (
+                    <>
+                        <Nav countries={countries} location={location} logUserOut={logUserOut} />
+                        <Router>
+                            <AllCountries path="all" />
+                            <Home path="/" countries={countries} />
+                            <Map path="map" />
+                            <Login path="login" setUser={setUser} user={user} />
+                            <Redirect from="visited" to="page/1" />
+                            <Visited path="visited/page/:id" user={user} />
+                        </Router>
+                    </>
+                )}
+            </Location>
         </>
     )
 }
