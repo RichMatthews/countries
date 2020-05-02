@@ -23,6 +23,7 @@ const GlobalStyle = createGlobalStyle`
 
 export const MainRouter = () => {
     const [countries, setCountries] = useState([])
+    const [options, setOptions] = useState([{}])
     const [user, setUser] = useState(null)
     useEffect(() => {
         const http$ = createHttpObservable('/api/countries')
@@ -36,6 +37,12 @@ export const MainRouter = () => {
             }
         })
     }, [])
+
+    useEffect(() => {
+        const countriesToShow = []
+        countries.forEach((country) => countriesToShow.push({ label: country.name, value: country.name }))
+        setOptions(countriesToShow)
+    }, [countries])
 
     // const setCountriesHelper = (value) => {
     //     if (value.length > 0) {
@@ -65,11 +72,11 @@ export const MainRouter = () => {
                         <Nav countries={countries} location={location} logUserOut={logUserOut} />
                         <Router>
                             <AllCountries path="all" />
-                            <Home path="/" countries={countries} />
+                            <Home path="/" countries={countries} user={user} />
                             <Map path="map" />
                             <Login path="login" setUser={setUser} user={user} />
                             <Redirect from="visited" to="page/1" />
-                            <Visited path="visited/page/:id" user={user} />
+                            <Visited path="visited/page/:id" options={options} user={user} />
                         </Router>
                     </>
                 )}

@@ -1,0 +1,180 @@
+{
+    "users": {
+        "2BnDBSvIhwfoYWKIwGH20rUzyKv1": {
+            "Albania": {
+                "name": "Albania",
+                "visited": true,
+                "flag": "https://restcountries.eu/data/alb.svg",
+                "continent": "Europe",
+                "visits": [
+                    {
+                        "startDate": "30-08-20",
+                        "endDate": "03-09-20",
+                        "citiesVisited": ["Sarande"]
+                    },
+                    {
+                        "startDate": "30-08-20",
+                        "endDate": "03-09-20",
+                        "citiesVisited": ["Sarande"]
+                    }
+                ]
+            },
+            "Australia": {
+                "name": "Australia",
+                "visited": true,
+                "flag": "https://restcountries.eu/data/aus.svg",
+                "continent": "Oceania",
+                "visits": [
+                    {
+                        "startDate": "",
+                        "endDate": "",
+                        "citiesVisited": ["Melbourne", "Sydney"]
+                    }
+                ]
+            },
+            "Austria": {
+                "name": "Austria",
+                "visited": true,
+                "flag": "https://restcountries.eu/data/aut.svg",
+                "continent": "Europe",
+                "visits": [
+                    {
+                        "startDate": "",
+                        "endDate": "",
+                        "citiesVisited": ["Innsbruck"]
+                    }
+                ]
+            },
+            "Belgium": {
+                "name": "Belgium",
+                "visited": true,
+                "flag": "https://restcountries.eu/data/bel.svg",
+                "continent": "Europe",
+                "visits": [
+                    {
+                        "startDate": "",
+                        "endDate": "",
+                        "citiesVisited": ["Brussels", "Melbourne"]
+                    }
+                ]
+            },
+            "Bolivia": {
+                "name": "Bolivia",
+                "visited": true,
+                "flag": "https://restcountries.eu/data/bol.svg",
+                "continent": "South America",
+                "visits": [
+                    {
+                        "startDate": "",
+                        "endDate": "",
+                        "citiesVisited": []
+                    }
+                ]
+            },
+            "Bosnia": {
+                "name": "Bosnia",
+                "visited": true,
+                "flag": "https://restcountries.eu/data/bih.svg",
+                "continent": "Europe",
+                "visits": [
+                    {
+                        "startDate": "",
+                        "endDate": "",
+                        "citiesVisited": []
+                    }
+                ]
+            },
+            "Bulgaria": {
+                "name": "Bulgaria",
+                "visited": true,
+                "flag": "https://restcountries.eu/data/bgr.svg",
+                "continent": "Europe",
+                "visits": [
+                    {
+                        "startDate": "",
+                        "endDate": "",
+                        "citiesVisited": []
+                    }
+                ]
+            },
+            "Canada": {
+                "name": "Canada",
+                "visited": true,
+                "flag": "https://restcountries.eu/data/can.svg",
+                "continent": "North America",
+                "visits": [
+                    {
+                        "startDate": "",
+                        "endDate": "",
+                        "citiesVisited": []
+                    }
+                ]
+            },
+            "Croatia": {
+                "name": "Croatia",
+                "visited": true,
+                "flag": "https://restcountries.eu/data/hrv.svg",
+                "continent": "Europe",
+                "visits": [
+                    {
+                        "startDate": "",
+                        "endDate": "",
+                        "citiesVisited": []
+                    }
+                ]
+            },
+            "Czech Repbulic": {
+                "name": "Czech Republic",
+                "visited": true,
+                "flag": "https://restcountries.eu/data/cze.svg",
+                "continent": "Europe",
+                "visits": [
+                    {
+                        "startDate": "",
+                        "endDate": "",
+                        "citiesVisited": []
+                    }
+                ]
+            },
+            "Estonia": {
+                "name": "Estonia",
+                "visited": true,
+                "flag": "https://restcountries.eu/data/est.svg",
+                "continent": "Europe",
+                "visits": [
+                    {
+                        "startDate": "",
+                        "endDate": "",
+                        "citiesVisited": []
+                    }
+                ]
+            },
+            "France": {
+                "name": "France",
+                "visited": true,
+                "flag": "https://restcountries.eu/data/fra.svg",
+                "continent": "Europe",
+                "visits": [
+                    {
+                        "startDate": "",
+                        "endDate": "",
+                        "citiesVisited": []
+                    }
+                ]
+            },
+            "Georgia": {
+                "name": "Georgia",
+                "visited": false,
+                "flag": "https://restcountries.eu/data/geo.svg",
+                "continent": "Europe",
+                "visits": [
+                    {
+                        "startDate": "",
+                        "endDate": "",
+                        "citiesVisited": []
+                    }
+                ]
+            }
+        }
+    }
+}

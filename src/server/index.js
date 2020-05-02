@@ -553,12 +553,14 @@ app.get('/api/countries/name/:name', (req, res, next) => {
 })
 
 app.get('/api/:id/visited', (req, res, next) => {
-    console.log(req.params, 'id?')
-
-    const readCountries = firebaseApp.database().ref(`users/${req.params.id}/countries`)
+    const readCountries = firebaseApp.database().ref(`users/${req.params.id}`)
 
     readCountries.on('value', (snapshot) => {
-        res.json(snapshot.val())
+        const data = snapshot.val()
+        var myData = Object.keys(data).map((key) => {
+            return data[key]
+        })
+        res.json(myData)
     })
 })
 
@@ -569,6 +571,17 @@ app.post('/api/add-country', (req, res, next) => {
     // } else {
     //     res.status(500).send()
     // }
+    const { date, visitName } = req.body
+
+    firebaseApp
+        .database()
+        .ref(`users/${req.body.userID}/${req.body.country}/visits/${date}`)
+        .set({
+            startDate: date.split('-')[0],
+            endDate: date.split('-')[0],
+            visitName,
+        })
+
     res.status(200).json({ message: 'Details saved successfully!' })
 })
 

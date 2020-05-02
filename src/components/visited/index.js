@@ -5,11 +5,13 @@ import { of, interval, Subject, timer } from 'rxjs'
 import { retryWhen, delayWhen } from 'rxjs/operators'
 
 import { Country } from 'components/country'
+import { CountryModal } from 'components/country-visited-modal'
 import { LoggedOut } from 'components/logged-out'
 import { createHttpObservable } from 'utils/'
 
 let inputStream = new Subject()
-let clickStream = new Subject()
+
+let clickContinentStream = new Subject()
 
 const Container = styled.div`
     align-items: center;
@@ -113,7 +115,8 @@ const ContinentName = styled.div`
 export const Visited = (props) => {
     const [countries, setCountries] = useState([])
     const [filteredCountries, setFilteredCountries] = useState([])
-    const [selectedContinent, setSelectedContinent] = useState('Africa')
+    const [selectedContinent, setSelectedContinent] = useState(null)
+    const [isModalOpen, setModalOpen] = useState(false)
     // const [notifications, setNotifications] = useState([])
 
     useEffect(() => {
@@ -153,28 +156,31 @@ export const Visited = (props) => {
         setFilteredCountries(data)
     }
 
-    const filterCountries = (value) => {
+    const filterCountriesByValue = (value) => {
+        if (!value) {
+            return setFilteredCountries(countries)
+        }
         setFilteredCountries(countries.filter((country) => country.name.toLowerCase().includes(value)))
     }
 
-    const propsObservable = of(props.id)
-    let obj = { first: 0, second: 18 }
-    inputStream.subscribe((val) => filterCountries(val))
-    propsObservable.subscribe((val) => {
-        return (obj = val === '1' ? { first: 0, second: 18 } : { first: 18, second: 33 })
-    })
-    clickStream.subscribe((val) => setSelectedContinent(val))
+    const filterCountriesByContinent = (continent) => {
+        if (!continent) {
+            return setFilteredCountries(countries)
+        }
+        return setFilteredCountries(countries.filter((country) => country.continent === continent.name))
+    }
+
+    inputStream.subscribe((val) => filterCountriesByValue(val))
 
     const continents = [
-        { name: 'africa', svg: '/images/continents/africa' },
-        { name: 'australia', svg: '/images/continents/australia' },
-        { name: 'asia', svg: '/images/continents/asia' },
-        { name: 'europe', svg: '/images/continents/europe' },
+        { name: 'Africa', svg: '/images/continents/africa' },
+        { name: 'Oceania', svg: '/images/continents/oceania' },
+        { name: 'Asia', svg: '/images/continents/asia' },
+        { name: 'Europe', svg: '/images/continents/europe' },
         { name: 'North America', svg: '/images/continents/north-america' },
         { name: 'South America', svg: '/images/continents/south-america' },
     ]
 
-    console.log(selectedContinent, 'sc')
     return (
         <Container>
             {props.user ? (
@@ -185,7 +191,7 @@ export const Visited = (props) => {
                             <Total>{countries ? `${countries.length} / 195` : '0 / 195'}</Total>
                         </VisitedTotal>
                         <CountriesList>
-                            <AddVisit>
+                            <AddVisit onClick={() => setModalOpen(true)}>
                                 <img src={'/images/addTrip.svg'} />
                                 <p style={{ margin: 0 }}>Add a visit</p>
                             </AddVisit>
@@ -196,13 +202,23 @@ export const Visited = (props) => {
                         </CountriesList>
                     </div>
 
+                    <CountryModal
+                        isModalOpen={isModalOpen}
+                        options={props.options}
+                        setModalOpen={setModalOpen}
+                        user={props.user}
+                    />
+
                     <ContinentsContainer>
                         <p>Filter by continent</p>
                         <Continents>
                             {continents.map((continent) => (
                                 <Continent
-                                    onClick={() => clickStream.next(continent.name)}
-                                    isSelected={selectedContinent.toLowerCase() === continent.name.toLowerCase()}
+                                    onClick={() => filterCountriesByContinent(continent)}
+                                    isSelected={
+                                        selectedContinent &&
+                                        selectedContinent.name.toLowerCase() === continent.name.toLowerCase()
+                                    }
                                 >
                                     <img src={`${continent.svg}.svg`} width="50" />
                                     <ContinentName>{continent.name.toUpperCase()}</ContinentName>
