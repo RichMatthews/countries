@@ -1,7 +1,19 @@
 import React, { useEffect } from 'react'
+import styled from 'styled-components'
 import firebase from 'firebase'
 
 import { firebaseApp } from '../../config.mjs'
+
+const SignInButton = styled.div`
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-around;
+    margin: auto;
+    box-shadow: 1px 3px #ccc;
+    padding: 10px;
+    width: 180px;
+`
 
 export const Login = ({ setUser, user }) => {
     const provider = new firebase.auth.GoogleAuthProvider()
@@ -47,7 +59,9 @@ export const Login = ({ setUser, user }) => {
                 <div> You are logged in</div>
             ) : (
                 <div>
-                    Please sign in <p onClick={login}>here</p>
+                    <SignInButton onClick={login}>
+                        <img src={'/images/google.png'} width="30" /> Sign in with Google{' '}
+                    </SignInButton>
                 </div>
             )}
         </div>

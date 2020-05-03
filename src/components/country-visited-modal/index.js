@@ -9,12 +9,24 @@ import 'react-calendar/dist/Calendar.css'
 import Select from 'react-select'
 
 const AddVisit = styled.div`
-    cursor: pointer;
-`
-
-const StyledSelect = styled(Select)`
+    font-size: 24px;
+    font-weight: bold;
     margin-bottom: 20px;
 `
+
+const StyledCalendar = styled(Calendar)`
+    position: absolute;
+    top: 100px;
+    z-index: 9;
+`
+
+const customStyles = {
+    control: (base) => ({
+        ...base,
+        marginBottom: 20,
+        minHeight: 50,
+    }),
+}
 
 const Input = styled.input`
     border: none;
@@ -23,7 +35,7 @@ const Input = styled.input`
     box-sizing: border-box;
     font-size: 15px;
     margin-bottom: 20px;
-    padding: 10px;
+    padding: 15px;
     padding-left: 40px;
     width: 100%;
 `
@@ -34,7 +46,7 @@ const DateComponent = styled.div`
     color: #757575;
     font-size: 15px;
     margin-bottom: 20px;
-    padding: 10px;
+    padding: 15px;
 `
 
 const Image = styled.img`
@@ -68,7 +80,7 @@ const Button = styled.div`
 
 const modalStyles = {
     content: {
-        height: '370px',
+        height: '400px',
         margin: 'auto',
         width: '450px',
     },
@@ -93,7 +105,7 @@ export const CountryModal = ({ isModalOpen, options, setModalOpen, user }) => {
         showCalendar(false)
     }
 
-    const submitCountryDetailsToBackend = () => {
+    const submitCountryDetailsToBackend = async () => {
         const userID = user.uid
         setLoading(true)
         // fetch('/api/add-country', {
@@ -109,6 +121,12 @@ export const CountryModal = ({ isModalOpen, options, setModalOpen, user }) => {
         //         setLoading(false)
         //         setSuccess(body.message)
         //     })
+
+        const retrieveFlagAndContinent = await fetch(`https://restcountries.eu/rest/v2/name/${country}`).then((res) =>
+            res.json(),
+        )
+        const flag = retrieveFlagAndContinent[0].flag
+        const continent = retrieveFlagAndContinent[0].region
         const postHttpObservable = () => {
             return Observable.create((observer) => {
                 fetch('/api/add-country', {
@@ -117,7 +135,7 @@ export const CountryModal = ({ isModalOpen, options, setModalOpen, user }) => {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ country, people, date, visitName, userID }),
+                    body: JSON.stringify({ continent, country, date, flag, people, visitName, userID }),
                 })
                     .then((res) => res.json())
                     .then((body) => {
@@ -130,40 +148,41 @@ export const CountryModal = ({ isModalOpen, options, setModalOpen, user }) => {
 
         const http$ = postHttpObservable('/api/add-country')
         const submit = http$.pipe(retryWhen((errors) => errors.pipe(delayWhen(() => timer(2000)))))
-        submit.subscribe((x) => setStuff(x))
+        submit.subscribe((x) => setLoadingAndShowSuccessMessage(x))
     }
 
-    const setStuff = (x) => {
+    const setLoadingAndShowSuccessMessage = (x) => {
         setLoading(false)
         setSuccess(x.message)
     }
 
     return (
-        <Modal isOpen={isModalOpen} style={modalStyles} contentLabel="Example Modal">
+        <Modal isOpen={isModalOpen} style={modalStyles}>
             <ModalContent>
                 <ClosedIcon src="/images/cancel.svg" onClick={() => setModalOpen(false)} />
                 <AddVisit>ADD A VISIT</AddVisit>
                 <Image src="/images/trip-name.svg" />
                 <Input placeholder="Give the visit a memorable name" onChange={(e) => setVisitName(e.target.value)} />
 
-                <StyledSelect
+                <Select
+                    styles={customStyles}
                     options={options}
                     placeholder="Start typing to find a country..."
                     onChange={(country) => setCountry(country.value)}
                 />
                 <DateComponent onClick={() => showCalendar(!calendar)} value={date}>
+                    <Image src="/images/calendar.svg" />
                     {date ? date : 'Select date'}
                 </DateComponent>
                 {calendar ? (
                     <>
-                        <Image src="/images/calendar.svg" />
-                        <Calendar selectRange onChange={(date) => setDateHelper(date)} />
+                        <StyledCalendar selectRange onChange={(date) => setDateHelper(date)} />
                     </>
                 ) : null}
 
                 <Image src="/images/companion.svg" />
                 <Input placeholder="Who did you go with" onChange={(e) => setPeople(e.target.value)} />
-                <Button onClick={submitCountryDetailsToBackend}>Submit</Button>
+                <Button onClick={submitCountryDetailsToBackend}>Save</Button>
 
                 <div>{success || null}</div>
                 {isLoading ? <Image src="/images/loading.gif" width="30" style={{ margin: 'auto' }} /> : null}

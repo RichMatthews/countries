@@ -1,6 +1,7 @@
 import firebase from 'firebase'
 
 const firebaseConfig = {
+    //PROCESS.ENV.FIREBASE_API_KEY
     authDomain: 'countries-5e1e5.firebaseapp.com',
     databaseURL: 'https://countries-5e1e5.firebaseio.com',
     projectId: 'countries-5e1e5',

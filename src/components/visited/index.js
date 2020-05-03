@@ -66,6 +66,10 @@ const AddVisit = styled.div`
     height: 80px;
     margin: 20px;
     width: 120px;
+
+    & > p {
+        margin: 0;
+    }
 `
 
 const CountriesVisitedContainer = styled.div`
@@ -147,8 +151,12 @@ export const Visited = (props) => {
     // }
 
     const getCountries = () => {
-        const http$ = createHttpObservable(`/api/${props.user.uid}/visited`)
-        return http$.subscribe((data) => updateCountriesOnMount(data))
+        try {
+            const http$ = createHttpObservable(`/api/${props.user.uid}/visited`)
+            return http$.subscribe((data) => updateCountriesOnMount(data))
+        } catch (e) {
+            console.log(e, 'err')
+        }
     }
 
     const updateCountriesOnMount = (data) => {
@@ -193,12 +201,16 @@ export const Visited = (props) => {
                         <CountriesList>
                             <AddVisit onClick={() => setModalOpen(true)}>
                                 <img src={'/images/addTrip.svg'} />
-                                <p style={{ margin: 0 }}>Add a visit</p>
+                                <p>Add a visit</p>
                             </AddVisit>
-                            {countries &&
+
+                            {countries.length ? (
                                 filteredCountries.map((country) => (
                                     <Country country={country} selectedContinent={selectedContinent} />
-                                ))}
+                                ))
+                            ) : (
+                                <div>You have no trips recorded so far</div>
+                            )}
                         </CountriesList>
                     </div>
 

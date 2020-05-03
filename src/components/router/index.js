@@ -14,7 +14,7 @@ import { createHttpObservable } from 'utils/'
 
 const GlobalStyle = createGlobalStyle`
   html {
-    background-image: url(/images/world.svg);
+    background-image: ${({ location }) => (location.pathname === '/' ? 'url(/images/world.svg)' : 'none')};
     background-position: center top;
     background-repeat: no-repeat;
     background-size: 1200px;
@@ -65,10 +65,11 @@ export const MainRouter = () => {
 
     return (
         <>
-            <GlobalStyle />
             <Location>
                 {({ location }) => (
                     <>
+                        {console.log(location.pathname === '/', 'loci')}
+                        <GlobalStyle location={location} />
                         <Nav countries={countries} location={location} logUserOut={logUserOut} />
                         <Router>
                             <AllCountries path="all" />

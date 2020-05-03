@@ -1,49 +1,38 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Chart } from 'react-google-charts'
+import Modal from 'react-modal'
 
-const Container = styled.div`
-    background: #e3dfde;
-    border-radius: 5px;
-    height: 500px;
-    position: absolute;
-    opacity: 1;
-    width: 1000px;
-    z-index: 99999;
-`
-
-const Inner = styled.div`
+const Bottom = styled.div`
     align-items: center;
     display: flex;
-    flex-direction: row;
-    justify-content: space-around;
+    flex-direction: column;
+    justify-content: center;
     margin-top: 5px;
+    height: 100%;
 `
 
-const Left = styled.div`
-    height: 400px;
-    width: 350px;
+const ModalInner = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 `
-
-const Right = styled.div``
-
-const RightTop = styled.div``
-const RightBottom = styled.div``
 
 const CountryHeading = styled.h3`
+    color: white;
+    font-size: 48px;
+    display: flex;
+    align-items: center;
     margin: 0;
     text-align: center;
 `
 
 const Top = styled.div`
     align-items: center;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    background: #55aac2;
+    background: url(/images/beach.jpg) center no-repeat;
+    background-size: 800px;
     display: flex;
     justify-content: center;
-    margin: 0;
-    padding: 10px;
+    height: 400px;
 `
 
 const Close = styled.div`
@@ -52,48 +41,76 @@ const Close = styled.div`
     cursor: pointer;
 `
 
-const Visits = styled.div`
+const Visit = styled.div`
     background: #55aac2;
-    padding: 10px;
     border-radius: 6px;
+    display: flex;
+    flex-direction: column;
     margin-bottom: 5px;
+    padding: 10px;
+    width: 80%;
 `
+
+const Image = styled.img`
+    border-radius: 50%;
+    height: 60px;
+    width: 60px;
+`
+
+const CloseImage = styled.img`
+    position: absolute;
+    top: -65px;
+    right: 0;
+    width: 15px;
+`
+
+const CountryNameAndVisitTotalCombined = styled.div`
+    & > p {
+        color: #fff;
+        font-size: 24px;
+        margin: 0;
+    }
+`
+
+const modalStyles = {
+    content: {
+        border: 'none',
+        height: '550px',
+        margin: 'auto',
+        padding: 0,
+        width: '800px',
+    },
+    overlay: {
+        background: 'rgba(49, 49, 49, 0.9)',
+    },
+}
 
 export const CountryInformation = ({ country, setShowModal, showModal }) => {
     return (
-        <Container>
-            <Top>
-                <CountryHeading>{country.name}</CountryHeading>
-                <Close onClick={() => setShowModal(!showModal)}>X</Close>
-            </Top>
-            <Inner>
-                <Left>
-                    <h4>Trips</h4>
+        <Modal isOpen={true} style={modalStyles}>
+            <ModalInner>
+                <Top>
+                    <Image src={country.flag} />
+                    <CountryNameAndVisitTotalCombined>
+                        <CountryHeading>{country.name}</CountryHeading>
+                        <p>You've visited {country.visits.length} times</p>
+                    </CountryNameAndVisitTotalCombined>
+                    <Close onClick={() => setShowModal(!showModal)}>
+                        <CloseImage src={'/images/close.svg'} />
+                    </Close>
+                </Top>
+                <Bottom>
                     {country.visits.map((visit) => (
-                        <Visits>
-                            {visit.startDate} - {visit.endDate}
-                        </Visits>
+                        <Visit>
+                            <div>{visit.visitName}</div>
+                            <div>
+                                {visit.startDate} - {visit.endDate}
+                            </div>
+                            <div>You went with some people</div>
+                        </Visit>
                     ))}
-                </Left>
-                <Right>
-                    <RightTop>
-                        <img src={country.flag} width="299" />
-                    </RightTop>
-                    <RightBottom>
-                        <Chart
-                            width={'300px'}
-                            height={'200px'}
-                            chartType="GeoChart"
-                            data={[
-                                ['Country', 'Popularity'],
-                                [country.name, 500],
-                            ]}
-                            mapsApiKey="scrambled"
-                            rootProps={{ 'data-testid': '1' }}
-                        />
-                    </RightBottom>
-                </Right>
-            </Inner>
-        </Container>
+                </Bottom>
+            </ModalInner>
+        </Modal>
     )
 }
