@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 
 import { CountryModal } from 'components/country-visited-modal'
@@ -30,7 +30,7 @@ const Button = styled.div`
     text-align: center;
 `
 
-export const Home = ({ options, user }) => {
+export const Home = ({ options, restAPICountries, user }) => {
     const [isModalOpen, setModalOpen] = useState(false)
 
     return (
@@ -40,7 +40,13 @@ export const Home = ({ options, user }) => {
                 <Button onClick={() => setModalOpen(true)}>Add Trip</Button>
             </Inner>
 
-            <CountryModal isModalOpen={isModalOpen} options={options} setModalOpen={setModalOpen} user={user} />
+            <CountryModal
+                isModalOpen={isModalOpen}
+                options={options}
+                restAPICountries={restAPICountries}
+                setModalOpen={setModalOpen}
+                user={user}
+            />
         </Container>
     )
 }

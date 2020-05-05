@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { createHttpObservable } from 'utils/'
 import { Chart } from 'react-google-charts'
+import { shuffle } from 'underscore'
+
+import { createHttpObservable } from 'utils/'
 
 const Container = styled.div`
     display: flex;
@@ -9,39 +11,49 @@ const Container = styled.div`
     margin: auto;
 `
 
-export const Map = () => {
+const LoadingContainer = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    width: 200px;
+`
+
+export const Map = ({ userVisitedCountries }) => {
     const [countries, setCountries] = useState([[]])
+    const [loaded, setLoaded] = useState()
 
     useEffect(() => {
-        getCountries()
+        setCountries(userVisitedCountries)
+        setLoaded(true)
     }, [])
 
-    const getCountries = async () => {
-        const http$ = createHttpObservable('/api/visited')
-        return http$.subscribe((data) => updateCountriesOnMount(data))
-    }
-
-    const updateCountriesOnMount = (countriesList) => {
-        const newArr = [['Country']]
-        countriesList.forEach((country) => {
-            newArr.push([country.name])
-        })
-        setCountries(newArr)
+    if (!loaded) {
+        return (
+            <LoadingContainer>
+                <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} />
+            </LoadingContainer>
+        )
     }
 
     return (
         <Container>
-            <Chart
+            Feature coming soon!
+            {/* <Chart
                 width={'1000px'}
                 height={'600px'}
                 chartType="GeoChart"
                 data={countries}
-                mapsApiKey="scrambled"
+                mapsApiKey="YAIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"
                 rootProps={{ 'data-testid': '1' }}
                 options={{
                     defaultColor: '#55aac2',
+                    animation: {
+                        startup: true,
+                        duration: 2500,
+                    },
                 }}
-            />
+            /> */}
         </Container>
     )
 }

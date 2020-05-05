@@ -14,25 +14,18 @@ const Container = styled.div`
 }
 `
 const StyledLink = styled(Link)`
-    border-bottom: ${({ isSelected }) => (isSelected ? '2px solid black' : 'none')};
+    border-bottom: ${({ isselected }) => (isselected === 'true' ? '2px solid #3baba4' : 'none')};
     color: #000;
     cursor: pointer;
     text-decoration: none;
+
+    &:hover {
+        color: #3baba4;
+    }
 `
 
 const Title = styled.div`
     align-items: center;
-`
-
-const MAPPA = styled.div`
-    align-items: center;
-    border: 1px solid #55aac2;
-    border-radius: 40px;
-    color: #55aac2;
-    display: flex;
-    height: 70px;
-    text-align: center;
-    width: 70px;
 `
 
 const RightHandSide = styled.div`
@@ -43,27 +36,42 @@ const RightHandSide = styled.div`
     width: 300px;
 `
 
-export const Nav = ({ location, logUserOut }) => {
+const MAPPALink = styled(Link)`
+    align-items: center;
+    border: 1px solid #55aac2;
+    border-radius: 40px;
+    color: #55aac2;
+    display: flex;
+    height: 70px;
+    text-align: center;
+    text-decoration: none;
+    width: 70px;
+`
+
+export const Nav = ({ location, logUserOut, user }) => {
     const isSelected = (path) => {
-        return location.pathname.includes(path)
+        if (location.pathname.includes(path)) {
+            return 'true'
+        }
+        return 'false'
     }
 
     return (
         <Container>
             <Title>
-                <MAPPA>MAPPA MUNDI</MAPPA>
+                <MAPPALink to="/">MAPPA MUNDI</MAPPALink>
             </Title>
             <RightHandSide>
-                <StyledLink isSelected={isSelected('visited')} to="/visited">
+                <StyledLink isselected={isSelected('visited')} to="/visited">
                     Visited
                 </StyledLink>
-                <StyledLink isSelected={isSelected('map')} to="/map">
+                <StyledLink isselected={isSelected('map')} to="/map">
                     Your Map
                 </StyledLink>
-                <StyledLink isSelected={isSelected('login')} to="/login">
+                <StyledLink isselected={isSelected('login')} to="/login">
                     Account
                 </StyledLink>
-                <div onClick={logUserOut}>Logout</div>
+                {user ? <div onClick={logUserOut}>Logout</div> : null}
             </RightHandSide>
         </Container>
     )

@@ -1,8 +1,18 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import firebase from 'firebase'
 
 import { firebaseApp } from '../../config.mjs'
+
+const AccountContainer = styled.div`
+    background: #f4f4f4;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    margin-left: 200px;
+    min-height: 100px;
+    padding: 10px;
+    width: 250px;
+`
 
 const SignInButton = styled.div`
     align-items: center;
@@ -15,8 +25,23 @@ const SignInButton = styled.div`
     width: 180px;
 `
 
+const LoadingContainer = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    width: 200px;
+`
+
 export const Login = ({ setUser, user }) => {
+    const [loaded, setLoaded] = useState(false)
     const provider = new firebase.auth.GoogleAuthProvider()
+
+    useEffect(() => {
+        if (user) {
+            setLoaded(true)
+        }
+    }, [user])
 
     useEffect(() => {
         firebaseApp.auth().onAuthStateChanged((user) => {
@@ -26,44 +51,41 @@ export const Login = ({ setUser, user }) => {
                 console.log(user, 'user not loggedin')
             }
         })
-    }, [])
+    }, [user])
 
     const login = () => {
         firebaseApp
             .auth()
             .signInWithPopup(provider)
-            .then(function (result) {
-                // This gives you a Google Access Token. You can use it to access the Google API.
-                var token = result.credential.accessToken
-                // The signed-in user info.
-                var user = result.user
-
+            .then((result) => {
+                const { user } = result
                 setUser(user)
-                // ...
             })
-            .catch(function (error) {
-                // Handle Errors here.
-                var errorCode = error.code
-                var errorMessage = error.message
-                // The email of the user's account used.
-                var email = error.email
-                // The firebase.auth.AuthCredential type that was used.
-                var credential = error.credential
-                // ...
+            .catch((error) => {
+                console.err(error, 'the error is?')
             })
     }
 
-    return (
-        <div>
-            {user ? (
-                <div> You are logged in</div>
-            ) : (
-                <div>
-                    <SignInButton onClick={login}>
-                        <img src={'/images/google.png'} width="30" /> Sign in with Google{' '}
-                    </SignInButton>
-                </div>
-            )}
-        </div>
-    )
+    if (!loaded) {
+        return (
+            <LoadingContainer>
+                <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} />
+            </LoadingContainer>
+        )
+    }
+    if (user) {
+        return (
+            <div>
+                <AccountContainer>Welcome {user.displayName.split(' ')[0]}</AccountContainer>
+                <AccountContainer>Settings</AccountContainer>
+                <AccountContainer>Request new features</AccountContainer>
+            </div>
+        )
+    } else {
+        return (
+            <SignInButton onClick={login}>
+                <img src={'/images/google.png'} width="30" /> Sign in with Google
+            </SignInButton>
+        )
+    }
 }

@@ -1,24 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { Link } from '@reach/router'
-import { of, interval, Subject, timer } from 'rxjs'
-import { retryWhen, delayWhen } from 'rxjs/operators'
+import { Subject } from 'rxjs'
 
 import { Country } from 'components/country'
 import { CountryModal } from 'components/country-visited-modal'
-import { LoggedOut } from 'components/logged-out'
-import { createHttpObservable } from 'utils/'
+import { fadeIn } from 'components/react-modal-adapter'
 
 let inputStream = new Subject()
 
-let clickContinentStream = new Subject()
-
 const Container = styled.div`
-    align-items: center;
+    align-items: flex-end;
     display: flex;
     flex-direction: column;
     justify-content: center;
 `
+
 const VisitedTotal = styled.div`
     align-items: center;
     display: flex;
@@ -46,6 +42,7 @@ const Total = styled.div`
 `
 
 const CountriesList = styled.div`
+    animation: ${fadeIn} 1s;
     display: flex;
     flex-wrap: wrap;
     width: 900px;
@@ -60,12 +57,13 @@ const Input = styled.input`
 
 const AddVisit = styled.div`
     align-items: center;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 80px;
-    margin: 20px;
-    width: 120px;
+    height: 107px;
+    margin: 10px;
+    width: 198px;
 
     & > p {
         margin: 0;
@@ -86,7 +84,7 @@ const Continents = styled.div`
 
 const Continent = styled.div`
     align-items: center;
-    background: ${({ isSelected }) => (isSelected ? 'green' : '#fff')};
+    background: ${({ isselected }) => (isselected ? 'green' : '#fff')};
     border-radius: 8px;
     cursor: pointer;
     display: flex;
@@ -116,53 +114,27 @@ const ContinentsContainer = styled.div`
 const ContinentName = styled.div`
     text-align: center;
 `
+
+const LoadingContainer = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    width: 200px;
+`
+
 export const Visited = (props) => {
     const [countries, setCountries] = useState([])
     const [filteredCountries, setFilteredCountries] = useState([])
     const [selectedContinent, setSelectedContinent] = useState(null)
     const [isModalOpen, setModalOpen] = useState(false)
-    // const [notifications, setNotifications] = useState([])
+    const [loaded, setLoaded] = useState(false)
 
     useEffect(() => {
-        if (props.user) {
-            getCountries()
-        }
-        // fetchNotificationsOldSchool()
-        // fetchNotificationsRxJs()
-    }, [props.user])
-
-    const fetchNotificationsOldSchool = async () => {
-        // try {
-        //     await fetch('/api/notifications')
-        //         .then((res) => res.json())
-        //         .then((data) => setNotifications(data))
-        // } catch (e) {
-        //     console.err(e)
-        // }
-    }
-
-    // const fetchNotificationsRxJs = () => {
-    //     const http$ = createHttpObservable('/api/notifications')
-    //     const ex = http$.pipe(retryWhen((errors) => errors.pipe(delayWhen(() => timer(2000)))))
-
-    //     ex.subscribe((data) => setNotifications(data))
-
-    //     // return http$.subscribe((data) => setNotifications(data))
-    // }
-
-    const getCountries = () => {
-        try {
-            const http$ = createHttpObservable(`/api/${props.user.uid}/visited`)
-            return http$.subscribe((data) => updateCountriesOnMount(data))
-        } catch (e) {
-            console.log(e, 'err')
-        }
-    }
-
-    const updateCountriesOnMount = (data) => {
-        setCountries(data)
-        setFilteredCountries(data)
-    }
+        setCountries(props.userVisitedCountries)
+        setFilteredCountries(props.userVisitedCountries)
+        setLoaded(true)
+    }, [])
 
     const filterCountriesByValue = (value) => {
         if (!value) {
@@ -172,9 +144,11 @@ export const Visited = (props) => {
     }
 
     const filterCountriesByContinent = (continent) => {
+        setSelectedContinent(continent)
         if (!continent) {
             return setFilteredCountries(countries)
         }
+        console.log(countries, 'count')
         return setFilteredCountries(countries.filter((country) => country.continent === continent.name))
     }
 
@@ -189,65 +163,67 @@ export const Visited = (props) => {
         { name: 'South America', svg: '/images/continents/south-america' },
     ]
 
-    return (
+    return loaded ? (
         <Container>
-            {props.user ? (
-                <CountriesVisitedContainer>
-                    <div>
-                        <VisitedTotal>
-                            <p>Visited</p>
-                            <Total>{countries ? `${countries.length} / 195` : '0 / 195'}</Total>
-                        </VisitedTotal>
-                        <CountriesList>
-                            <AddVisit onClick={() => setModalOpen(true)}>
-                                <img src={'/images/addTrip.svg'} />
-                                <p>Add a visit</p>
-                            </AddVisit>
+            <CountriesVisitedContainer>
+                <div>
+                    <VisitedTotal>
+                        <p>Visited</p>
+                        <Total>{countries ? `${countries.length} / 195` : '0 / 195'}</Total>
+                    </VisitedTotal>
+                    <CountriesList>
+                        <AddVisit onClick={() => setModalOpen(true)}>
+                            <img src={'/images/addTrip.svg'} />
+                            <p>Add a visit</p>
+                        </AddVisit>
 
-                            {countries.length ? (
-                                filteredCountries.map((country) => (
-                                    <Country country={country} selectedContinent={selectedContinent} />
-                                ))
-                            ) : (
-                                <div>You have no trips recorded so far</div>
-                            )}
-                        </CountriesList>
-                    </div>
+                        {countries.length ? (
+                            filteredCountries.map((country) => (
+                                <Country key={country.name} country={country} selectedContinent={selectedContinent} />
+                            ))
+                        ) : (
+                            <div>You have no trips recorded so far</div>
+                        )}
+                    </CountriesList>
+                </div>
 
-                    <CountryModal
-                        isModalOpen={isModalOpen}
-                        options={props.options}
-                        setModalOpen={setModalOpen}
-                        user={props.user}
+                <CountryModal
+                    isModalOpen={isModalOpen}
+                    options={props.options}
+                    restAPICountries={props.restAPICountries}
+                    setModalOpen={setModalOpen}
+                    user={props.user}
+                />
+
+                <ContinentsContainer>
+                    <p>Filter by continent</p>
+                    <Continents>
+                        {continents.map((continent) => (
+                            <Continent
+                                onClick={() => filterCountriesByContinent(continent)}
+                                isselected={
+                                    selectedContinent &&
+                                    selectedContinent.name.toLowerCase() === continent.name.toLowerCase()
+                                }
+                            >
+                                <img src={`${continent.svg}.svg`} width="50" />
+                                <ContinentName>{continent.name.toUpperCase()}</ContinentName>
+                            </Continent>
+                        ))}
+                    </Continents>
+                    <button onClick={() => filterCountriesByContinent(null)}>reset</button>
+
+                    <Input
+                        onChange={(e) => inputStream.next(e.target.value)}
+                        placeholder="or start typing country name..."
                     />
-
-                    <ContinentsContainer>
-                        <p>Filter by continent</p>
-                        <Continents>
-                            {continents.map((continent) => (
-                                <Continent
-                                    onClick={() => filterCountriesByContinent(continent)}
-                                    isSelected={
-                                        selectedContinent &&
-                                        selectedContinent.name.toLowerCase() === continent.name.toLowerCase()
-                                    }
-                                >
-                                    <img src={`${continent.svg}.svg`} width="50" />
-                                    <ContinentName>{continent.name.toUpperCase()}</ContinentName>
-                                </Continent>
-                            ))}
-                        </Continents>
-                        <Input
-                            onChange={(e) => inputStream.next(e.target.value)}
-                            placeholder="or start typing country name..."
-                        />
-                    </ContinentsContainer>
-                </CountriesVisitedContainer>
-            ) : (
-                <LoggedOut />
-            )}
+                </ContinentsContainer>
+            </CountriesVisitedContainer>
         </Container>
+    ) : (
+        <LoadingContainer>
+            <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} />
+            Retrieving countries...
+        </LoadingContainer>
     )
 }
-
-//

@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import Modal from 'react-modal'
+
+import { ReactModalAdapter, fadeIn } from 'components/react-modal-adapter'
 
 const Bottom = styled.div`
     align-items: center;
@@ -72,22 +73,42 @@ const CountryNameAndVisitTotalCombined = styled.div`
     }
 `
 
-const modalStyles = {
-    content: {
-        border: 'none',
-        height: '550px',
-        margin: 'auto',
-        padding: 0,
-        width: '800px',
-    },
-    overlay: {
-        background: 'rgba(49, 49, 49, 0.9)',
-    },
-}
+const StyledModal = styled(ReactModalAdapter)`
+    &__overlay {
+        &.ReactModal__Overlay--before-close {
+            transition: all 500ms ease-in-out;
+            opacity: 0;
+        }
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        background: rgba(49, 49, 49, 0.9);
+    }
+
+    &__content {
+        animation: ${fadeIn} 1s;
+        position: absolute;
+        top: 40px;
+        left: 40px;
+        right: 40px;
+        bottom: 40px;
+        border: none;
+        background: #fff;
+        overflow: auto;
+        border-radius: 4px;
+        outline: none;
+        padding: 0;
+        height: 550px;
+        margin: auto;
+        width: 800px;
+    }
+`
 
 export const CountryInformation = ({ country, setShowModal, showModal }) => {
     return (
-        <Modal isOpen={true} style={modalStyles}>
+        <StyledModal isOpen={showModal} closeTimeoutMS={500} ariaHideApp={false}>
             <ModalInner>
                 <Top>
                     <Image src={country.flag} />
@@ -101,7 +122,7 @@ export const CountryInformation = ({ country, setShowModal, showModal }) => {
                 </Top>
                 <Bottom>
                     {country.visits.map((visit) => (
-                        <Visit>
+                        <Visit key={visit.visitName}>
                             <div>{visit.visitName}</div>
                             <div>
                                 {visit.startDate} - {visit.endDate}
@@ -111,6 +132,6 @@ export const CountryInformation = ({ country, setShowModal, showModal }) => {
                     ))}
                 </Bottom>
             </ModalInner>
-        </Modal>
+        </StyledModal>
     )
 }

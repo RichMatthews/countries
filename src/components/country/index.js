@@ -5,13 +5,15 @@ import { CountryInformation } from 'components/country-information'
 
 const Container = styled.div`
     align-items: center;
+    background: #fff;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 80px;
-    margin: 20px;
-    width: 125px;
+    height: 107px;
+    margin: 10px;
+    width: 198px;
+}
 `
 
 const CountryName = styled.div`
@@ -30,9 +32,11 @@ export const Country = ({ country, selectedContinent }) => {
     return country ? (
         <>
             <Container onClick={() => setShowModal(true)} selectedContinent={selectedContinent === country.continent}>
-                <img src={country.flag} width="50" />
+                <img src={country.flag} width="50" alt="flag" />
                 <CountryName>{country.name}</CountryName>
-                <CountryVisits>{country.visits.length} trips</CountryVisits>
+                <CountryVisits>
+                    {country.visits.length === 1 ? `${country.visits.length} trip` : `${country.visits.length} trips`}
+                </CountryVisits>
             </Container>
             {showModal ? (
                 <CountryInformation country={country} setShowModal={setShowModal} showModal={showModal} />
