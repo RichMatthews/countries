@@ -1,85 +1,25 @@
-import React, { useState } from 'react'
-import styled from 'styled-components'
+import React, { useEffect, useRef, useState } from 'react'
+import { connect } from 'react-redux'
 import { Observable, timer } from 'rxjs'
 import { retryWhen, delayWhen } from 'rxjs/operators'
-import Calendar from 'react-calendar'
+import styled from 'styled-components'
 import moment from 'moment'
-import 'react-calendar/dist/Calendar.css'
 import Select from 'react-select'
+import { sortBy } from 'underscore'
 
 import { fadeIn, ReactModalAdapter } from 'components/react-modal-adapter'
+import { ButtonAndSuccessSection } from 'components/country-visited-modal/components/button-and-success-section'
+import { CalendarField } from 'components/country-visited-modal/components/calendar'
+import { CompanionsField } from 'components/country-visited-modal/components/companions'
+import { SearchCountryField } from 'components/country-visited-modal/components/search-country'
+import { VisitNameField } from 'components/country-visited-modal/components/visit-name'
+import { setRESTAPICountries } from 'redux/action-creators/countries/set-rest-api-countries'
+import { createHttpObservable } from 'utils/'
 
 const AddVisit = styled.div`
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
-`
-
-const StyledCalendar = styled(Calendar)`
-    position: absolute;
-    top: 100px;
-    z-index: 9;
-`
-
-const customStyles = {
-    control: (base) => ({
-        ...base,
-        fontSize: 15,
-        marginBottom: 20,
-        minHeight: 50,
-        paddingLeft: 30,
-    }),
-}
-
-const Input = styled.input`
-    border: none;
-    border: solid 1px #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-    font-size: 15px;
-    margin-bottom: 20px;
-    padding: 15px;
-    padding-left: 40px;
-    width: 100%;
-`
-
-const DateComponent = styled.div`
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    color: #757575;
-    font-size: 15px;
-    margin-bottom: 20px;
-    padding: 15px;
-
-    & > div {
-        padding-left: 25px;
-    }
-`
-
-const Image = styled.img`
-    margin-left: 8px;
-    margin-top: 8px;
-    position: absolute;
-    width: 25px;
-`
-
-const TripImage = styled(Image)`
-    margin-left: 10px;
-    margin-top: 14px;
-`
-
-const CompanionImage = styled(Image)`
-    margin-left: 11px;
-    margin-top: 12px;
-`
-const CalendarImage = styled(Image)`
-    margin-left: -5px;
-    margin-top: -3px;
-`
-
-const WorldImage = styled(Image)`
-    margin-top: 13px;
-    z-index: 100;
 `
 
 const ModalContent = styled.div`
@@ -94,21 +34,6 @@ const ClosedIcon = styled.img`
     right: 20px;
     top: 20px;
     width: 13px;
-`
-
-const Button = styled.div`
-    align-items: center;
-    background: #3baba4;
-    color: #fff;
-    cursor: pointer;
-    border-radius: 8px;
-    display: flex;
-    height: 50px;
-    justify-content: center;
-`
-
-const FormError = styled.div`
-    color: red;
 `
 
 const StyledModal = styled(ReactModalAdapter)`
@@ -144,7 +69,16 @@ const StyledModal = styled(ReactModalAdapter)`
     }
 `
 
-export const CountryModal = ({ isModalOpen, options, restAPICountries, setModalOpen, user }) => {
+export const CountryModal = ({
+    countries,
+    isModalOpen,
+    options,
+    restAPICountries,
+    setModalOpen,
+    setUserVisitedCountries,
+    userVisitedCountries,
+    user,
+}) => {
     const [calendar, showCalendar] = useState(false)
     const [country, setCountry] = useState(null)
     const [date, setDate] = useState(null)
@@ -154,7 +88,21 @@ export const CountryModal = ({ isModalOpen, options, restAPICountries, setModalO
     const [success, setSuccess] = useState(null)
     const [visitName, setVisitName] = useState(null)
 
-    const setDateHelper = (date) => {
+    const usePrevious = (value) => {
+        const ref = useRef()
+        useEffect(() => {
+            ref.current = value
+        })
+        return ref.current
+    }
+
+    const prevAmount = usePrevious(formErrors)
+
+    useEffect(() => {
+        setRESTAPICountries(restAPICountries)
+    }, [restAPICountries])
+
+    const calendarFormatter = (date) => {
         const from = moment(date[0]).format('Do MMM YYYY')
         const to = moment(date[1]).format('Do MMM YYYY')
         setDate(`${from} - ${to}`)
@@ -172,6 +120,8 @@ export const CountryModal = ({ isModalOpen, options, restAPICountries, setModalO
         fields.forEach((field) => {
             if (!field.stateName) {
                 newErrors = { ...newErrors, [field.name]: 'error' }
+            } else {
+                newErrors = { ...newErrors, [field.name]: '' }
             }
         })
         setFormErrors(newErrors)
@@ -179,15 +129,22 @@ export const CountryModal = ({ isModalOpen, options, restAPICountries, setModalO
     }
 
     const submitCountryDetailsToBackend = async () => {
-        if (!isFormValid()) {
-            return
-        }
         setLoading(true)
         const userID = user.uid
-        const retrieveFlagAndContinent = restAPICountries.filter((ctry) => ctry.name === country)
-        const flag = retrieveFlagAndContinent[0].flag
-        const continent = retrieveFlagAndContinent[0].region
-        const postHttpObservable = () => {
+        const selectedCountryDetails = countries.restAPICountries.filter((ctry) => ctry.name === country)
+        const flag = selectedCountryDetails[0].flag
+        const continent = selectedCountryDetails[0].region
+
+        const newCountry = {
+            continent,
+            name: country,
+            date,
+            flag,
+            people,
+            visitName,
+            userID,
+        }
+        const postHttpObservable = (newCountry) => {
             return Observable.create((observer) => {
                 fetch('https://eaq7kxyf7d.execute-api.us-east-1.amazonaws.com/countries/add-country', {
                     method: 'POST',
@@ -195,7 +152,7 @@ export const CountryModal = ({ isModalOpen, options, restAPICountries, setModalO
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ continent, country, date, flag, people, visitName, userID }),
+                    body: JSON.stringify({ ...newCountry }),
                 })
                     .then((res) => res.json())
                     .then((body) => {
@@ -208,54 +165,49 @@ export const CountryModal = ({ isModalOpen, options, restAPICountries, setModalO
 
         const http$ = postHttpObservable()
         const submit = http$.pipe(retryWhen((errors) => errors.pipe(delayWhen(() => timer(2000)))))
-        submit.subscribe((details) => setLoadingAndShowSuccessMessage(details))
+        submit.subscribe((details) => setLoadingAndShowSuccessMessage(details, newCountry))
     }
 
-    const setLoadingAndShowSuccessMessage = (details) => {
+    const setLoadingAndShowSuccessMessage = (details, newCountry) => {
         setLoading(false)
         setSuccess(details.message)
+        setModalOpen(false)
+        setUserVisitedCountries(sortArray(newCountry))
+    }
+
+    const sortArray = (newCountry) => {
+        const newCountries = [...userVisitedCountries, newCountry]
+        // const sortedArray = sortBy([newCountries], 'name')
+        setUserVisitedCountries(newCountries)
     }
 
     return (
         <StyledModal isOpen={isModalOpen} closeTimeoutMS={500} ariaHideApp={false}>
             <ModalContent>
-                <ClosedIcon src="/images/cancel.svg" onClick={() => setModalOpen(false)} />
-                <AddVisit>ADD A VISIT</AddVisit>
                 <div>
-                    <TripImage src="/images/trip-name.svg" />
-                    {formErrors && formErrors.visitName ? <FormError>You need to enter a name</FormError> : null}
+                    <ClosedIcon src="/images/cancel.svg" onClick={() => setModalOpen(false)} />
+                    <AddVisit>ADD A VISIT</AddVisit>
                 </div>
-                <Input placeholder="Give the visit a memorable name" onChange={(e) => setVisitName(e.target.value)} />
-                {formErrors && formErrors.country ? <FormError>You need to enter a country</FormError> : null}
-                <div>
-                    <WorldImage src="/images/small-world.svg" />
-                    <Select
-                        maxMenuHeight={190}
-                        onChange={(country) => setCountry(country.value)}
-                        options={options}
-                        placeholder="Start typing to find a country..."
-                        styles={customStyles}
-                    />
-                </div>
-                {formErrors && formErrors.date ? <FormError>You need to enter a date</FormError> : null}
-                <DateComponent onClick={() => showCalendar(!calendar)} value={date}>
-                    <CalendarImage src="/images/calendar.svg" />
-                    <div>{date ? date : 'Select date'}</div>
-                </DateComponent>
-                {calendar ? (
-                    <>
-                        <StyledCalendar selectRange onChange={(date) => setDateHelper(date)} />
-                    </>
-                ) : null}
-
-                {formErrors && formErrors.people ? <FormError>You need say who you went with</FormError> : null}
-                <CompanionImage src="/images/companion.svg" />
-                <Input placeholder="Who did you go with" onChange={(e) => setPeople(e.target.value)} />
-                <Button onClick={submitCountryDetailsToBackend}>Save</Button>
-
-                <div>{success || null}</div>
-                {isLoading ? <Image src="/images/loading.gif" width="30" style={{ margin: 'auto' }} /> : null}
+                <VisitNameField setVisitName={setVisitName} />
+                <SearchCountryField options={countries.selectOptions} setCountry={setCountry} />
+                <CalendarField />
+                <CompanionsField setPeope={setPeople} />
+                <ButtonAndSuccessSection
+                    submitCountryDetailsToBackend={submitCountryDetailsToBackend}
+                    success={success}
+                />
             </ModalContent>
         </StyledModal>
     )
 }
+
+const mapState = ({ countries, user }) => ({
+    countries,
+    user,
+})
+
+const mapDispatch = {
+    setRESTAPICountries,
+}
+
+export const CONNECTED_CountryModal = connect(mapState, mapDispatch)(CountryModal)

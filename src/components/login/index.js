@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import firebase from 'firebase'
+import { connect } from 'react-redux'
 
+import { setUser } from 'redux/action-creators/user/set-user'
 import { firebaseApp } from '../../config.mjs'
 
 const AccountContainer = styled.div`
@@ -33,25 +35,8 @@ const LoadingContainer = styled.div`
     width: 200px;
 `
 
-export const Login = ({ setUser, user }) => {
-    const [loaded, setLoaded] = useState(false)
+export const Login = ({ loaded, setUser, user }) => {
     const provider = new firebase.auth.GoogleAuthProvider()
-
-    useEffect(() => {
-        if (user) {
-            setLoaded(true)
-        }
-    }, [user])
-
-    useEffect(() => {
-        firebaseApp.auth().onAuthStateChanged((user) => {
-            if (user) {
-                setUser(user)
-            } else {
-                console.log(user, 'user not loggedin')
-            }
-        })
-    }, [user])
 
     const login = () => {
         firebaseApp
@@ -66,26 +51,35 @@ export const Login = ({ setUser, user }) => {
             })
     }
 
-    if (!loaded) {
-        return (
-            <LoadingContainer>
-                <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} />
-            </LoadingContainer>
-        )
-    }
-    if (user) {
-        return (
-            <div>
-                <AccountContainer>Welcome {user.displayName.split(' ')[0]}</AccountContainer>
-                <AccountContainer>Settings</AccountContainer>
-                <AccountContainer>Request new features</AccountContainer>
-            </div>
-        )
-    } else {
-        return (
-            <SignInButton onClick={login}>
-                <img src={'/images/google.png'} width="30" /> Sign in with Google
-            </SignInButton>
-        )
-    }
+    return loaded ? (
+        <div>
+            {user.isLoggedIn ? (
+                <>
+                    {/* <AccountContainer>Welcome {user.displayName.split(' ')[0]}</AccountContainer> */}
+                    {console.log(user, 'usa')}
+                    <AccountContainer>Settings</AccountContainer>
+                    <AccountContainer>Request new features</AccountContainer>
+                </>
+            ) : (
+                <SignInButton onClick={login}>
+                    <img src={'/images/google.png'} width="30" /> Sign in with Google
+                </SignInButton>
+            )}
+        </div>
+    ) : (
+        <LoadingContainer>
+            <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} />
+        </LoadingContainer>
+    )
 }
+
+const mapState = ({ countries, user }) => ({
+    countries,
+    user,
+})
+
+const mapDispatch = {
+    setUser,
+}
+
+export const CONNECTED_Login = connect(mapState, mapDispatch)(Login)

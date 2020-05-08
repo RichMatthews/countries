@@ -19,17 +19,19 @@ const ModalInner = styled.div`
 `
 
 const CountryHeading = styled.h3`
-    color: white;
-    font-size: 48px;
-    display: flex;
-    align-items: center;
+    color: #fff;
     margin: 0;
-    text-align: center;
+    font-style: normal;
+    font-weight: 900;
+    font-size: 48px;
+    line-height: 60px;
+    text-transform: uppercase;
+    text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.2);
 `
 
 const Top = styled.div`
     align-items: center;
-    background: url(/images/beach.jpg) center no-repeat;
+    background: ${({ country }) => 'url(/images/beach.jpg) center no-repeat'};
     background-size: 800px;
     display: flex;
     justify-content: center;
@@ -43,8 +45,9 @@ const Close = styled.div`
 `
 
 const Visit = styled.div`
-    background: #55aac2;
+    background: #ebeced;
     border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(41, 51, 57, 0.5);
     display: flex;
     flex-direction: column;
     margin-bottom: 5px;
@@ -52,20 +55,18 @@ const Visit = styled.div`
     width: 80%;
 `
 
-const Image = styled.img`
-    border-radius: 50%;
-    height: 60px;
-    width: 60px;
-`
-
 const CloseImage = styled.img`
     position: absolute;
-    top: -65px;
+    top: -90px;
     right: 0;
     width: 15px;
 `
 
 const CountryNameAndVisitTotalCombined = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     & > p {
         color: #fff;
         font-size: 24px;
@@ -106,12 +107,28 @@ const StyledModal = styled(ReactModalAdapter)`
     }
 `
 
+const ImageContainer = styled.div`
+    border-radius: 50%;
+    height: 80px;
+    position: relative;
+    overflow: hidden;
+    width: 80px;
+`
+
+const Image = styled.img`
+    height: 100%;
+    width: 100%;
+    clip-path: circle(50%);
+`
+
 export const CountryInformation = ({ country, setShowModal, showModal }) => {
     return (
         <StyledModal isOpen={showModal} closeTimeoutMS={500} ariaHideApp={false}>
             <ModalInner>
-                <Top>
-                    <Image src={country.flag} />
+                <Top country={country}>
+                    <ImageContainer>
+                        <Image src={country.flag} />
+                    </ImageContainer>
                     <CountryNameAndVisitTotalCombined>
                         <CountryHeading>{country.name}</CountryHeading>
                         <p>You've visited {country.visits.length} times</p>

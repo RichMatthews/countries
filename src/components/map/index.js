@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Chart } from 'react-google-charts'
-import { shuffle } from 'underscore'
-
-import { createHttpObservable } from 'utils/'
+import { connect } from 'react-redux'
 
 const Container = styled.div`
     display: flex;
@@ -19,12 +17,18 @@ const LoadingContainer = styled.div`
     width: 200px;
 `
 
-export const Map = ({ userVisitedCountries }) => {
-    const [countries, setCountries] = useState([[]])
+const StyledChart = styled(Chart)`
+    & > * {
+        stroke: red !important;
+    }
+`
+
+export const Map = ({ user }) => {
+    const [mapCountries, setCountriesInMapReadableForm] = useState([['country']])
     const [loaded, setLoaded] = useState()
 
     useEffect(() => {
-        setCountries(userVisitedCountries)
+        // setCountriesInMapReadableForm(mapCountries.concat(user.userVisitedCountries))
         setLoaded(true)
     }, [])
 
@@ -36,14 +40,15 @@ export const Map = ({ userVisitedCountries }) => {
         )
     }
 
+    const testCountries = [['Country'], ['Australia'], ['Belgium'], ['India'], ['Ukraine']]
+
     return (
         <Container>
-            Feature coming soon!
-            {/* <Chart
+            <StyledChart
                 width={'1000px'}
                 height={'600px'}
                 chartType="GeoChart"
-                data={countries}
+                data={testCountries}
                 mapsApiKey="YAIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"
                 rootProps={{ 'data-testid': '1' }}
                 options={{
@@ -53,7 +58,13 @@ export const Map = ({ userVisitedCountries }) => {
                         duration: 2500,
                     },
                 }}
-            /> */}
+            />
         </Container>
     )
 }
+
+const mapState = ({ user }) => ({
+    user,
+})
+
+export const CONNECTED_Map = connect(mapState)(Map)

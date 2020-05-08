@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Subject } from 'rxjs'
+import { connect } from 'react-redux'
+import { fetchData, fetchRESTCountries } from 'redux/action-creators/countries/get-user-visited-countries'
+import { setRESTAPICountries } from 'redux/action-creators/countries/set-rest-api-countries'
 
 import { Country } from 'components/country'
-import { CountryModal } from 'components/country-visited-modal'
+import { CONNECTED_CountryModal } from 'components/country-visited-modal'
 import { fadeIn } from 'components/react-modal-adapter'
 
 let inputStream = new Subject()
@@ -51,8 +54,13 @@ const CountriesList = styled.div`
 const Input = styled.input`
     border-radius: 5px;
     border: 1px solid #ccc2c9;
-    padding: 10px;
-    width: 200px;
+    color: #474747;
+    font-weight: bold;
+    font-size: 12px;
+    height: 30px;
+    margin: 10px 0 10px 0;
+    text-align: center;
+    width: 65%;
 `
 
 const AddVisit = styled.div`
@@ -84,7 +92,8 @@ const Continents = styled.div`
 
 const Continent = styled.div`
     align-items: center;
-    background: ${({ isselected }) => (isselected ? 'green' : '#fff')};
+    background: ${({ isselected }) => (isselected ? '#54e1e8' : '#fff')};
+    color: ${({ isselected }) => (isselected ? '#fff' : '#113331')};
     border-radius: 8px;
     cursor: pointer;
     display: flex;
@@ -92,17 +101,19 @@ const Continent = styled.div`
     flex-direction: column;
     height: 100px;
     margin: 10px;
+    padding: 6px;
     width: 100px;
 `
 
 const ContinentsContainer = styled.div`
     align-items: center;
-    background: #3baba4;
+    background: #323c46;
     border-radius: 10px;
     display: flex;
+    height: 400px;
     flex-direction: column;
     justify-content: center;
-    height: 350px;
+    padding: 10px;
     width: 400px;
 
     & > p {
@@ -112,7 +123,9 @@ const ContinentsContainer = styled.div`
 `
 
 const ContinentName = styled.div`
+    padding-top: 10px;
     text-align: center;
+    text-transform: uppercase;
 `
 
 const LoadingContainer = styled.div`
@@ -123,18 +136,31 @@ const LoadingContainer = styled.div`
     width: 200px;
 `
 
-export const Visited = (props) => {
-    const [countries, setCountries] = useState([])
+const ResetButton = styled.div`
+    align-items: center;
+    background: #113331;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    height: 30px;
+    font-size: 12px;
+    justify-content: center;
+    text-align: center;
+    width: 66%;
+`
+
+const Visited = ({ countries, fetchData, fetchRESTCountries, user }) => {
     const [filteredCountries, setFilteredCountries] = useState([])
-    const [selectedContinent, setSelectedContinent] = useState(null)
     const [isModalOpen, setModalOpen] = useState(false)
     const [loaded, setLoaded] = useState(false)
+    const [selectedContinent, setSelectedContinent] = useState(null)
 
     useEffect(() => {
-        setCountries(props.userVisitedCountries)
-        setFilteredCountries(props.userVisitedCountries)
+        fetchData()
+        setFilteredCountries(user.userVisitedCountries)
         setLoaded(true)
-    }, [])
+    }, [user.userVisitedCountries])
 
     const filterCountriesByValue = (value) => {
         if (!value) {
@@ -148,7 +174,7 @@ export const Visited = (props) => {
         if (!continent) {
             return setFilteredCountries(countries)
         }
-        console.log(countries, 'count')
+
         return setFilteredCountries(countries.filter((country) => country.continent === continent.name))
     }
 
@@ -169,15 +195,14 @@ export const Visited = (props) => {
                 <div>
                     <VisitedTotal>
                         <p>Visited</p>
-                        <Total>{countries ? `${countries.length} / 195` : '0 / 195'}</Total>
+                        <Total>{countries ? `${user.userVisitedCountries.length} / 195` : '0 / 195'}</Total>
                     </VisitedTotal>
                     <CountriesList>
                         <AddVisit onClick={() => setModalOpen(true)}>
                             <img src={'/images/addTrip.svg'} />
                             <p>Add a visit</p>
                         </AddVisit>
-
-                        {countries.length ? (
+                        {user && filteredCountries.length ? (
                             filteredCountries.map((country) => (
                                 <Country key={country.name} country={country} selectedContinent={selectedContinent} />
                             ))
@@ -187,16 +212,10 @@ export const Visited = (props) => {
                     </CountriesList>
                 </div>
 
-                <CountryModal
-                    isModalOpen={isModalOpen}
-                    options={props.options}
-                    restAPICountries={props.restAPICountries}
-                    setModalOpen={setModalOpen}
-                    user={props.user}
-                />
+                <CONNECTED_CountryModal isModalOpen={isModalOpen} setModalOpen={setModalOpen} />
 
                 <ContinentsContainer>
-                    <p>Filter by continent</p>
+                    <p>Filter Visits</p>
                     <Continents>
                         {continents.map((continent) => (
                             <Continent
@@ -207,16 +226,16 @@ export const Visited = (props) => {
                                 }
                             >
                                 <img src={`${continent.svg}.svg`} width="50" />
-                                <ContinentName>{continent.name.toUpperCase()}</ContinentName>
+                                <ContinentName>{continent.name}</ContinentName>
                             </Continent>
                         ))}
                     </Continents>
-                    <button onClick={() => filterCountriesByContinent(null)}>reset</button>
 
                     <Input
                         onChange={(e) => inputStream.next(e.target.value)}
-                        placeholder="or start typing country name..."
+                        placeholder="Or start typing country name..."
                     />
+                    <ResetButton onClick={() => filterCountriesByContinent(null)}>Reset</ResetButton>
                 </ContinentsContainer>
             </CountriesVisitedContainer>
         </Container>
@@ -227,3 +246,16 @@ export const Visited = (props) => {
         </LoadingContainer>
     )
 }
+
+const mapState = ({ countries, user }) => ({
+    countries,
+    user,
+})
+
+const mapDispatch = {
+    setRESTAPICountries,
+    fetchData,
+    fetchRESTCountries,
+}
+
+export const CONNECTED_Visited = connect(mapState, mapDispatch)(Visited)

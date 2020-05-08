@@ -1,6 +1,9 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import styled from 'styled-components'
 import { Link } from '@reach/router'
+
+import { BRAND_COLOR } from 'styles'
 
 const Container = styled.div`
     align-items: center;    
@@ -14,13 +17,13 @@ const Container = styled.div`
 }
 `
 const StyledLink = styled(Link)`
-    border-bottom: ${({ isselected }) => (isselected === 'true' ? '2px solid #3baba4' : 'none')};
-    color: #000;
+    border-bottom: ${({ isselected }) => (isselected === 'true' ? `2px solid ${BRAND_COLOR}` : 'none')};
+    color: #ccc2c9;
     cursor: pointer;
     text-decoration: none;
 
     &:hover {
-        color: #3baba4;
+        color: ${BRAND_COLOR};
     }
 `
 
@@ -33,14 +36,14 @@ const RightHandSide = styled.div`
     color: #ccc2c9;
     display: flex;
     justify-content: space-between;
-    width: 300px;
+    width: 350px;
 `
 
 const MAPPALink = styled(Link)`
     align-items: center;
-    border: 1px solid #55aac2;
+    border: 1px solid #ccc2c9;
     border-radius: 40px;
-    color: #55aac2;
+    color: #ccc2c9;
     display: flex;
     height: 70px;
     text-align: center;
@@ -68,11 +71,20 @@ export const Nav = ({ location, logUserOut, user }) => {
                 <StyledLink isselected={isSelected('map')} to="/map">
                     Your Map
                 </StyledLink>
+                <StyledLink isselected={isSelected('stats')} to="/stats">
+                    Stats
+                </StyledLink>
                 <StyledLink isselected={isSelected('login')} to="/login">
                     Account
                 </StyledLink>
-                {user ? <div onClick={logUserOut}>Logout</div> : null}
+                {user.isLoggedIn ? <div onClick={logUserOut}>Logout</div> : <div>Login</div>}
             </RightHandSide>
         </Container>
     )
 }
+
+const mapState = ({ user }) => ({
+    user,
+})
+
+export const CONNECTED_Nav = connect(mapState)(Nav)

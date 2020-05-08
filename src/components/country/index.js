@@ -5,7 +5,7 @@ import { CountryInformation } from 'components/country-information'
 
 const Container = styled.div`
     align-items: center;
-    background: #fff;
+    background: #323C46;
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -17,6 +17,7 @@ const Container = styled.div`
 `
 
 const CountryName = styled.div`
+    color: #b6b6b6;
     font-size: 18px;
     font-weight: 900;
     margin-top: 10px;

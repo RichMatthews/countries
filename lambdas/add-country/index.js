@@ -1,6 +1,7 @@
 const firebase = require('firebase')
 
 const firebaseConfig = {
+    apiKey: 'AIzaSyBEBd5lVUlDr3CUYPDR2qhE-5RRjRBuD8M',
     authDomain: 'countries-5e1e5.firebaseapp.com',
     databaseURL: 'https://countries-5e1e5.firebaseio.com',
     projectId: 'countries-5e1e5',
@@ -13,6 +14,7 @@ const firebaseConfig = {
 const firebaseApp = firebase.initializeApp(firebaseConfig)
 
 exports.handler = (event, context, callback) => {
+    context.callbackWaitsForEmptyEventLoop = false
     const { continent, country, date, flag, people, visitName, userID } = event
     const setSchema = {
         continent,
