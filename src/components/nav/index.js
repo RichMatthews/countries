@@ -12,6 +12,7 @@ const Container = styled.div`
     justify-content: space-between;
     max-height: 63px;
     margin: auto;
+    margin-bottom: 20px;
     padding: 15px;
     width: 1100px;
 }
@@ -51,6 +52,10 @@ const MAPPALink = styled(Link)`
     width: 70px;
 `
 
+const LogOutInBtn = styled.div`
+    cursor: pointer;
+`
+
 export const Nav = ({ location, logUserOut, user }) => {
     const isSelected = (path) => {
         if (location.pathname.includes(path)) {
@@ -77,7 +82,11 @@ export const Nav = ({ location, logUserOut, user }) => {
                 <StyledLink isselected={isSelected('login')} to="/login">
                     Account
                 </StyledLink>
-                {user.isLoggedIn ? <div onClick={logUserOut}>Logout</div> : <div>Login</div>}
+                {user.isLoggedIn ? (
+                    <LogOutInBtn onClick={logUserOut}>Logout</LogOutInBtn>
+                ) : (
+                    <LogOutInBtn>Login</LogOutInBtn>
+                )}
             </RightHandSide>
         </Container>
     )

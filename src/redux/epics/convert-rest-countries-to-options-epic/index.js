@@ -10,11 +10,12 @@ const restCountriesOptionsGenerated = (payload) => ({ type: 'REST_COUNTRIES_OPTI
 const convertCountriesToOptions = (countries) => {
     let newCountries = []
     countries.map((country) => {
-        const optionsObjec = {
+        const optionsObject = {
             value: country.name,
             label: country.name,
+            flag: country.flag,
         }
-        newCountries.push(optionsObjec)
+        newCountries.push(optionsObject)
     })
     return newCountries
 }

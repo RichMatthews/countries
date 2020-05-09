@@ -45,14 +45,18 @@ const Close = styled.div`
 `
 
 const Visit = styled.div`
-    background: #ebeced;
     border-radius: 6px;
     box-shadow: 0 1px 4px rgba(41, 51, 57, 0.5);
+    color: #ccc;
     display: flex;
     flex-direction: column;
     margin-bottom: 5px;
     padding: 10px;
     width: 80%;
+
+    & > div {
+        background: #323c46;
+    }
 `
 
 const CloseImage = styled.img`
@@ -96,7 +100,7 @@ const StyledModal = styled(ReactModalAdapter)`
         right: 40px;
         bottom: 40px;
         border: none;
-        background: #fff;
+        background: #283039;
         overflow: auto;
         border-radius: 4px;
         outline: none;
@@ -139,7 +143,7 @@ export const CountryInformation = ({ country, setShowModal, showModal }) => {
                 </Top>
                 <Bottom>
                     {country.visits.map((visit) => (
-                        <Visit key={visit.visitName}>
+                        <Visit>
                             <div>{visit.visitName}</div>
                             <div>
                                 {visit.startDate} - {visit.endDate}

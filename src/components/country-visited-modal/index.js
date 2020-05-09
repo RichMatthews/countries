@@ -4,8 +4,6 @@ import { Observable, timer } from 'rxjs'
 import { retryWhen, delayWhen } from 'rxjs/operators'
 import styled from 'styled-components'
 import moment from 'moment'
-import Select from 'react-select'
-import { sortBy } from 'underscore'
 
 import { fadeIn, ReactModalAdapter } from 'components/react-modal-adapter'
 import { ButtonAndSuccessSection } from 'components/country-visited-modal/components/button-and-success-section'
@@ -13,10 +11,11 @@ import { CalendarField } from 'components/country-visited-modal/components/calen
 import { CompanionsField } from 'components/country-visited-modal/components/companions'
 import { SearchCountryField } from 'components/country-visited-modal/components/search-country'
 import { VisitNameField } from 'components/country-visited-modal/components/visit-name'
-import { setRESTAPICountries } from 'redux/action-creators/countries/set-rest-api-countries'
-import { createHttpObservable } from 'utils/'
+import { getRESTAPICountries } from 'redux/action-creators/countries/get-rest-api-countries'
+import { addNewUserCountry } from 'redux/action-creators/user/add-new-user-visited-country'
 
 const AddVisit = styled.div`
+    color: #ccc;
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
@@ -58,7 +57,7 @@ const StyledModal = styled(ReactModalAdapter)`
         right: 40px;
         bottom: 40px;
         border: none;
-        background: #fff;
+        background: #293039;
         overflow: auto;
         border-radius: 4px;
         outline: none;
@@ -69,16 +68,7 @@ const StyledModal = styled(ReactModalAdapter)`
     }
 `
 
-export const CountryModal = ({
-    countries,
-    isModalOpen,
-    options,
-    restAPICountries,
-    setModalOpen,
-    setUserVisitedCountries,
-    userVisitedCountries,
-    user,
-}) => {
+export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAPICountries, setModalOpen, user }) => {
     const [calendar, showCalendar] = useState(false)
     const [country, setCountry] = useState(null)
     const [date, setDate] = useState(null)
@@ -86,6 +76,7 @@ export const CountryModal = ({
     const [isLoading, setLoading] = useState(false)
     const [people, setPeople] = useState(null)
     const [success, setSuccess] = useState(null)
+    const [timestamp, setTimestamp] = useState(null)
     const [visitName, setVisitName] = useState(null)
 
     const usePrevious = (value) => {
@@ -99,13 +90,16 @@ export const CountryModal = ({
     const prevAmount = usePrevious(formErrors)
 
     useEffect(() => {
-        setRESTAPICountries(restAPICountries)
+        getRESTAPICountries(restAPICountries)
     }, [restAPICountries])
 
     const calendarFormatter = (date) => {
+        const fromTimestamp = moment(date[0]).unix()
+        const ToTimestamp = moment(date[1]).unix()
         const from = moment(date[0]).format('Do MMM YYYY')
         const to = moment(date[1]).format('Do MMM YYYY')
         setDate(`${from} - ${to}`)
+        setTimestamp([fromTimestamp, ToTimestamp])
         showCalendar(false)
     }
 
@@ -128,23 +122,42 @@ export const CountryModal = ({
         return false
     }
 
-    const submitCountryDetailsToBackend = async () => {
+    const submitCountryDetailsToBackend = () => {
         setLoading(true)
-        const userID = user.uid
+        const userId = user.details.uid
         const selectedCountryDetails = countries.restAPICountries.filter((ctry) => ctry.name === country)
         const flag = selectedCountryDetails[0].flag
-        const continent = selectedCountryDetails[0].region
+        let continent = selectedCountryDetails[0].region
+        const subregion = selectedCountryDetails[0].subregion
 
-        const newCountry = {
-            continent,
-            name: country,
-            date,
-            flag,
-            people,
-            visitName,
-            userID,
+        if (continent === 'Americas') {
+            if (subregion === 'Central America') {
+                continent = 'North America'
+            } else {
+                continent = 'South America'
+            }
         }
-        const postHttpObservable = (newCountry) => {
+
+        const serverData = {
+            country: {
+                continent,
+                flag,
+                name: country,
+                visits: [
+                    {
+                        startDate: timestamp[0],
+                        endDate: timestamp[0],
+                        people,
+                        visitName,
+                    },
+                ],
+            },
+            userId,
+        }
+
+        const data = JSON.stringify(serverData)
+
+        const postHttpObservable = () => {
             return Observable.create((observer) => {
                 fetch('https://eaq7kxyf7d.execute-api.us-east-1.amazonaws.com/countries/add-country', {
                     method: 'POST',
@@ -152,7 +165,7 @@ export const CountryModal = ({
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ ...newCountry }),
+                    body: data,
                 })
                     .then((res) => res.json())
                     .then((body) => {
@@ -165,20 +178,20 @@ export const CountryModal = ({
 
         const http$ = postHttpObservable()
         const submit = http$.pipe(retryWhen((errors) => errors.pipe(delayWhen(() => timer(2000)))))
-        submit.subscribe((details) => setLoadingAndShowSuccessMessage(details, newCountry))
+        submit.subscribe((details) => setLoadingAndShowSuccessMessage(details, serverData.country))
     }
 
     const setLoadingAndShowSuccessMessage = (details, newCountry) => {
-        setLoading(false)
-        setSuccess(details.message)
+        setLoading(true)
         setModalOpen(false)
-        setUserVisitedCountries(sortArray(newCountry))
+        addNewUserCountry(newCountry)
     }
 
     const sortArray = (newCountry) => {
-        const newCountries = [...userVisitedCountries, newCountry]
-        // const sortedArray = sortBy([newCountries], 'name')
-        setUserVisitedCountries(newCountries)
+        //     console.log(newCountry, 'nc')
+        //     const newCountries = [...user.userVisitedCountries, newCountry]
+        //     const sortedArray = sortBy([newCountries], 'name')
+        //    return
     }
 
     return (
@@ -189,10 +202,16 @@ export const CountryModal = ({
                     <AddVisit>ADD A VISIT</AddVisit>
                 </div>
                 <VisitNameField setVisitName={setVisitName} />
-                <SearchCountryField options={countries.selectOptions} setCountry={setCountry} />
-                <CalendarField />
-                <CompanionsField setPeope={setPeople} />
+                <SearchCountryField country={country} options={countries.selectOptions} setCountry={setCountry} />
+                <CalendarField
+                    calendar={calendar}
+                    calendarFormatter={calendarFormatter}
+                    date={date}
+                    showCalendar={showCalendar}
+                />
+                <CompanionsField setPeople={setPeople} />
                 <ButtonAndSuccessSection
+                    isLoading={isLoading}
                     submitCountryDetailsToBackend={submitCountryDetailsToBackend}
                     success={success}
                 />
@@ -207,7 +226,8 @@ const mapState = ({ countries, user }) => ({
 })
 
 const mapDispatch = {
-    setRESTAPICountries,
+    addNewUserCountry,
+    getRESTAPICountries,
 }
 
 export const CONNECTED_CountryModal = connect(mapState, mapDispatch)(CountryModal)

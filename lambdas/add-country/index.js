@@ -14,53 +14,49 @@ const firebaseConfig = {
 const firebaseApp = firebase.initializeApp(firebaseConfig)
 
 exports.handler = (event, context, callback) => {
+    // if (event.body !== null && event.body !== undefined) {
+    let body = JSON.parse(event.body)
     context.callbackWaitsForEmptyEventLoop = false
-    const { continent, country, date, flag, people, visitName, userID } = event
-    const setSchema = {
-        continent,
-        flag,
-        name: country,
-        visits: [
-            {
-                startDate: date.split('-')[0],
-                endDate: date.split('-')[0],
-                visitName,
-                people,
-            },
-        ],
-    }
+    const setSchema = body.country
+    const updateSchema = body.country.visits
 
-    const updateSchema = {
-        startDate: date.split('-')[0],
-        endDate: date.split('-')[0],
-        visitName,
-        people,
-    }
-
-    const doescountryexist = firebaseApp.database().ref(`users/${userID}/${country}`)
+    const { country, userId } = body
+    const doescountryexist = firebaseApp.database().ref(`users/${userId}/${country.name}`)
 
     doescountryexist.once('value', (snapshot) => {
         if (snapshot.val()) {
             const newTripId = snapshot.val().visits.length
-            firebaseApp.database().ref(`users/${userID}/${country}/visits/${newTripId}`).update(updateSchema)
+            firebaseApp.database().ref(`users/${userId}/${country.name}/visits/${newTripId}`).update(updateSchema)
             callback(null, {
                 body: JSON.stringify('Successfully set in firebase!'),
                 headers: {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
                 },
                 statusCode: 200,
             })
         } else {
-            firebaseApp.database().ref(`users/${userID}/${country}`).set(setSchema)
+            firebaseApp.database().ref(`users/${userId}/${country.name}`).set(setSchema)
             callback(null, {
                 body: JSON.stringify('Successfully updated in firebase!'),
                 headers: {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
                 },
                 statusCode: 200,
             })
         }
     })
+    // } else {
+    //     callback(null, {
+    //         body: JSON.stringify('body not ok!'),
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'Access-Control-Allow-Origin': '*',
+    //         },
+    //         statusCode: 400,
+    //     })
+    // }
 }

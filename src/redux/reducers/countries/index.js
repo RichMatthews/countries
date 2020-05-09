@@ -5,7 +5,7 @@ const initialState = {
 
 export function countries(state = initialState, action) {
     switch (action.type) {
-        case 'SET_REST_API_COUNTRIES':
+        case 'GET_REST_API_COUNTRIES':
             return { ...state, restAPICountries: action.restAPICountries }
         case 'USER_LOGGED_OUT':
             return initialState

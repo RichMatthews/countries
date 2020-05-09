@@ -13,9 +13,8 @@ export function user(state = initialState, action) {
         case 'SET_USER':
             return { ...state, details: action.user, isLoggedIn: true }
         case 'GET_DATA_SUCCESS':
-            return { ...state, userVisitedCountries: action.data }
-        case 'GET_USER_DATA':
-            console.log('called')
+            return { ...state, userVisitedCountries: action.payload }
+        case 'USER_LOGGED_OUT':
         default:
             return state
     }

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
 const Button = styled.div`
@@ -14,13 +14,17 @@ const Button = styled.div`
 
 const Image = styled.img`
     margin: auto;
+    margin-top
     width: 30;
 `
 
-export const ButtonAndSuccessSection = ({ isLoading, submitCountryDetailsToBackend, success }) => (
-    <div>
-        <Button onClick={submitCountryDetailsToBackend}>Save</Button>
-        <div>{success || null}</div>
-        {isLoading ? <Image src="/images/loading.gif" /> : null}
-    </div>
-)
+export const ButtonAndSuccessSection = ({ isLoading, submitCountryDetailsToBackend, success }) => {
+    return (
+        <div>
+            <Button onClick={submitCountryDetailsToBackend}>
+                {isLoading ? <Image src="/images/loading.gif" /> : 'Save'}
+            </Button>
+            <div>{success || null}</div>
+        </div>
+    )
+}

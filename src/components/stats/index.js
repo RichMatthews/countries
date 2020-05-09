@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import { sortBy } from 'underscore'
-import { Chart } from 'react-google-charts'
+import google, { Chart } from 'react-google-charts'
+
+import { fadeIn } from 'components/react-modal-adapter'
 
 const Container = styled.div`
+    animation: ${fadeIn} 1s;
     margin: auto;
     width: 1000px;
 `
@@ -68,14 +71,31 @@ const calculateTopThreeCountries = (countries) => {
     return sortedCountries.reverse().slice(0, 3)
 }
 
-// const calculateFirstTrip =
+const calculateContinentsVisits = (countries) => {
+    let continents = {
+        Africa: 0,
+        Asia: 0,
+        Europe: 0,
+        'North America': 0,
+        Oceania: 0,
+        'South America': 0,
+    }
+    countries.forEach((country) => {
+        continents[country.continent] += 1
+    })
+
+    return Object.entries(continents)
+}
 
 export const Stats = ({ user }) => {
     const [topThreeCountries, setTopThree] = useState([])
+    const [continents, setContinents] = useState([['Continents', 'Visits']])
 
     useEffect(() => {
         const calculatedTop3 = calculateTopThreeCountries(user.userVisitedCountries)
         setTopThree(calculatedTop3)
+        const calculateContinents = calculateContinentsVisits(user.userVisitedCountries)
+        setContinents(continents.concat(calculateContinents))
     }, [])
 
     return (
@@ -104,21 +124,19 @@ export const Stats = ({ user }) => {
                         chartType="BarChart"
                         loader={<div>Loading Chart</div>}
                         mapsApiKey="YAIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"
-                        data={[
-                            ['Continents', 'Visits'],
-                            ['Africa', 5],
-                            ['Asia', 5],
-                            ['Europe', 4],
-                            ['North America', 1],
-                            ['Oceania', 2],
-                            ['South America', 2],
-                        ]}
+                        data={continents}
                         options={{
-                            title: 'Continents by visits',
+                            animation: {
+                                startup: true,
+                                easing: 'linear',
+                                duration: 1000,
+                            },
                             chartArea: { width: '60%' },
                             hAxis: {
                                 minValue: 0,
                             },
+                            legend: { position: 'none' },
+                            title: 'Continents by visits',
                             vAxis: {},
                         }}
                         // For tests

@@ -18,13 +18,19 @@ const AccountContainer = styled.div`
 
 const SignInButton = styled.div`
     align-items: center;
+    background: #323c46;
+    color: #ccc;
     cursor: pointer;
     display: flex;
-    justify-content: space-around;
+    justify-content: stretch;
     margin: auto;
-    box-shadow: 1px 3px #ccc;
+    margin-bottom: 10px;
     padding: 10px;
-    width: 180px;
+    width: 220px;
+
+    & > img {
+        margin-right: 15px;
+    }
 `
 
 const LoadingContainer = styled.div`
@@ -45,9 +51,10 @@ export const Login = ({ loaded, setUser, user }) => {
             .then((result) => {
                 const { user } = result
                 setUser(user)
+                window.location.href = 'visited'
             })
             .catch((error) => {
-                console.err(error, 'the error is?')
+                console.log(error, 'the error is?')
             })
     }
 
@@ -56,14 +63,21 @@ export const Login = ({ loaded, setUser, user }) => {
             {user.isLoggedIn ? (
                 <>
                     {/* <AccountContainer>Welcome {user.displayName.split(' ')[0]}</AccountContainer> */}
-                    {console.log(user, 'usa')}
                     <AccountContainer>Settings</AccountContainer>
                     <AccountContainer>Request new features</AccountContainer>
                 </>
             ) : (
-                <SignInButton onClick={login}>
-                    <img src={'/images/google.png'} width="30" /> Sign in with Google
-                </SignInButton>
+                <>
+                    <SignInButton onClick={login}>
+                        <img src={'/images/google.png'} width="30" /> <div>Sign in with Google</div>
+                    </SignInButton>
+                    <SignInButton onClick={login}>
+                        <img src={'/images/google.png'} width="30" /> <div>Sign in with Facebook</div>
+                    </SignInButton>
+                    <SignInButton onClick={login}>
+                        <img src={'/images/google.png'} width="30" /> <div>Sign in with LinkedIn</div>
+                    </SignInButton>
+                </>
             )}
         </div>
     ) : (

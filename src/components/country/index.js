@@ -10,9 +10,9 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 107px;
+    height: 135px;
     margin: 10px;
-    width: 198px;
+    width: 135px;
 }
 `
 
@@ -27,9 +27,9 @@ const CountryVisits = styled.div`
     color: #b6b6b6;
     font-size: 14px;
 `
+
 export const Country = ({ country, selectedContinent }) => {
     const [showModal, setShowModal] = useState(false)
-
     return country ? (
         <>
             <Container onClick={() => setShowModal(true)} selectedContinent={selectedContinent === country.continent}>

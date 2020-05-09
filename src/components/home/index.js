@@ -3,9 +3,7 @@ import styled from 'styled-components'
 
 import { CONNECTED_CountryModal } from 'components/country-visited-modal'
 
-const Container = styled.div`
-    margin-top: 50px;
-`
+const Container = styled.div``
 
 const Inner = styled.div`
     align-items: center;

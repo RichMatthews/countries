@@ -10,20 +10,21 @@ import { CONNECTED_Login } from 'components/login'
 import { CONNECTED_Stats } from 'components/stats'
 import { Home } from 'components/home'
 
-import { firebaseApp } from '../../config.mjs'
+import { fetchData, fetchRESTCountries } from 'redux/action-creators/countries/get-user-visited-countries'
 import { setUser } from 'redux/action-creators/user/set-user'
 import { logUserOut } from 'redux/action-creators/user/log-out'
+import { firebaseApp } from '../../config.mjs'
 // background-image: ${({ location }) => (location.pathname === '/' ? 'url(/images/world.svg)' : 'none')};
 const GlobalStyle = createGlobalStyle`
   html {
-    background-color: ${({ location }) => (location.pathname === '/stats' ? '#283039' : '#283039')};
+    background-color: #283039};
     background-position: center top;
     background-repeat: no-repeat;
     background-size: 1200px;
   }
 `
 
-export const MainRouter = ({ logUserOut, setUser, user }) => {
+export const MainRouter = ({ fetchData, fetchRESTCountries, logUserOut, setUser, user }) => {
     const [loaded, setLoaded] = useState(false)
 
     useEffect(() => {
@@ -33,10 +34,21 @@ export const MainRouter = ({ logUserOut, setUser, user }) => {
                 setLoaded(true)
             } else {
                 setLoaded(true)
-                console.log(user, 'user not loggedin')
+                console.log(user, 'USER NOT LOGGED IN')
             }
         })
     }, [])
+
+    useEffect(() => {
+        fetchRESTCountries()
+    }, [])
+
+    useEffect(() => {
+        if (user.isLoggedIn) {
+            console.log('LOGGED IN ')
+            fetchData(user.details.uid)
+        }
+    }, [user.isLoggedIn])
 
     const logUserOutFirebaseAndRedux = async () => {
         try {
@@ -60,12 +72,12 @@ export const MainRouter = ({ logUserOut, setUser, user }) => {
                 <>
                     <GlobalStyle location={location} />
                     <CONNECTED_Nav location={location} logUserOut={logUserOutFirebaseAndRedux} />
-                    <div style={{ marginTop: '50px' }}>
+                    <div>
                         <Router>
                             <PublicRoute component={Home} path="/" />
                             <PublicRoute component={CONNECTED_Login} path="login" loaded={loaded} />
-                            <PublicRoute component={CONNECTED_Map} path="map" />
-                            <ProtectedRoute component={CONNECTED_Visited} path="visited" user={user} />
+                            <ProtectedRoute component={CONNECTED_Map} path="map" user={user} />
+                            <CONNECTED_Visited path="visited" user={user} />
                             <ProtectedRoute component={CONNECTED_Stats} path="stats" user={user} />
                         </Router>
                     </div>
@@ -81,6 +93,8 @@ const mapState = ({ countries, user }) => ({
 })
 
 const mapDispatch = {
+    fetchData,
+    fetchRESTCountries,
     logUserOut,
     setUser,
 }

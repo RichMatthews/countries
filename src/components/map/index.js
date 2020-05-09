@@ -3,7 +3,10 @@ import styled from 'styled-components'
 import { Chart } from 'react-google-charts'
 import { connect } from 'react-redux'
 
+import { fadeIn } from 'components/react-modal-adapter'
+
 const Container = styled.div`
+    animation: ${fadeIn} 2s;
     display: flex;
     justify-content: center;
     margin: auto;
@@ -46,12 +49,13 @@ export const Map = ({ user }) => {
         <Container>
             <StyledChart
                 width={'1000px'}
-                height={'600px'}
+                height={'575px'}
                 chartType="GeoChart"
                 data={testCountries}
                 mapsApiKey="YAIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"
                 rootProps={{ 'data-testid': '1' }}
                 options={{
+                    backgroundColor: 'transparent',
                     defaultColor: '#55aac2',
                     animation: {
                         startup: true,

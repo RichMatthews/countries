@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Subject } from 'rxjs'
 import { connect } from 'react-redux'
-import { fetchData, fetchRESTCountries } from 'redux/action-creators/countries/get-user-visited-countries'
-import { setRESTAPICountries } from 'redux/action-creators/countries/set-rest-api-countries'
+import { getRESTAPICountries } from 'redux/action-creators/countries/get-rest-api-countries'
 
 import { Country } from 'components/country'
 import { CONNECTED_CountryModal } from 'components/country-visited-modal'
 import { fadeIn } from 'components/react-modal-adapter'
+import { BRAND_COLOR } from 'styles'
 
 let inputStream = new Subject()
 
 const Container = styled.div`
-    align-items: flex-end;
+    align-items: center;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -22,10 +22,10 @@ const VisitedTotal = styled.div`
     align-items: center;
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
-    width: 200px;
+    justify-content: flex-end;
 
     & > p {
+        color: ${BRAND_COLOR};
         font-size: 25px;
         margin: 0;
     }
@@ -34,8 +34,8 @@ const VisitedTotal = styled.div`
 const Total = styled.div`
     align-items: center;
     border-radius: 8px;
-    background: #3b89ab;
-    color: #fff;
+    background: ${BRAND_COLOR};
+    color: #323c46;
     display: flex;
     height: 15px;
     font-size: 18px;
@@ -46,9 +46,14 @@ const Total = styled.div`
 
 const CountriesList = styled.div`
     animation: ${fadeIn} 1s;
-    display: flex;
-    flex-wrap: wrap;
+    min-height: 465px;
     width: 900px;
+
+    & > div {
+        display: flex;
+        flex-wrap: wrap;
+        height: 0;
+    }
 `
 
 const Input = styled.input`
@@ -69,11 +74,12 @@ const AddVisit = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 107px;
-    margin: 10px;
-    width: 198px;
+    height: 135px;
+    margin: 10px 10px 0 10px;
+    width: 135px;
 
     & > p {
+        color: ${BRAND_COLOR};
         margin: 0;
     }
 `
@@ -130,6 +136,7 @@ const ContinentName = styled.div`
 
 const LoadingContainer = styled.div`
     align-items: center;
+    color: #ccc;
     display: flex;
     flex-direction: column;
     margin: auto;
@@ -150,32 +157,55 @@ const ResetButton = styled.div`
     width: 66%;
 `
 
-const Visited = ({ countries, fetchData, fetchRESTCountries, user }) => {
+const CountriesMap = styled.div`
+    margin-right: 100px;
+    width: 765px;
+`
+
+const Pagination = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+`
+
+const PageNumber = styled.div`
+    border: 1px solid ${BRAND_COLOR};
+    background: ${({ selectedPage }) => (selectedPage ? BRAND_COLOR : '#323C46')};
+    color: ${({ selectedPage }) => (selectedPage ? '#323C46' : BRAND_COLOR)};
+    cursor: pointer;
+    margin-right: 5px;
+    padding: 5px;
+`
+
+const NoTrips = styled.div`
+    color: #ccc;
+`
+
+const Visited = ({ ui, user }) => {
     const [filteredCountries, setFilteredCountries] = useState([])
     const [isModalOpen, setModalOpen] = useState(false)
-    const [loaded, setLoaded] = useState(false)
     const [selectedContinent, setSelectedContinent] = useState(null)
+    const [page, setPage] = useState(1)
 
     useEffect(() => {
-        fetchData()
         setFilteredCountries(user.userVisitedCountries)
-        setLoaded(true)
-    }, [user.userVisitedCountries])
+    }, [user])
 
     const filterCountriesByValue = (value) => {
         if (!value) {
-            return setFilteredCountries(countries)
+            return setFilteredCountries(user.userVisitedCountries)
         }
-        setFilteredCountries(countries.filter((country) => country.name.toLowerCase().includes(value)))
+        setFilteredCountries(user.userVisitedCountries.filter((country) => country.name.toLowerCase().includes(value)))
     }
 
     const filterCountriesByContinent = (continent) => {
         setSelectedContinent(continent)
+        setPage(1)
         if (!continent) {
-            return setFilteredCountries(countries)
+            return setFilteredCountries(user.userVisitedCountries)
         }
 
-        return setFilteredCountries(countries.filter((country) => country.continent === continent.name))
+        return setFilteredCountries(user.userVisitedCountries.filter((country) => country.continent === continent.name))
     }
 
     inputStream.subscribe((val) => filterCountriesByValue(val))
@@ -189,28 +219,44 @@ const Visited = ({ countries, fetchData, fetchRESTCountries, user }) => {
         { name: 'South America', svg: '/images/continents/south-america' },
     ]
 
-    return loaded ? (
+    const start = page === 1 ? 0 : 14
+    const end = page === 2 ? 28 : 14
+
+    return !ui.loading ? (
         <Container>
             <CountriesVisitedContainer>
-                <div>
+                <CountriesMap>
                     <VisitedTotal>
-                        <p>Visited</p>
-                        <Total>{countries ? `${user.userVisitedCountries.length} / 195` : '0 / 195'}</Total>
+                        <Total>{user.userVisitedCountries.length} / 195</Total>
                     </VisitedTotal>
                     <CountriesList>
-                        <AddVisit onClick={() => setModalOpen(true)}>
-                            <img src={'/images/addTrip.svg'} />
-                            <p>Add a visit</p>
-                        </AddVisit>
-                        {user && filteredCountries.length ? (
-                            filteredCountries.map((country) => (
-                                <Country key={country.name} country={country} selectedContinent={selectedContinent} />
-                            ))
-                        ) : (
-                            <div>You have no trips recorded so far</div>
-                        )}
+                        <div style={{ display: 'flex' }}>
+                            <AddVisit onClick={() => setModalOpen(true)}>
+                                <img src={'/images/addTrip.svg'} />
+                                <p>Add a visit</p>
+                            </AddVisit>
+                            {user && filteredCountries.length ? (
+                                filteredCountries
+                                    .slice(start, end)
+                                    .map((country) => (
+                                        <Country country={country} selectedContinent={selectedContinent} />
+                                    ))
+                            ) : (
+                                <NoTrips>Trips will appear here once you've added them</NoTrips>
+                            )}
+                        </div>
                     </CountriesList>
-                </div>
+                    <Pagination>
+                        <PageNumber selectedPage={page === 1} onClick={() => setPage(1)}>
+                            1
+                        </PageNumber>
+                        {filteredCountries.length > 14 ? (
+                            <PageNumber selectedPage={page === 2} onClick={() => setPage(2)}>
+                                2
+                            </PageNumber>
+                        ) : null}
+                    </Pagination>
+                </CountriesMap>
 
                 <CONNECTED_CountryModal isModalOpen={isModalOpen} setModalOpen={setModalOpen} />
 
@@ -242,20 +288,19 @@ const Visited = ({ countries, fetchData, fetchRESTCountries, user }) => {
     ) : (
         <LoadingContainer>
             <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} />
-            Retrieving countries...
+            Retrieving trips...
         </LoadingContainer>
     )
 }
 
-const mapState = ({ countries, user }) => ({
+const mapState = ({ countries, ui, user }) => ({
     countries,
+    ui,
     user,
 })
 
 const mapDispatch = {
-    setRESTAPICountries,
-    fetchData,
-    fetchRESTCountries,
+    getRESTAPICountries,
 }
 
 export const CONNECTED_Visited = connect(mapState, mapDispatch)(Visited)

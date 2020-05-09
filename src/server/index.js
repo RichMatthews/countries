@@ -523,7 +523,6 @@
 
 // // app.use(bodyParser.urlencoded({ extended: false }))
 // app.listen(PORT, () => {
-//     console.log(`Server running on port ${PORT}`)
 // })
 
 // app.use(bodyParser.json())
