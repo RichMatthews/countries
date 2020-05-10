@@ -246,16 +246,16 @@ const Visited = ({ ui, user }) => {
                             )}
                         </div>
                     </CountriesList>
-                    <Pagination>
-                        <PageNumber selectedPage={page === 1} onClick={() => setPage(1)}>
-                            1
-                        </PageNumber>
-                        {filteredCountries.length > 14 ? (
+                    {filteredCountries.length > 14 ? (
+                        <Pagination>
+                            <PageNumber selectedPage={page === 1} onClick={() => setPage(1)}>
+                                1
+                            </PageNumber>
                             <PageNumber selectedPage={page === 2} onClick={() => setPage(2)}>
                                 2
                             </PageNumber>
-                        ) : null}
-                    </Pagination>
+                        </Pagination>
+                    ) : null}
                 </CountriesMap>
 
                 <CONNECTED_CountryModal isModalOpen={isModalOpen} setModalOpen={setModalOpen} />

@@ -131,10 +131,10 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
         const subregion = selectedCountryDetails[0].subregion
 
         if (continent === 'Americas') {
-            if (subregion === 'Central America') {
-                continent = 'North America'
-            } else {
+            if (subregion === 'South America') {
                 continent = 'South America'
+            } else {
+                continent = 'North America'
             }
         }
 
