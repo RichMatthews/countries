@@ -178,7 +178,9 @@ const PageNumber = styled.div`
 `
 
 const NoTrips = styled.div`
+    align-items: center;
     color: #ccc;
+    display: flex;
 `
 
 const Visited = ({ ui, user }) => {

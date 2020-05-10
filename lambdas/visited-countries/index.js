@@ -36,9 +36,13 @@ exports.handler = (event, context, callback) => {
                 statusCode: 200,
             })
         } else {
-            callback({
-                statusCode: 400,
-                body: JSON.stringify('error from lambda'),
+            callback(null, {
+                body: JSON.stringify([]),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                },
+                statusCode: 200,
             })
         }
     })

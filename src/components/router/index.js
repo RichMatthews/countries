@@ -45,7 +45,6 @@ export const MainRouter = ({ fetchData, fetchRESTCountries, logUserOut, setUser,
 
     useEffect(() => {
         if (user.isLoggedIn) {
-            console.log('LOGGED IN ')
             fetchData(user.details.uid)
         }
     }, [user.isLoggedIn])
@@ -77,7 +76,7 @@ export const MainRouter = ({ fetchData, fetchRESTCountries, logUserOut, setUser,
                             <PublicRoute component={Home} path="/" />
                             <PublicRoute component={CONNECTED_Login} path="login" loaded={loaded} />
                             <ProtectedRoute component={CONNECTED_Map} path="map" user={user} />
-                            <CONNECTED_Visited path="visited" user={user} />
+                            <ProtectedRoute component={CONNECTED_Visited} path="visited" user={user} />
                             <ProtectedRoute component={CONNECTED_Stats} path="stats" user={user} />
                         </Router>
                     </div>

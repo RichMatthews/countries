@@ -188,7 +188,6 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
     }
 
     const sortArray = (newCountry) => {
-        //     console.log(newCountry, 'nc')
         //     const newCountries = [...user.userVisitedCountries, newCountry]
         //     const sortedArray = sortBy([newCountries], 'name')
         //    return

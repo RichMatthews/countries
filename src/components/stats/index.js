@@ -138,7 +138,6 @@ export const Stats = ({ user }) => {
 
     useEffect(() => {
         setTimeout(() => {
-            console.log('running func...')
             const calculatedTop3 = calculateTopThreeCountries(user.userVisitedCountries)
             setTopThree(calculatedTop3)
             const calculateContinents = calculateContinentsVisits(user.userVisitedCountries)
@@ -254,7 +253,6 @@ export const Stats = ({ user }) => {
                             width={'450px'}
                             height={'180px'}
                             chartType="LineChart"
-                            loader={<div>Loading Chart</div>}
                             data={[
                                 ['Task', 'Something'],
                                 ['2013', 9],

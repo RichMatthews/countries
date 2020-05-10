@@ -52,7 +52,7 @@ const MAPPALink = styled(Link)`
     width: 70px;
 `
 
-const LogOutInBtn = styled.div`
+const LogOutBtn = styled.div`
     cursor: pointer;
 `
 
@@ -79,13 +79,15 @@ export const Nav = ({ location, logUserOut, user }) => {
                 <StyledLink isselected={isSelected('stats')} to="/stats">
                     Stats
                 </StyledLink>
-                <StyledLink isselected={isSelected('login')} to="/login">
+                <StyledLink isselected={isSelected('account')} to="/account">
                     Account
                 </StyledLink>
                 {user.isLoggedIn ? (
-                    <LogOutInBtn onClick={logUserOut}>Logout</LogOutInBtn>
+                    <LogOutBtn onClick={logUserOut}>Logout</LogOutBtn>
                 ) : (
-                    <LogOutInBtn>Login</LogOutInBtn>
+                    <StyledLink isselected={isSelected('login')} to="/login">
+                        Login
+                    </StyledLink>
                 )}
             </RightHandSide>
         </Container>

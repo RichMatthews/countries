@@ -26,32 +26,27 @@ const StyledChart = styled(Chart)`
     }
 `
 
+const calculateCountriesVisitedTo = (countries) => {
+    return countries.map((country) => country['name'])
+}
+
 export const Map = ({ user }) => {
     const [mapCountries, setCountriesInMapReadableForm] = useState([['country']])
-    const [loaded, setLoaded] = useState()
 
     useEffect(() => {
-        // setCountriesInMapReadableForm(mapCountries.concat(user.userVisitedCountries))
-        setLoaded(true)
+        setTimeout(() => {
+            const calculateCountries = calculateCountriesVisitedTo(user.userVisitedCountries)
+            setCountriesInMapReadableForm(mapCountries.concat([calculateCountries]))
+        }, 2000)
     }, [])
 
-    if (!loaded) {
-        return (
-            <LoadingContainer>
-                <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} />
-            </LoadingContainer>
-        )
-    }
-
-    const testCountries = [['Country'], ['Australia'], ['Belgium'], ['India'], ['Ukraine']]
-
-    return (
+    return mapCountries.length > 1 ? (
         <Container>
             <StyledChart
                 width={'1000px'}
                 height={'575px'}
                 chartType="GeoChart"
-                data={testCountries}
+                data={mapCountries}
                 mapsApiKey="YAIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"
                 rootProps={{ 'data-testid': '1' }}
                 options={{
@@ -64,6 +59,10 @@ export const Map = ({ user }) => {
                 }}
             />
         </Container>
+    ) : (
+        <LoadingContainer>
+            <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} />
+        </LoadingContainer>
     )
 }
 
