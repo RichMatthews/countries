@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
+import { KIERAN_GREY } from 'styles'
+
 const Button = styled.div`
     align-items: center;
-    background: #323c46;
+    background: ${KIERAN_GREY};
     color: #fff;
     cursor: pointer;
     border-radius: 8px;

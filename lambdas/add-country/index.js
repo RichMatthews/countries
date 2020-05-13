@@ -21,12 +21,13 @@ exports.handler = (event, context, callback) => {
     const updateSchema = body.country.visits
 
     const { country, userId } = body
-    const doescountryexist = firebaseApp.database().ref(`users/${userId}/${country.name}`)
+    const URL = `users/${userId}/countries/${country.name}`
+    const doescountryexist = firebaseApp.database().ref(URL)
 
     doescountryexist.once('value', (snapshot) => {
         if (snapshot.val()) {
             const newTripId = snapshot.val().visits.length
-            firebaseApp.database().ref(`users/${userId}/${country.name}/visits/${newTripId}`).update(updateSchema)
+            firebaseApp.database().ref(URL).update(updateSchema)
             callback(null, {
                 body: JSON.stringify('Successfully set in firebase!'),
                 headers: {
@@ -37,7 +38,7 @@ exports.handler = (event, context, callback) => {
                 statusCode: 200,
             })
         } else {
-            firebaseApp.database().ref(`users/${userId}/${country.name}`).set(setSchema)
+            firebaseApp.database().ref(URL).set(setSchema)
             callback(null, {
                 body: JSON.stringify('Successfully updated in firebase!'),
                 headers: {

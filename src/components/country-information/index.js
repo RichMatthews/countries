@@ -2,19 +2,20 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { ReactModalAdapter, fadeIn } from 'components/react-modal-adapter'
+import { KIERAN_GREY } from 'styles'
 
-const Bottom = styled.div`
+const Right = styled.div`
     align-items: center;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    margin-top: 5px;
-    height: 100%;
+    justify-content: flex-start;
+    position: absolute;
+    width: 100%;
 `
 
 const ModalInner = styled.div`
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     height: 100%;
 `
 
@@ -29,13 +30,12 @@ const CountryHeading = styled.h3`
     text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.2);
 `
 
-const Top = styled.div`
-    align-items: center;
+const Left = styled.div`
     background: ${({ country }) => 'url(/images/beach.jpg) center no-repeat'};
-    background-size: 800px;
-    display: flex;
-    justify-content: center;
-    height: 400px;
+    background-size: 1100px;
+    position: relative;
+    opacity: 0.5;
+    width: 100%;
 `
 
 const Close = styled.div`
@@ -47,7 +47,7 @@ const Close = styled.div`
 const Visit = styled.div`
     border-radius: 6px;
     box-shadow: 0 1px 4px rgba(41, 51, 57, 0.5);
-    color: #ccc;
+    color: #f0f0f0;
     display: flex;
     flex-direction: column;
     margin-bottom: 5px;
@@ -55,7 +55,7 @@ const Visit = styled.div`
     width: 80%;
 
     & > div {
-        background: #323c46;
+        background: ${KIERAN_GREY};
     }
 `
 
@@ -112,24 +112,19 @@ const StyledModal = styled(ReactModalAdapter)`
 `
 
 const ImageContainer = styled.div`
-    border-radius: 50%;
-    height: 80px;
-    position: relative;
-    overflow: hidden;
     width: 80px;
 `
 
 const Image = styled.img`
-    height: 100%;
     width: 100%;
-    clip-path: circle(50%);
 `
 
 export const CountryInformation = ({ country, setShowModal, showModal }) => {
     return (
         <StyledModal isOpen={showModal} closeTimeoutMS={500} ariaHideApp={false}>
             <ModalInner>
-                <Top country={country}>
+                <Left country={country}></Left>
+                <Right>
                     <ImageContainer>
                         <Image src={country.flag} />
                     </ImageContainer>
@@ -140,8 +135,6 @@ export const CountryInformation = ({ country, setShowModal, showModal }) => {
                     <Close onClick={() => setShowModal(!showModal)}>
                         <CloseImage src={'/images/close.svg'} />
                     </Close>
-                </Top>
-                <Bottom>
                     {country.visits.map((visit) => (
                         <Visit>
                             <div>{visit.visitName}</div>
@@ -151,7 +144,7 @@ export const CountryInformation = ({ country, setShowModal, showModal }) => {
                             <div>You went with some people</div>
                         </Visit>
                     ))}
-                </Bottom>
+                </Right>
             </ModalInner>
         </StyledModal>
     )

@@ -3,11 +3,12 @@ import Select from 'react-select'
 import styled from 'styled-components'
 
 import { FormErrors } from 'components/country-visited-modal/components/shared/form-errors'
+import { KIERAN_GREY } from 'styles'
 
 const customStyles = {
     control: (base, state) => ({
         ...base,
-        background: '#323C46',
+        background: KIERAN_GREY,
         color: '#ccc',
         fontSize: 15,
         marginBottom: 20,
@@ -16,7 +17,7 @@ const customStyles = {
     }),
     menuList: (base) => ({
         ...base,
-        background: '#323C46',
+        background: KIERAN_GREY,
         color: '#ccc',
         padding: 0,
     }),

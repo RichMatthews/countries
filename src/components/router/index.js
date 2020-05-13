@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Location, Redirect, Router } from '@reach/router'
-import { createGlobalStyle } from 'styled-components'
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
+import styled, { createGlobalStyle } from 'styled-components'
 import { connect } from 'react-redux'
 
+import { CONNECTED_Achievments } from 'components/achievements'
 import { CONNECTED_Visited } from 'components/visited'
 import { CONNECTED_Map } from 'components/map'
 import { CONNECTED_Nav } from 'components/nav'
@@ -14,25 +15,24 @@ import { fetchData, fetchRESTCountries } from 'redux/action-creators/countries/g
 import { setUser } from 'redux/action-creators/user/set-user'
 import { logUserOut } from 'redux/action-creators/user/log-out'
 import { firebaseApp } from '../../config.mjs'
-// background-image: ${({ location }) => (location.pathname === '/' ? 'url(/images/world.svg)' : 'none')};
-const GlobalStyle = createGlobalStyle`
-  html {
-    background-color: #283039};
-    background-position: center top;
-    background-repeat: no-repeat;
-    background-size: 1200px;
-  }
-`
 
+const Container = styled.div`
+    & > div {
+        height: 100%;
+    }
+`
 export const MainRouter = ({ fetchData, fetchRESTCountries, logUserOut, setUser, user }) => {
     const [loaded, setLoaded] = useState(false)
+    const [newUser, setNewUser] = useState(JSON.parse(localStorage.getItem('authUser')))
 
     useEffect(() => {
         firebaseApp.auth().onAuthStateChanged((user) => {
             if (user) {
-                setUser(user)
+                localStorage.setItem('authUser', JSON.stringify(user))
                 setLoaded(true)
+                setUser(user)
             } else {
+                localStorage.removeItem('authUser')
                 setLoaded(true)
                 console.log(user, 'USER NOT LOGGED IN')
             }
@@ -59,30 +59,30 @@ export const MainRouter = ({ fetchData, fetchRESTCountries, logUserOut, setUser,
         }
     }
 
-    const ProtectedRoute = ({ component: Component, user }) => {
-        return user.isLoggedIn ? <Component /> : <Redirect from="visited" to="/login" noThrow />
+    const ProtectedRoute = ({ component: Component, newUser }) => {
+        return newUser ? <Component /> : <Redirect from="" to="/login" noThrow />
     }
 
     const PublicRoute = ({ component: Component, ...rest }) => <Component {...rest} />
 
     return (
-        <Location>
-            {({ location }) => (
-                <>
-                    <GlobalStyle location={location} />
-                    <CONNECTED_Nav location={location} logUserOut={logUserOutFirebaseAndRedux} />
-                    <div>
-                        <Router>
-                            <PublicRoute component={Home} path="/" />
-                            <PublicRoute component={CONNECTED_Login} path="login" loaded={loaded} />
-                            <ProtectedRoute component={CONNECTED_Map} path="map" user={user} />
-                            <ProtectedRoute component={CONNECTED_Visited} path="visited" user={user} />
-                            <ProtectedRoute component={CONNECTED_Stats} path="stats" user={user} />
-                        </Router>
-                    </div>
-                </>
-            )}
-        </Location>
+        <Router>
+            <CONNECTED_Nav logUserOut={logUserOutFirebaseAndRedux} newUser={newUser} />
+            <Switch>
+                <PublicRoute exact component={Home} path="/" />
+                <PublicRoute exact component={CONNECTED_Login} path="/login" loaded={loaded} newUser={newUser} />
+                <ProtectedRoute
+                    exact
+                    component={CONNECTED_Achievments}
+                    path="/achievements"
+                    newUser={newUser}
+                    user={user}
+                />
+                <ProtectedRoute exact component={CONNECTED_Map} newUser={newUser} path="/map" user={user} />
+                <ProtectedRoute exact component={CONNECTED_Visited} path="/visited" newUser={newUser} user={user} />
+                <ProtectedRoute exact component={CONNECTED_Stats} newUser={newUser} path="/stats" user={user} />
+            </Switch>
+        </Router>
     )
 }
 

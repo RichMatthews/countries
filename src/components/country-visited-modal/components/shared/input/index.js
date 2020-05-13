@@ -1,12 +1,14 @@
 import styled from 'styled-components'
 
+import { KIERAN_GREY } from 'styles'
+
 export const Input = styled.input`
-    background: #323c46;
+    background: ${KIERAN_GREY};
     border: none;
     border: solid 1px #ccc;
     border-radius: 5px;
     box-sizing: border-box;
-    color: #ccc;
+    color: #f0f0f0;
     font-size: 15px;
     margin-bottom: 20px;
     padding: 15px;

@@ -4,12 +4,17 @@ import { Chart } from 'react-google-charts'
 import { connect } from 'react-redux'
 
 import { fadeIn } from 'components/react-modal-adapter'
+import { BRAND_COLOR } from 'styles'
 
 const Container = styled.div`
-    animation: ${fadeIn} 2s;
+    align-items: center;
+    animation: ${fadeIn} 1.5s;
+    background: #dbdbdb;
     display: flex;
-    justify-content: center;
-    margin: auto;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+    padding-top: 30px;
 `
 
 const LoadingContainer = styled.div`
@@ -26,48 +31,37 @@ const StyledChart = styled(Chart)`
     }
 `
 
-const calculateCountriesVisitedTo = (countries) => {
-    return countries.map((country) => country['name'])
-}
-
-export const Map = ({ user }) => {
-    const [mapCountries, setCountriesInMapReadableForm] = useState([['country']])
-
-    useEffect(() => {
-        setTimeout(() => {
-            const calculateCountries = calculateCountriesVisitedTo(user.userVisitedCountries)
-            setCountriesInMapReadableForm(mapCountries.concat([calculateCountries]))
-        }, 2000)
-    }, [])
-
-    return mapCountries.length > 1 ? (
+export const Map = ({ user }) =>
+    user.mapDetails.length > 1 ? (
         <Container>
             <StyledChart
                 width={'1000px'}
                 height={'575px'}
                 chartType="GeoChart"
-                data={mapCountries}
+                data={user.mapDetails}
                 mapsApiKey="YAIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"
                 rootProps={{ 'data-testid': '1' }}
                 options={{
                     backgroundColor: 'transparent',
-                    defaultColor: '#55aac2',
+                    defaultColor: BRAND_COLOR,
                     animation: {
                         startup: true,
                         duration: 2500,
                     },
                 }}
             />
+            <div>Share your map!</div>
         </Container>
     ) : (
         <LoadingContainer>
             <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} />
         </LoadingContainer>
     )
-}
 
 const mapState = ({ user }) => ({
     user,
 })
 
-export const CONNECTED_Map = connect(mapState)(Map)
+const mapDispatch = {}
+
+export const CONNECTED_Map = connect(mapState, mapDispatch)(Map)

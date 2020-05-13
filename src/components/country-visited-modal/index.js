@@ -15,7 +15,7 @@ import { getRESTAPICountries } from 'redux/action-creators/countries/get-rest-ap
 import { addNewUserCountry } from 'redux/action-creators/user/add-new-user-visited-country'
 
 const AddVisit = styled.div`
-    color: #ccc;
+    color: #f0f0f0;
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;

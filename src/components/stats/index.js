@@ -1,22 +1,42 @@
-import React, { useEffect, useState } from 'react'
+import React, { Component, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import { sortBy } from 'underscore'
 import google, { Chart } from 'react-google-charts'
 import moment from 'moment'
 import { fadeIn } from 'components/react-modal-adapter'
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
+import 'react-circular-progressbar/dist/styles.css'
+import Select from 'react-select'
 
+import { TopThreeCountries } from './top-three-countries'
+import { CHART_OPTIONS } from 'components/stats/charts/options'
+import { KIERAN_GREY } from 'styles'
+
+// animation: ${fadeIn} 1s;
 const Container = styled.div`
-    animation: ${fadeIn} 1s;
-    margin: auto;
+    background: #e1e3e3;
+    height: 100%;
+    padding-top: 50px;
+    width: 100%;
+`
+
+// animation: ${fadeIn} 1s;
+const InnerContainer = styled.div`
+    background: #e1e3e3;
+    height: 100%;
     width: 1000px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    margin: auto;
 `
 
 const StatComponent = styled.div`
-    background: #323c46;
+    background: #fff;
     border-radius: 10px;
-    box-shadow: 0 1px 4px rgba(41, 51, 57, 0.5);
-    color: #ccc;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: #4a4947;
     display: flex;
     flex-direction: column;
     padding: 10px;
@@ -26,27 +46,21 @@ const Top = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    width: 470px;
+    height: 250px;
+    width: 100%;
 `
 
 const Bottom = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin-top: 50px;
-`
-
-const Top3 = styled(StatComponent)`
-    display: flex;
-    height: 240px;
-    padding: 10px;
-    width: 210px;
+    margin-top: 20px;
+    width: 100%;
 `
 
 const Continents = styled(StatComponent)`
-    height: 200px;
+    height: 265px;
     min-width: 470px;
-    padding: 0;
 `
 
 const FirstAndLast = styled.div`
@@ -56,16 +70,21 @@ const FirstAndLast = styled.div`
     width: 220px;
 `
 
-const First = styled(StatComponent)`
+const FirstOrLast = styled(StatComponent)`
     display: flex;
-    height: 80px;
-    padding: 10px;
-`
+    height: 110px;
+    padding: 5px;
+    justify-content: space-between;
+    & > div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 22px;
+    }
 
-const Last = styled(StatComponent)`
-    display: flex;
-    height: 80px;
-    padding: 10px;
+    & > div > p {
+        font-size: 10px;
+    }
 `
 
 const ByYear = styled(Continents)``
@@ -78,229 +97,186 @@ const SpinnerContainer = styled.div`
     margin: auto;
 `
 
-const calculateTopThreeCountries = (countries) => {
-    const sortedCountries = sortBy(countries, (country) => {
-        return country.visits.length
-    })
+const Top3AndFirstAndLast = styled.div`
+    display: flex;
+    justify-content: space-between;
+    width: 470px;
+`
 
-    return sortedCountries.reverse().slice(0, 3)
-}
+const Gauge = styled(StatComponent)`
+    width: 200px;
+`
 
-const calculateContinentsVisits = (countries) => {
-    let continents = {
-        Africa: 0,
-        Asia: 0,
-        Europe: 0,
-        'North America': 0,
-        Oceania: 0,
-        'South America': 0,
+const TotalCountries = styled(StatComponent)`
+    color: ${KIERAN_GREY};
+    font-size: 120px;
+    text-align: center;
+    width: 200px;
+    & > p {
+        font-size: 20px;
     }
-    countries.forEach((country) => {
-        continents[country.continent] += 1
-    })
+`
 
-    return Object.entries(continents)
-}
+const continent$ = [
+    { value: 'Africa', label: 'Africa' },
+    { value: 'Asia', label: 'Asia' },
+    { value: 'Europe', label: 'Europe' },
+    { value: 'North America', label: 'North America' },
+    { value: 'South America', label: 'South America' },
+    { value: 'Oceania', label: 'Oceania' },
+]
 
-const calculateFirstTrip = (countries) => {
-    let num = 20000000000000
-    let countryToReturn = null
-    countries.forEach((country) => {
-        country.visits.forEach((visit) => {
-            if (visit.startDate < num) {
-                num = visit.startDate
-                countryToReturn = country
-            }
-        })
-    })
-    return { name: countryToReturn.name, startDate: countryToReturn.visits[0].startDate }
-}
-
-const calculateLastTrip = (countries) => {
-    let num = 0
-    let countryToReturn = null
-    countries.forEach((country) => {
-        country.visits.forEach((visit) => {
-            if (visit.startDate > num) {
-                num = visit.startDate
-                countryToReturn = country
-            }
-        })
-    })
-    return { name: countryToReturn.name, startDate: countryToReturn.visits[0].startDate }
+const customStyles = {
+    control: (base, state) => ({
+        ...base,
+        background: 'transparent',
+        marginTop: 20,
+    }),
+    menuList: (base) => ({
+        ...base,
+        background: 'transparent',
+    }),
 }
 
 export const Stats = ({ user }) => {
-    const [topThreeCountries, setTopThree] = useState(null)
     const [continents, setContinents] = useState([['Continents', 'Visits']])
-    const [firstCountry, setFirstCountry] = useState(null)
-    const [lastCountry, setLastCountry] = useState(null)
+    const [continent, setContinent] = useState('Africa')
 
-    useEffect(() => {
-        setTimeout(() => {
-            const calculatedTop3 = calculateTopThreeCountries(user.userVisitedCountries)
-            setTopThree(calculatedTop3)
-            const calculateContinents = calculateContinentsVisits(user.userVisitedCountries)
-            setContinents(continents.concat(calculateContinents))
-            const calcFirstTrip = calculateFirstTrip(user.userVisitedCountries)
-            setFirstCountry(calcFirstTrip)
-            const calcLastTrip = calculateLastTrip(user.userVisitedCountries)
-            setLastCountry(calcLastTrip)
-        }, 3000)
-    }, [])
+    const { countriesByContinent, continentVisits, firstTrip, lastTrip, top3Countries } = user.stats
 
     return (
         <Container>
-            <Top>
-                <Top3>
-                    {topThreeCountries ? (
-                        <>
-                            <h4>Top 3 Most Visited Countries</h4>
-                            {topThreeCountries.map((country, index) => (
-                                <div>
-                                    {index + 1}.{country.name} ({country.visits.length} visits)
-                                </div>
-                            ))}
-                        </>
-                    ) : (
-                        <SpinnerContainer>
-                            <Spinner src={'/images/loading.gif'} />
-                        </SpinnerContainer>
-                    )}
-                </Top3>
+            <InnerContainer>
+                <Top>
+                    <Top3AndFirstAndLast>
+                        <TopThreeCountries top3Countries={top3Countries} />
+                        <FirstAndLast>
+                            <FirstOrLast>
+                                {firstTrip ? (
+                                    <>
+                                        <div>
+                                            {firstTrip.visitName}
+                                            <img src="/images/passport.svg" width="35" />
+                                        </div>
+                                        <div>
+                                            <p>First Trip</p>
+                                            <p>
+                                                {firstTrip.name}, {moment.unix(firstTrip.startDate).format('MMM YYYY')}
+                                            </p>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <SpinnerContainer>
+                                        <Spinner src={'/images/loading.gif'} />
+                                    </SpinnerContainer>
+                                )}
+                            </FirstOrLast>
+                            <FirstOrLast>
+                                {lastTrip ? (
+                                    <>
+                                        <div>
+                                            {lastTrip.visitName}
+                                            <img src="/images/passport.svg" width="35" />
+                                        </div>
+                                        <div>
+                                            <p>Latest Trip</p>
+                                            <p>
+                                                {lastTrip.name}, {moment.unix(lastTrip.startDate).format('MMM YYYY')}
+                                            </p>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <SpinnerContainer>
+                                        <Spinner src={'/images/loading.gif'} />
+                                    </SpinnerContainer>
+                                )}
+                            </FirstOrLast>
+                        </FirstAndLast>
+                    </Top3AndFirstAndLast>
+                    <TotalCountries>
+                        {user.userVisitedCountries ? (
+                            <>
+                                {user.userVisitedCountries.length} <p>countries visited</p>
+                            </>
+                        ) : (
+                            <SpinnerContainer>
+                                <Spinner src={'/images/loading.gif'} />
+                            </SpinnerContainer>
+                        )}
+                    </TotalCountries>
+                    <Gauge>
+                        {countriesByContinent ? (
+                            <>
+                                <CircularProgressbar
+                                    value={
+                                        (countriesByContinent[continent].visited /
+                                            countriesByContinent[continent].total) *
+                                        100
+                                    }
+                                    text={`${countriesByContinent[continent].visited}/${countriesByContinent[continent].total}`}
+                                    styles={buildStyles({ textColor: KIERAN_GREY, pathColor: KIERAN_GREY })}
+                                />
 
-                <FirstAndLast>
-                    <First>
-                        {firstCountry ? (
-                            <>
-                                <h4>First Trip</h4>
-                                <div>
-                                    {firstCountry.name} - {moment.unix(firstCountry.startDate).format('MMM YYYY')}
-                                </div>
+                                <Select
+                                    onChange={(continent) => setContinent(continent.value)}
+                                    options={continent$}
+                                    defaultValue={{ label: continent, value: continent }}
+                                    styles={customStyles}
+                                />
                             </>
                         ) : (
                             <SpinnerContainer>
                                 <Spinner src={'/images/loading.gif'} />
                             </SpinnerContainer>
                         )}
-                    </First>
-                    <Last>
-                        {lastCountry ? (
-                            <>
-                                <h4>Last Trip</h4>
-                                <div>
-                                    {lastCountry.name} - {moment.unix(lastCountry.startDate).format('MMM YYYY')}
-                                </div>
-                            </>
+                    </Gauge>
+                </Top>
+                <Bottom>
+                    <Continents>
+                        {continentVisits ? (
+                            <Chart
+                                width={'450px'}
+                                height={'270px'}
+                                chartType="BarChart"
+                                loader={<div>Loading Chart</div>}
+                                mapsApiKey="YAIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"
+                                data={continentVisits}
+                                options={CHART_OPTIONS}
+                            />
                         ) : (
                             <SpinnerContainer>
                                 <Spinner src={'/images/loading.gif'} />
                             </SpinnerContainer>
                         )}
-                    </Last>
-                </FirstAndLast>
-            </Top>
-            <Bottom>
-                <Continents>
-                    {continents.length > 1 ? (
-                        <Chart
-                            width={'450px'}
-                            height={'180px'}
-                            chartType="BarChart"
-                            loader={<div>Loading Chart</div>}
-                            mapsApiKey="YAIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"
-                            data={continents}
-                            options={{
-                                animation: {
-                                    startup: true,
-                                    easing: 'linear',
-                                    duration: 1000,
-                                },
-                                backgroundColor: '#323c46',
-                                colors: ['#54e1e8'],
-                                chartArea: {
-                                    backgroundColor: {
-                                        fill: '#323c46',
-                                        opacity: 0.8,
-                                    },
-                                },
-                                chartArea: { width: '60%' },
-                                hAxis: {
-                                    textStyle: {
-                                        color: '#ccc',
-                                    },
-                                    minValue: 0,
-                                },
-                                legend: { position: 'none' },
-                                title: 'Continents by visits',
-                                titleTextStyle: { color: '#ccc', fontSize: 20 },
-                                vAxis: {
-                                    textStyle: {
-                                        color: '#ccc',
-                                    },
-                                },
-                            }}
-                        />
-                    ) : (
-                        <SpinnerContainer>
-                            <Spinner src={'/images/loading.gif'} />
-                        </SpinnerContainer>
-                    )}
-                </Continents>
-                <ByYear>
-                    {continents.length > 1 ? (
-                        <Chart
-                            width={'450px'}
-                            height={'180px'}
-                            chartType="LineChart"
-                            data={[
-                                ['Task', 'Something'],
-                                ['2013', 9],
-                                ['2014', 10],
-                                ['2015', 2],
-                                ['2016', 3],
-                                ['2017', 5],
-                                ['2018', 6],
-                                ['2019', 9],
-                                ['2020', 10],
-                            ]}
-                            options={{
-                                animation: {
-                                    startup: true,
-                                    easing: 'linear',
-                                    duration: 1000,
-                                },
-                                backgroundColor: '#323c46',
-                                colors: ['#54e1e8'],
-                                chartArea: {
-                                    backgroundColor: {
-                                        fill: '#323c46',
-                                        opacity: 1,
-                                    },
-                                },
-                                legend: { position: 'none' },
-                                title: 'Countries by year',
-                                titleTextStyle: { color: '#ccc', fontSize: 20 },
-                                hAxis: {
-                                    textStyle: {
-                                        color: '#ccc',
-                                    },
-                                },
-                                vAxis: {
-                                    textStyle: {
-                                        color: '#ccc',
-                                    },
-                                },
-                            }}
-                            rootProps={{ 'data-testid': '1' }}
-                        />
-                    ) : (
-                        <SpinnerContainer>
-                            <Spinner src={'/images/loading.gif'} />
-                        </SpinnerContainer>
-                    )}
-                </ByYear>
-            </Bottom>
+                    </Continents>
+                    <ByYear>
+                        {continents.length > 1 ? (
+                            <Chart
+                                width={'450px'}
+                                height={'270px'}
+                                chartType="LineChart"
+                                data={[
+                                    ['Task', 'Something'],
+                                    ['2013', 9],
+                                    ['2014', 10],
+                                    ['2015', 2],
+                                    ['2016', 3],
+                                    ['2017', 5],
+                                    ['2018', 6],
+                                    ['2019', 9],
+                                    ['2020', 10],
+                                ]}
+                                options={CHART_OPTIONS}
+                                rootProps={{ 'data-testid': '1' }}
+                            />
+                        ) : (
+                            <SpinnerContainer>
+                                <Spinner src={'/images/loading.gif'} />
+                            </SpinnerContainer>
+                        )}
+                    </ByYear>
+                </Bottom>
+            </InnerContainer>
         </Container>
     )
 }

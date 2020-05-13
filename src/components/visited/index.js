@@ -4,68 +4,104 @@ import { Subject } from 'rxjs'
 import { connect } from 'react-redux'
 import { getRESTAPICountries } from 'redux/action-creators/countries/get-rest-api-countries'
 
+import { Input } from 'components/country-visited-modal/components/shared/input'
 import { Country } from 'components/country'
 import { CONNECTED_CountryModal } from 'components/country-visited-modal'
 import { fadeIn } from 'components/react-modal-adapter'
-import { BRAND_COLOR } from 'styles'
+import { BRAND_COLOR, KIERAN_GREY } from 'styles'
 
 let inputStream = new Subject()
 
 const Container = styled.div`
-    align-items: center;
+    background: #f2f5f5;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: row;
+    justify-content: flex-start;
+    height: 100%;
+    height: 100%;
+    position: absolute;
+
+    width: 100%;
+`
+
+const ImageAndSearch = styled.div`
+    & > img {
+        position: absolute;
+        margin-top: 11px;
+        margin-left: 10px;
+    }
+`
+
+const StyledInput = styled(Input)`
+    background: #fff;
+    border: 1px solid #d1d8e2;
+    box-sizing: border-box;
+    border-radius: 6px;
+    color: #31404f;
+    font-size: 16px;
+    height: 40px;
+    width: 257px;
 `
 
 const VisitedTotal = styled.div`
     align-items: center;
+    border-bottom: 1px solid #c9c9c9;
+    color: #1c1c1c;
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    & > div {
+    }
 
-    & > p {
-        color: ${BRAND_COLOR};
-        font-size: 25px;
+    & > div > h3 {
+        color: #4a4947;
+        font-size: 48px;
         margin: 0;
     }
 `
 
 const Total = styled.div`
     align-items: center;
-    border-radius: 8px;
-    background: ${BRAND_COLOR};
-    color: #323c46;
+    color: ##1c1c1c;
     display: flex;
-    height: 15px;
+    height: 65px;
     font-size: 18px;
+    font-weight: 900;backgroun
     justify-content: center;
     padding: 5px;
-    width: 75px;
 `
 
 const CountriesList = styled.div`
     animation: ${fadeIn} 1s;
+    display: grid;
+    grid-gap: 10px;
     min-height: 465px;
-    width: 900px;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 100px);
+
+    & > div:nth-child(5n + 1) {
+        grid-row: 1;
+    }
+
+    & > div:nth-child(5n + 2) {
+        grid-row: 2;
+    }
+
+    & > div:nth-child(5n + 3) {
+        grid-row: 3;
+    }
+    & > div:nth-child(5n + 4) {
+        grid-row: 4;
+    }
+    & > div:nth-child(5n + 5) {
+        grid-row: 5;
+    }
 
     & > div {
-        display: flex;
-        flex-wrap: wrap;
-        height: 0;
+        margin: 0;
+        padding: 10px;
     }
-`
-
-const Input = styled.input`
-    border-radius: 5px;
-    border: 1px solid #ccc2c9;
-    color: #474747;
-    font-weight: bold;
-    font-size: 12px;
-    height: 30px;
-    margin: 10px 0 10px 0;
-    text-align: center;
-    width: 65%;
 `
 
 const AddVisit = styled.div`
@@ -75,7 +111,6 @@ const AddVisit = styled.div`
     flex-direction: column;
     justify-content: center;
     height: 135px;
-    margin: 10px 10px 0 10px;
     width: 135px;
 
     & > p {
@@ -84,43 +119,43 @@ const AddVisit = styled.div`
     }
 `
 
-const CountriesVisitedContainer = styled.div`
-    display: flex;
-`
-
 const Continents = styled.div`
+    border-bottom: 1px solid #c9c9c9;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-
     justify-content: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
 `
 
 const Continent = styled.div`
     align-items: center;
-    background: ${({ isselected }) => (isselected ? '#54e1e8' : '#fff')};
-    color: ${({ isselected }) => (isselected ? '#fff' : '#113331')};
+    background: ${({ isselected }) => (isselected ? '#31404F' : '#fff')};
+    color: ${({ isselected }) => (isselected ? '#fff' : '#31404F')};
     border-radius: 8px;
+    box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.15);
     cursor: pointer;
     display: flex;
     justify-content: center;
+    font-size: 13px;
     flex-direction: column;
-    height: 100px;
+    height: 65px;
     margin: 10px;
     padding: 6px;
-    width: 100px;
+    width: 65px;
 `
 
 const ContinentsContainer = styled.div`
-    align-items: center;
-    background: #323c46;
-    border-radius: 10px;
-    display: flex;
-    height: 400px;
-    flex-direction: column;
-    justify-content: center;
-    padding: 10px;
-    width: 400px;
+    & > div {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 10px;
+
+        width: 300px;
+    }
 
     & > p {
         color: #fff;
@@ -136,7 +171,7 @@ const ContinentName = styled.div`
 
 const LoadingContainer = styled.div`
     align-items: center;
-    color: #ccc;
+    color: #f0f0f0;
     display: flex;
     flex-direction: column;
     margin: auto;
@@ -158,8 +193,9 @@ const ResetButton = styled.div`
 `
 
 const CountriesMap = styled.div`
-    margin-right: 100px;
-    width: 765px;
+    margin: 10px;
+    height: 300px;
+    width: 100%;
 `
 
 const Pagination = styled.div`
@@ -170,8 +206,8 @@ const Pagination = styled.div`
 
 const PageNumber = styled.div`
     border: 1px solid ${BRAND_COLOR};
-    background: ${({ selectedPage }) => (selectedPage ? BRAND_COLOR : '#323C46')};
-    color: ${({ selectedPage }) => (selectedPage ? '#323C46' : BRAND_COLOR)};
+    background: ${({ selectedPage }) => (selectedPage ? BRAND_COLOR : '${KIERAN_GREY}')};
+    color: ${({ selectedPage }) => (selectedPage ? '${KIERAN_GREY}' : BRAND_COLOR)};
     cursor: pointer;
     margin-right: 5px;
     padding: 5px;
@@ -179,7 +215,7 @@ const PageNumber = styled.div`
 
 const NoTrips = styled.div`
     align-items: center;
-    color: #ccc;
+    color: #f0f0f0;
     display: flex;
 `
 
@@ -226,44 +262,9 @@ const Visited = ({ ui, user }) => {
 
     return !ui.loading ? (
         <Container>
-            <CountriesVisitedContainer>
-                <CountriesMap>
-                    <VisitedTotal>
-                        <Total>{user.userVisitedCountries.length} / 195</Total>
-                    </VisitedTotal>
-                    <CountriesList>
-                        <div style={{ display: 'flex' }}>
-                            <AddVisit onClick={() => setModalOpen(true)}>
-                                <img src={'/images/addTrip.svg'} />
-                                <p>Add a visit</p>
-                            </AddVisit>
-                            {user && filteredCountries.length ? (
-                                filteredCountries
-                                    .slice(start, end)
-                                    .map((country) => (
-                                        <Country country={country} selectedContinent={selectedContinent} />
-                                    ))
-                            ) : (
-                                <NoTrips>Trips will appear here once you've added them</NoTrips>
-                            )}
-                        </div>
-                    </CountriesList>
-                    {filteredCountries.length > 14 ? (
-                        <Pagination>
-                            <PageNumber selectedPage={page === 1} onClick={() => setPage(1)}>
-                                1
-                            </PageNumber>
-                            <PageNumber selectedPage={page === 2} onClick={() => setPage(2)}>
-                                2
-                            </PageNumber>
-                        </Pagination>
-                    ) : null}
-                </CountriesMap>
-
-                <CONNECTED_CountryModal isModalOpen={isModalOpen} setModalOpen={setModalOpen} />
-
-                <ContinentsContainer>
-                    <p>Filter Visits</p>
+            <ContinentsContainer>
+                <div>
+                    <p>Filter by continent</p>
                     <Continents>
                         {continents.map((continent) => (
                             <Continent
@@ -279,13 +280,48 @@ const Visited = ({ ui, user }) => {
                         ))}
                     </Continents>
 
-                    <Input
-                        onChange={(e) => inputStream.next(e.target.value)}
-                        placeholder="Or start typing country name..."
-                    />
+                    <ImageAndSearch>
+                        <img src="/images/search.svg" width="20" />
+                        <StyledInput
+                            onChange={(e) => inputStream.next(e.target.value)}
+                            placeholder="Enter Country Name"
+                        />
+                    </ImageAndSearch>
                     <ResetButton onClick={() => filterCountriesByContinent(null)}>Reset</ResetButton>
-                </ContinentsContainer>
-            </CountriesVisitedContainer>
+                </div>
+            </ContinentsContainer>
+
+            <CONNECTED_CountryModal isModalOpen={isModalOpen} setModalOpen={setModalOpen} />
+
+            <CountriesMap>
+                <VisitedTotal>
+                    <div>
+                        <h3>Your trips</h3>
+                    </div>
+                    <Total>{user.userVisitedCountries.length} / 195 countries visited</Total>
+                </VisitedTotal>
+                <CountriesList>
+                    <>
+                        {user && filteredCountries.length ? (
+                            filteredCountries
+                                .slice(start, end)
+                                .map((country) => <Country country={country} selectedContinent={selectedContinent} />)
+                        ) : (
+                            <NoTrips>Trips will appear here once you've added them</NoTrips>
+                        )}
+                    </>
+                </CountriesList>
+                {filteredCountries.length > 14 ? (
+                    <Pagination>
+                        <PageNumber selectedPage={page === 1} onClick={() => setPage(1)}>
+                            1
+                        </PageNumber>
+                        <PageNumber selectedPage={page === 2} onClick={() => setPage(2)}>
+                            2
+                        </PageNumber>
+                    </Pagination>
+                ) : null}
+            </CountriesMap>
         </Container>
     ) : (
         <LoadingContainer>

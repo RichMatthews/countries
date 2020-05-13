@@ -17,7 +17,7 @@ exports.handler = (event, context, callback) => {
     context.callbackWaitsForEmptyEventLoop = false
 
     const userID = event['queryStringParameters']['userId'] || ''
-    const readCountries = firebaseApp.database().ref(`users/${userID}`)
+    const readCountries = firebaseApp.database().ref(`users/${userID}/countries`)
 
     readCountries.off()
 

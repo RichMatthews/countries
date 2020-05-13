@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 
 import { setUser } from 'redux/action-creators/user/set-user'
 import { firebaseApp } from '../../config.mjs'
+import { KIERAN_GREY } from 'styles'
 
 const AccountContainer = styled.div`
     background: #f4f4f4;
@@ -18,8 +19,8 @@ const AccountContainer = styled.div`
 
 const SignInButton = styled.div`
     align-items: center;
-    background: #323c46;
-    color: #ccc;
+    background: ${KIERAN_GREY};
+    color: #f0f0f0;
     cursor: pointer;
     display: flex;
     justify-content: stretch;
@@ -41,7 +42,13 @@ const LoadingContainer = styled.div`
     width: 200px;
 `
 
-export const Login = ({ loaded, setUser, user }) => {
+const SignInContainer = styled.div`
+    align-items: center;
+    display: flex;
+    justify-content: center;
+`
+
+export const Login = ({ loaded, newUser, setUser, user }) => {
     const provider = new firebase.auth.GoogleAuthProvider()
 
     const login = () => {
@@ -59,27 +66,26 @@ export const Login = ({ loaded, setUser, user }) => {
     }
 
     return loaded ? (
-        <div>
-            {user.isLoggedIn ? (
+        <SignInContainer>
+            {newUser ? (
                 <>
                     {/* <AccountContainer>Welcome {user.displayName.split(' ')[0]}</AccountContainer> */}
                     <AccountContainer>Settings</AccountContainer>
                     <AccountContainer>Request new features</AccountContainer>
                 </>
             ) : (
-                <>
+                <div>
                     <SignInButton onClick={login}>
                         <img src={'/images/google.png'} width="30" /> <div>Sign in with Google</div>
                     </SignInButton>
-                    <SignInButton onClick={login}>
-                        <img src={'/images/google.png'} width="30" /> <div>Sign in with Facebook</div>
-                    </SignInButton>
+                    <img src={'/images/facebook.png'} width="100" onClick={login} />
+
                     <SignInButton onClick={login}>
                         <img src={'/images/google.png'} width="30" /> <div>Sign in with LinkedIn</div>
                     </SignInButton>
-                </>
+                </div>
             )}
-        </div>
+        </SignInContainer>
     ) : (
         <LoadingContainer>
             <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} />

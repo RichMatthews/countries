@@ -4,6 +4,7 @@ import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
 
 import { FormErrors } from 'components/country-visited-modal/components/shared/form-errors'
+import { KIERAN_GREY } from 'styles'
 
 const CalendarImage = styled.img`
     margin-left: -5px;
@@ -13,9 +14,10 @@ const CalendarImage = styled.img`
 `
 
 const DateComponent = styled.div`
+    background: ${KIERAN_GREY};
     border: 1px solid #ccc;
     border-radius: 5px;
-    color: #757575;
+    color: ${({ date }) => (date ? '#fff' : '#757575')};
     font-size: 15px;
     margin-bottom: 20px;
     padding: 15px;
@@ -34,7 +36,7 @@ const StyledCalendar = styled(Calendar)`
 export const CalendarField = ({ calendar, calendarFormatter, date, showCalendar }) => (
     <div>
         <FormErrors category="visitName" errorMsg="You need to enter a name" />
-        <DateComponent onClick={() => showCalendar(!calendar)} value={date}>
+        <DateComponent date={date} onClick={() => showCalendar(!calendar)} value={date}>
             <CalendarImage src="/images/calendar.svg" />
             <div>{date ? date : 'Select date'}</div>
         </DateComponent>
