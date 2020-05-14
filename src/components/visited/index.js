@@ -20,7 +20,7 @@ const Container = styled.div`
     height: 100%;
     height: 100%;
     position: absolute;
-
+    overflow: scroll;
     width: 100%;
 `
 
@@ -51,7 +51,10 @@ const VisitedTotal = styled.div`
     flex-direction: row;
     justify-content: space-between;
     margin-bottom: 15px;
-    & > div {
+
+    & div:first-child {
+        display: flex;
+        flex-direction: row;
     }
 
     & > div > h3 {
@@ -67,40 +70,41 @@ const Total = styled.div`
     display: flex;
     height: 65px;
     font-size: 18px;
-    font-weight: 900;backgroun
+    font-weight: 900;
     justify-content: center;
     padding: 5px;
 `
 
+// & > div:nth-child(5n + 1) {
+//     grid-row: 1;
+// }
+
+// & > div:nth-child(5n + 2) {
+//     grid-row: 2;
+// }
+
+// & > div:nth-child(5n + 3) {
+//     grid-row: 3;
+// }
+// & > div:nth-child(5n + 4) {
+//     grid-row: 4;
+// }
+// & > div:nth-child(5n + 5) {
+//     grid-row: 5;
+// }
+
 const CountriesList = styled.div`
     animation: ${fadeIn} 1s;
     display: grid;
-    grid-gap: 10px;
-    min-height: 465px;
-    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 5px;
+    min-height: 500px;
+    grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(4, 100px);
-
-    & > div:nth-child(5n + 1) {
-        grid-row: 1;
-    }
-
-    & > div:nth-child(5n + 2) {
-        grid-row: 2;
-    }
-
-    & > div:nth-child(5n + 3) {
-        grid-row: 3;
-    }
-    & > div:nth-child(5n + 4) {
-        grid-row: 4;
-    }
-    & > div:nth-child(5n + 5) {
-        grid-row: 5;
-    }
 
     & > div {
         margin: 0;
-        padding: 10px;
+        padding: 5px;
+        padding-right: 0;
     }
 `
 
@@ -110,8 +114,7 @@ const AddVisit = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 135px;
-    width: 135px;
+    width: 68px;
 
     & > p {
         color: ${BRAND_COLOR};
@@ -134,7 +137,7 @@ const Continent = styled.div`
     background: ${({ isselected }) => (isselected ? '#31404F' : '#fff')};
     color: ${({ isselected }) => (isselected ? '#fff' : '#31404F')};
     border-radius: 8px;
-    box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 1px 4px rgba(41, 51, 57, 0.5);
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -171,10 +174,11 @@ const ContinentName = styled.div`
 
 const LoadingContainer = styled.div`
     align-items: center;
-    color: #f0f0f0;
+    color: ${KIERAN_GREY};
     display: flex;
     flex-direction: column;
     margin: auto;
+    margin-top: 50px;
     width: 200px;
 `
 
@@ -202,12 +206,14 @@ const Pagination = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
+    margin-top: 5px;
+    width: 97%;
 `
 
 const PageNumber = styled.div`
-    border: 1px solid ${BRAND_COLOR};
-    background: ${({ selectedPage }) => (selectedPage ? BRAND_COLOR : '${KIERAN_GREY}')};
-    color: ${({ selectedPage }) => (selectedPage ? '${KIERAN_GREY}' : BRAND_COLOR)};
+    border: 1px solid ${KIERAN_GREY};
+    background: ${({ selectedPage }) => (selectedPage ? KIERAN_GREY : '#fff')};
+    color: ${({ selectedPage }) => (selectedPage ? '#fff' : KIERAN_GREY)};
     cursor: pointer;
     margin-right: 5px;
     padding: 5px;
@@ -224,9 +230,12 @@ const Visited = ({ ui, user }) => {
     const [isModalOpen, setModalOpen] = useState(false)
     const [selectedContinent, setSelectedContinent] = useState(null)
     const [page, setPage] = useState(1)
+    const [pages, setPages] = useState([1])
+    const [pageMapping, setPageMapping] = useState({ start: 0, end: 10 })
 
     useEffect(() => {
         setFilteredCountries(user.userVisitedCountries)
+        workoutRequiredPages(user.userVisitedCountries)
     }, [user])
 
     const filterCountriesByValue = (value) => {
@@ -238,7 +247,7 @@ const Visited = ({ ui, user }) => {
 
     const filterCountriesByContinent = (continent) => {
         setSelectedContinent(continent)
-        setPage(1)
+        setPageHelper(1)
         if (!continent) {
             return setFilteredCountries(user.userVisitedCountries)
         }
@@ -257,8 +266,23 @@ const Visited = ({ ui, user }) => {
         { name: 'South America', svg: '/images/continents/south-america' },
     ]
 
-    const start = page === 1 ? 0 : 14
-    const end = page === 2 ? 28 : 14
+    const workoutRequiredPages = () => {
+        const pages = Math.ceil(user.userVisitedCountries.length / 10)
+        let newPages = []
+        for (let i = 0; i < pages; i++) {
+            newPages.push(i + 1)
+        }
+        setPages(newPages)
+    }
+
+    const setPageHelper = (page) => {
+        setPage(page)
+        if (page === 1) {
+            setPageMapping({ start: 0, end: 10 })
+        } else {
+            setPageMapping({ start: page * 10 - 10, end: page * 10 })
+        }
+    }
 
     return !ui.loading ? (
         <Container>
@@ -297,6 +321,9 @@ const Visited = ({ ui, user }) => {
                 <VisitedTotal>
                     <div>
                         <h3>Your trips</h3>
+                        <AddVisit onClick={() => setModalOpen(true)}>
+                            <img src={'/images/addTrip.svg'} />
+                        </AddVisit>
                     </div>
                     <Total>{user.userVisitedCountries.length} / 195 countries visited</Total>
                 </VisitedTotal>
@@ -304,23 +331,21 @@ const Visited = ({ ui, user }) => {
                     <>
                         {user && filteredCountries.length ? (
                             filteredCountries
-                                .slice(start, end)
+                                .slice(pageMapping.start, pageMapping.end)
                                 .map((country) => <Country country={country} selectedContinent={selectedContinent} />)
                         ) : (
                             <NoTrips>Trips will appear here once you've added them</NoTrips>
                         )}
                     </>
                 </CountriesList>
-                {filteredCountries.length > 14 ? (
-                    <Pagination>
-                        <PageNumber selectedPage={page === 1} onClick={() => setPage(1)}>
-                            1
+
+                <Pagination>
+                    {pages.map((pg) => (
+                        <PageNumber selectedPage={page === pg} onClick={() => setPageHelper(pg)}>
+                            {pg}
                         </PageNumber>
-                        <PageNumber selectedPage={page === 2} onClick={() => setPage(2)}>
-                            2
-                        </PageNumber>
-                    </Pagination>
-                ) : null}
+                    ))}
+                </Pagination>
             </CountriesMap>
         </Container>
     ) : (

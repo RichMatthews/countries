@@ -7,23 +7,21 @@ import { CountryInformation } from 'components/country-information'
 const Container = styled.div`
     align-items: center;
     background: #fff;
-    border: 1px solid #D1D8E2;
     border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 4px rgba(41,51,57,.5);
     cursor: pointer;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 80px;
+    height: 70px;
     margin: 10px;
-    padding: 10px;
     width: 500px;
 }
 `
 
 const CountryName = styled.div`
     color: #b6b6b6;
-    font-size: 40px;
+    font-size: 32px;
     font-weight: 900;
 `
 
@@ -42,23 +40,20 @@ const InnerContainer = styled.div`
     width: 100%;
 `
 
+const ImageContainer = styled.div`
+    display: flex;
+    height: 80px;
+    width: 106px;
+
+    & > img {
+        border-bottom-right-radius: 5px;
+        border-top-right-radius: 5px;
+        width: 100%;
+    }
+`
+
 export const Country = ({ country, selectedContinent }) => {
     const [showModal, setShowModal] = useState(false)
-    const [photo, setPhoto] = useState(null)
-
-    const unsplash = new Unsplash({ accessKey: '5VWcfNZ9F0J2u0yi4Ll1LDAoxLHTJ2gEVAaZgh1bg94' })
-    useEffect(() => {
-        wait()
-    }, [])
-
-    const wait = async () => {
-        const photo = await unsplash.search
-            .photos(country.name, 1, 5, { orientation: 'landscape' })
-            .then(toJson)
-            .then((json) => {
-                setPhoto(json['results'][0].urls.full)
-            })
-    }
 
     return country ? (
         <>
@@ -76,7 +71,13 @@ export const Country = ({ country, selectedContinent }) => {
                             </div>
                         </CountryVisitsAndFlag>
                     </div>
-                    <img src={photo} width="120" />
+                    <ImageContainer>
+                        <img
+                            src={`/images/countries/${country.name}.jpg`}
+                            loading="lazy"
+                            onError={(e) => (e.target.src = '/images/countries/australia.jpg')}
+                        />
+                    </ImageContainer>
                 </InnerContainer>
             </Container>
             {showModal ? (

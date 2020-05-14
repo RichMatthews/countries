@@ -19,6 +19,9 @@ export const CHART_OPTIONS = {
         textStyle: {
             color: '#4a4947',
         },
+        format: '0',
+        gridlines: { count: 7 },
+        maxValue: 7,
         minValue: 0,
     },
     legend: { position: 'none' },

@@ -4,8 +4,13 @@ import { Observable } from 'rxjs'
 import { ofType } from 'redux-observable'
 import { ajax } from 'rxjs/ajax'
 
-const restCountriesReceived = (payload) => ({ type: 'REST_COUNTRIES_RECEIVED_SUCCESS', data: payload })
-const restCountriesOptionsGenerated = (payload) => ({ type: 'REST_COUNTRIES_OPTIONS_GENERATED', data: payload })
+import { REST_COUNTRIES_DROPDOWN_OPTIONS_GENERATED, REST_COUNTRIES_RECEIVED_SUCCESS } from 'redux/types'
+
+const restCountriesReceived = (payload) => ({ type: REST_COUNTRIES_RECEIVED_SUCCESS, countries: payload })
+const restCountriesOptionsGenerated = (payload) => ({
+    type: REST_COUNTRIES_DROPDOWN_OPTIONS_GENERATED,
+    options: payload,
+})
 
 const convertCountriesToOptions = (countries) => {
     let newCountries = []

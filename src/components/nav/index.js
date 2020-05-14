@@ -64,7 +64,6 @@ const LogOutBtn = styled.div`
 `
 
 const Welcome = styled.div`
-    color: #fff;
     font-size: 10px;
     padding: 5px 5px 1px 5px;
     width: 125px;
@@ -90,9 +89,10 @@ const Dropdown = styled.div`
 const AccountAndWelcomeLink = styled.div`
     border-top-right-radius: 5px;
     border-top-left-radius: 5px;
+    color: #fff;
     &:hover {
         background: #fff;
-        color: #000;
+        color: ${KIERAN_GREY};
     }
 
     &:hover :nth-child(2) {

@@ -19,6 +19,7 @@
         "react": "^16.13.1",
         "react-calendar": "^3.0.1",
         "react-circular-progressbar": "^2.0.3",
+        "react-countup": "^4.3.3",
         "react-dom": "^16.13.1",
         "react-google-charts": "^3.0.15",
         "react-modal": "^3.11.2",

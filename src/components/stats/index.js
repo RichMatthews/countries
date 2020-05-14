@@ -7,6 +7,7 @@ import { fadeIn } from 'components/react-modal-adapter'
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import Select from 'react-select'
+import CountUp from 'react-countup'
 
 import { TopThreeCountries } from './top-three-countries'
 import { CHART_OPTIONS } from 'components/stats/charts/options'
@@ -16,7 +17,7 @@ import { KIERAN_GREY } from 'styles'
 const Container = styled.div`
     background: #e1e3e3;
     height: 100%;
-    padding-top: 50px;
+    padding-top: 10px;
     width: 100%;
 `
 
@@ -59,7 +60,8 @@ const Bottom = styled.div`
 `
 
 const Continents = styled(StatComponent)`
-    height: 265px;
+    height: 255px;
+    padding: 5px;
     min-width: 470px;
 `
 
@@ -72,8 +74,8 @@ const FirstAndLast = styled.div`
 
 const FirstOrLast = styled(StatComponent)`
     display: flex;
-    height: 110px;
-    padding: 5px;
+    height: 100px;
+    padding: 7px;
     justify-content: space-between;
     & > div {
         display: flex;
@@ -83,8 +85,16 @@ const FirstOrLast = styled(StatComponent)`
     }
 
     & > div > p {
-        font-size: 10px;
+        font-size: 13px;
     }
+`
+
+const MainHeading = styled.div`
+    color: #4a4947;
+    width: 100%;
+    font-size: 48px;
+    border-bottom: 1px solid #c9c9c9;
+    margin-bottom: 20px;
 `
 
 const ByYear = styled(Continents)``
@@ -139,14 +149,14 @@ const customStyles = {
 }
 
 export const Stats = ({ user }) => {
-    const [continents, setContinents] = useState([['Continents', 'Visits']])
     const [continent, setContinent] = useState('Africa')
 
-    const { countriesByContinent, continentVisits, firstTrip, lastTrip, top3Countries } = user.stats
+    const { countriesByContinent, continentVisits, firstTrip, lastTrip, top3Countries, tripsByYear } = user.stats
 
     return (
         <Container>
             <InnerContainer>
+                <MainHeading>Your stats</MainHeading>
                 <Top>
                     <Top3AndFirstAndLast>
                         <TopThreeCountries top3Countries={top3Countries} />
@@ -156,7 +166,7 @@ export const Stats = ({ user }) => {
                                     <>
                                         <div>
                                             {firstTrip.visitName}
-                                            <img src="/images/passport.svg" width="35" />
+                                            <img src="/images/passport.svg" width="50" />
                                         </div>
                                         <div>
                                             <p>First Trip</p>
@@ -176,7 +186,7 @@ export const Stats = ({ user }) => {
                                     <>
                                         <div>
                                             {lastTrip.visitName}
-                                            <img src="/images/passport.svg" width="35" />
+                                            <img src="/images/passport.svg" width="50" />
                                         </div>
                                         <div>
                                             <p>Latest Trip</p>
@@ -194,9 +204,10 @@ export const Stats = ({ user }) => {
                         </FirstAndLast>
                     </Top3AndFirstAndLast>
                     <TotalCountries>
-                        {user.userVisitedCountries ? (
+                        {countriesByContinent ? (
                             <>
-                                {user.userVisitedCountries.length} <p>countries visited</p>
+                                <CountUp end={user.userVisitedCountries.length} duration={3.5} />
+                                <p>countries visited</p>
                             </>
                         ) : (
                             <SpinnerContainer>
@@ -233,12 +244,11 @@ export const Stats = ({ user }) => {
                 </Top>
                 <Bottom>
                     <Continents>
-                        {continentVisits ? (
+                        {continentVisits.length > 1 ? (
                             <Chart
                                 width={'450px'}
-                                height={'270px'}
+                                height={'250px'}
                                 chartType="BarChart"
-                                loader={<div>Loading Chart</div>}
                                 mapsApiKey="YAIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"
                                 data={continentVisits}
                                 options={CHART_OPTIONS}
@@ -250,24 +260,13 @@ export const Stats = ({ user }) => {
                         )}
                     </Continents>
                     <ByYear>
-                        {continents.length > 1 ? (
+                        {tripsByYear.length > 1 ? (
                             <Chart
                                 width={'450px'}
-                                height={'270px'}
-                                chartType="LineChart"
-                                data={[
-                                    ['Task', 'Something'],
-                                    ['2013', 9],
-                                    ['2014', 10],
-                                    ['2015', 2],
-                                    ['2016', 3],
-                                    ['2017', 5],
-                                    ['2018', 6],
-                                    ['2019', 9],
-                                    ['2020', 10],
-                                ]}
+                                height={'250px'}
+                                chartType="Bar"
+                                data={tripsByYear}
                                 options={CHART_OPTIONS}
-                                rootProps={{ 'data-testid': '1' }}
                             />
                         ) : (
                             <SpinnerContainer>

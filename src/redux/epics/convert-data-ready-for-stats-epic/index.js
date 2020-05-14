@@ -1,19 +1,26 @@
 import { catchError, map, mergeMap, tap } from 'rxjs/operators'
 import { ofType } from 'redux-observable'
 import { sortBy } from 'underscore'
+import moment from 'moment'
 
 import {
     GET_USER_VISITED_COUNTRIES_SUCCESS,
-    SET_TOP_THREE_COUNTRES_STAT,
+    SET_CALCULATED_CONTINENTS_STAT,
+    SET_COUNTRIES_AGGREGATED_BY_CONTINENT_STAT,
     SET_FIRST_TRIP_STAT,
     SET_LAST_TRIP_STAT,
+    SET_TOP_THREE_COUNTRES_STAT,
 } from 'redux/types'
 
-const setTopThreeCountries = (payload) => ({ type: SET_TOP_THREE_COUNTRES_STAT, data: payload })
-const setCalculatedContinents = (payload) => ({ type: 'SET_CALCULATED_CONTINENTS', data: payload })
-const setFirstTrip = (payload) => ({ type: SET_FIRST_TRIP_STAT, data: payload })
-const setLastTrip = (payload) => ({ type: SET_LAST_TRIP_STAT, data: payload })
-const setSomething = (payload) => ({ type: 'SET_SOMETHING', data: payload })
+const setCountriesAggregatedByContinent = (payload) => ({
+    type: SET_COUNTRIES_AGGREGATED_BY_CONTINENT_STAT,
+    data: payload,
+})
+const setCalculatedContinents = (payload) => ({ type: SET_CALCULATED_CONTINENTS_STAT, continentVisits: payload })
+const setFirstTrip = (payload) => ({ type: SET_FIRST_TRIP_STAT, firstTrip: payload })
+const setLastTrip = (payload) => ({ type: SET_LAST_TRIP_STAT, lastTrip: payload })
+const setTopThreeCountries = (payload) => ({ type: SET_TOP_THREE_COUNTRES_STAT, countries: payload })
+const setTripsByYear = (payload) => ({ type: 'SET_TRIPS_BY_YEAR_STAT', trips: payload })
 
 const calculateTopThreeCountries = (countries) => {
     const sortedCountries = sortBy(countries, (country) => {
@@ -83,19 +90,19 @@ const calculateCountriesVisitedByContinent = (countries) => {
         },
         Asia: {
             visited: 0,
-            total: 47,
+            total: 48,
         },
         Europe: {
             visited: 0,
-            total: 47,
+            total: 44,
         },
         'North America': {
             visited: 0,
-            total: 47,
+            total: 23,
         },
         Oceania: {
             visited: 0,
-            total: 47,
+            total: 14,
         },
         'South America': {
             visited: 0,
@@ -108,6 +115,21 @@ const calculateCountriesVisitedByContinent = (countries) => {
     return continents
 }
 
+const calculateTripsByYear = (countries) => {
+    let dates = {}
+    countries.forEach((country) => {
+        country.visits.forEach((visit) => {
+            const date = moment.unix(visit.startDate).format('YYYY')
+            if (date in dates) {
+                dates[date] = dates[date] + 1
+            } else {
+                dates[date] = 0
+            }
+        })
+    })
+    return Object.entries(dates)
+}
+
 export const convertDataReadyForStatsEpic = (action$, state$) =>
     action$.pipe(
         ofType(GET_USER_VISITED_COUNTRIES_SUCCESS),
@@ -116,13 +138,16 @@ export const convertDataReadyForStatsEpic = (action$, state$) =>
             const calculateContinents = calculateContinentsVisits(action.payload)
             const firstTrip = calculateFirstTrip(action.payload)
             const lastTrip = calculateLastTrip(action.payload)
-            const calcCountriesByContinent = calculateCountriesVisitedByContinent(action.payload)
+            const calculateCountriesByContinent = calculateCountriesVisitedByContinent(action.payload)
+            const tripsByYear = calculateTripsByYear(action.payload)
+
             return [
                 setTopThreeCountries(calculatedTop3),
                 setCalculatedContinents(calculateContinents),
                 setFirstTrip(firstTrip),
                 setLastTrip(lastTrip),
-                setSomething(calcCountriesByContinent),
+                setCountriesAggregatedByContinent(calculateCountriesByContinent),
+                setTripsByYear(tripsByYear),
             ]
         }),
     )

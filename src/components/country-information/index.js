@@ -1,26 +1,18 @@
 import React from 'react'
 import styled from 'styled-components'
+import moment from 'moment'
 
 import { ReactModalAdapter, fadeIn } from 'components/react-modal-adapter'
 import { KIERAN_GREY } from 'styles'
 
-const Right = styled.div`
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    position: absolute;
-    width: 100%;
-`
-
 const ModalInner = styled.div`
     display: flex;
-    flex-direction: row;
-    height: 100%;
+    flex-direction: column;
+    padding: 15px;
 `
 
 const CountryHeading = styled.h3`
-    color: #fff;
+    color: #323c46;
     margin: 0;
     font-style: normal;
     font-weight: 900;
@@ -28,14 +20,6 @@ const CountryHeading = styled.h3`
     line-height: 60px;
     text-transform: uppercase;
     text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.2);
-`
-
-const Left = styled.div`
-    background: ${({ country }) => 'url(/images/beach.jpg) center no-repeat'};
-    background-size: 1100px;
-    position: relative;
-    opacity: 0.5;
-    width: 100%;
 `
 
 const Close = styled.div`
@@ -47,35 +31,34 @@ const Close = styled.div`
 const Visit = styled.div`
     border-radius: 6px;
     box-shadow: 0 1px 4px rgba(41, 51, 57, 0.5);
-    color: #f0f0f0;
+    color: ${KIERAN_GREY};
     display: flex;
     flex-direction: column;
     margin-bottom: 5px;
-    padding: 10px;
-    width: 80%;
+    margin-top: 5px;
+    padding: 5px;
 
-    & > div {
-        background: ${KIERAN_GREY};
+    & div:first-child {
+        display: flex;
+        padding: 5px;
+        padding-bottom: 20px;
+        justify-content: space-between;
+        align-items: center;
+        & div:first-child {
+            font-size: 35px;
+        }
     }
 `
 
 const CloseImage = styled.img`
-    position: absolute;
-    top: -90px;
-    right: 0;
-    width: 15px;
+    width: 55px;
 `
 
 const CountryNameAndVisitTotalCombined = styled.div`
     align-items: center;
+    border-bottom: 1px solid ${KIERAN_GREY};
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    & > p {
-        color: #fff;
-        font-size: 24px;
-        margin: 0;
-    }
+    padding: 10px;
 `
 
 const StyledModal = styled(ReactModalAdapter)`
@@ -100,7 +83,7 @@ const StyledModal = styled(ReactModalAdapter)`
         right: 40px;
         bottom: 40px;
         border: none;
-        background: #283039;
+        background: #fff;
         overflow: auto;
         border-radius: 4px;
         outline: none;
@@ -111,40 +94,32 @@ const StyledModal = styled(ReactModalAdapter)`
     }
 `
 
-const ImageContainer = styled.div`
-    width: 80px;
-`
-
-const Image = styled.img`
-    width: 100%;
-`
-
 export const CountryInformation = ({ country, setShowModal, showModal }) => {
     return (
         <StyledModal isOpen={showModal} closeTimeoutMS={500} ariaHideApp={false}>
             <ModalInner>
-                <Left country={country}></Left>
-                <Right>
-                    <ImageContainer>
-                        <Image src={country.flag} />
-                    </ImageContainer>
+                <div>
                     <CountryNameAndVisitTotalCombined>
                         <CountryHeading>{country.name}</CountryHeading>
-                        <p>You've visited {country.visits.length} times</p>
+                        <Close onClick={() => setShowModal(!showModal)}>
+                            <CloseImage src={'/images/ticket.svg'} />
+                        </Close>
                     </CountryNameAndVisitTotalCombined>
-                    <Close onClick={() => setShowModal(!showModal)}>
-                        <CloseImage src={'/images/close.svg'} />
-                    </Close>
                     {country.visits.map((visit) => (
                         <Visit>
-                            <div>{visit.visitName}</div>
                             <div>
-                                {visit.startDate} - {visit.endDate}
+                                <div>{visit.visitName}</div>
+                                <div>
+                                    {moment.unix(visit.startDate).format('Do MMM YYYY')} -{' '}
+                                    {moment.unix(visit.endDate).format('Do MMM YYYY')}
+                                </div>
                             </div>
-                            <div>You went with some people</div>
+                            <div></div>
+                            <div>You went with {visit.people} </div>
                         </Visit>
                     ))}
-                </Right>
+                </div>
+                <div></div>
             </ModalInner>
         </StyledModal>
     )
