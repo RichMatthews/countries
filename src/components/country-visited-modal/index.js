@@ -4,6 +4,7 @@ import { Observable, timer } from 'rxjs'
 import { retryWhen, delayWhen } from 'rxjs/operators'
 import styled from 'styled-components'
 import moment from 'moment'
+import Picker from 'emoji-picker-react'
 
 import { fadeIn, ReactModalAdapter } from 'components/react-modal-adapter'
 import { ButtonAndSuccessSection } from 'components/country-visited-modal/components/button-and-success-section'
@@ -13,9 +14,10 @@ import { SearchCountryField } from 'components/country-visited-modal/components/
 import { VisitNameField } from 'components/country-visited-modal/components/visit-name'
 import { getRESTAPICountries } from 'redux/action-creators/countries/get-rest-api-countries'
 import { addNewUserCountry } from 'redux/action-creators/user/add-new-user-visited-country'
+import { KIERAN_GREY } from 'styles'
 
 const AddVisit = styled.div`
-    color: #f0f0f0;
+    color: ${KIERAN_GREY};
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
@@ -57,12 +59,12 @@ const StyledModal = styled(ReactModalAdapter)`
         right: 40px;
         bottom: 40px;
         border: none;
-        background: #293039;
+        background: #fff;
         overflow: auto;
         border-radius: 4px;
         outline: none;
         padding: 20px;
-        height: 460px;
+        height: 405px;
         margin: auto;
         width: 450px;
     }
@@ -78,6 +80,12 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
     const [success, setSuccess] = useState(null)
     const [timestamp, setTimestamp] = useState(null)
     const [visitName, setVisitName] = useState(null)
+    const [chosenEmoji, setChosenEmoji] = useState(null)
+    const [showPicker, setShowPicker] = useState(false)
+
+    const onEmojiClick = (event, emojiObject) => {
+        setChosenEmoji(emojiObject)
+    }
 
     const usePrevious = (value) => {
         const ref = useRef()
@@ -214,6 +222,8 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
                     submitCountryDetailsToBackend={submitCountryDetailsToBackend}
                     success={success}
                 />
+                <button onClick={() => setShowPicker(!showPicker)}></button>
+                {showPicker ? <Picker onEmojiClick={onEmojiClick} /> : null}
             </ModalContent>
         </StyledModal>
     )

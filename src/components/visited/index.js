@@ -72,7 +72,7 @@ const Total = styled.div`
     font-size: 18px;
     font-weight: 900;
     justify-content: center;
-    padding: 5px;
+    padding: 0 5px 0 0;
 `
 
 // & > div:nth-child(5n + 1) {
@@ -98,13 +98,20 @@ const CountriesList = styled.div`
     display: grid;
     grid-gap: 5px;
     min-height: 500px;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(4, 100px);
+
+    @media (max-width: 1870px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 1275px) {
+        grid-template-columns: repeat(1, 1fr);
+    }
 
     & > div {
         margin: 0;
-        padding: 5px;
-        padding-right: 0;
+        padding: 13px;
     }
 `
 
@@ -197,8 +204,6 @@ const ResetButton = styled.div`
 `
 
 const CountriesMap = styled.div`
-    margin: 10px;
-    height: 300px;
     width: 100%;
 `
 
@@ -207,12 +212,12 @@ const Pagination = styled.div`
     flex-direction: row;
     justify-content: flex-end;
     margin-top: 5px;
-    width: 97%;
 `
 
 const PageNumber = styled.div`
     border: 1px solid ${KIERAN_GREY};
     background: ${({ selectedPage }) => (selectedPage ? KIERAN_GREY : '#fff')};
+    border-radius: 3px;
     color: ${({ selectedPage }) => (selectedPage ? '#fff' : KIERAN_GREY)};
     cursor: pointer;
     margin-right: 5px;
@@ -221,8 +226,14 @@ const PageNumber = styled.div`
 
 const NoTrips = styled.div`
     align-items: center;
-    color: #f0f0f0;
+    color: ${KIERAN_GREY};
     display: flex;
+`
+
+const MainHeading = styled.div`
+    color: #4a4947;
+    width: 100%;
+    font-size: 48px;
 `
 
 const Visited = ({ ui, user }) => {
@@ -236,7 +247,7 @@ const Visited = ({ ui, user }) => {
     useEffect(() => {
         setFilteredCountries(user.userVisitedCountries)
         workoutRequiredPages(user.userVisitedCountries)
-    }, [user])
+    }, [])
 
     const filterCountriesByValue = (value) => {
         if (!value) {
@@ -258,12 +269,20 @@ const Visited = ({ ui, user }) => {
     inputStream.subscribe((val) => filterCountriesByValue(val))
 
     const continents = [
-        { name: 'Africa', svg: '/images/continents/africa' },
-        { name: 'Oceania', svg: '/images/continents/oceania' },
-        { name: 'Asia', svg: '/images/continents/asia' },
-        { name: 'Europe', svg: '/images/continents/europe' },
-        { name: 'North America', svg: '/images/continents/north-america' },
-        { name: 'South America', svg: '/images/continents/south-america' },
+        { name: 'Africa', svg: '/images/continents/africa', 'svg-light': '/images/continents/africa-light' },
+        { name: 'Oceania', svg: '/images/continents/oceania', 'svg-light': '/images/continents/oceania-light' },
+        { name: 'Asia', svg: '/images/continents/asia', 'svg-light': '/images/continents/asia-light' },
+        { name: 'Europe', svg: '/images/continents/europe', 'svg-light': '/images/continents/europe-light' },
+        {
+            name: 'North America',
+            svg: '/images/continents/north-america',
+            'svg-light': '/images/continents/north-america-light',
+        },
+        {
+            name: 'South America',
+            svg: '/images/continents/south-america',
+            'svg-light': '/images/continents/south-america-light',
+        },
     ]
 
     const workoutRequiredPages = () => {
@@ -292,20 +311,26 @@ const Visited = ({ ui, user }) => {
                     <Continents>
                         {continents.map((continent) => (
                             <Continent
+                                key={continent.name}
                                 onClick={() => filterCountriesByContinent(continent)}
-                                isselected={
-                                    selectedContinent &&
-                                    selectedContinent.name.toLowerCase() === continent.name.toLowerCase()
-                                }
+                                isselected={selectedContinent && selectedContinent.name === continent.name}
                             >
-                                <img src={`${continent.svg}.svg`} width="50" />
+                                <img
+                                    src={
+                                        selectedContinent && selectedContinent.name === continent.name
+                                            ? `${continent['svg-light']}.svg`
+                                            : `${continent.svg}.svg`
+                                    }
+                                    width="50"
+                                    alt=""
+                                />
                                 <ContinentName>{continent.name}</ContinentName>
                             </Continent>
                         ))}
                     </Continents>
 
                     <ImageAndSearch>
-                        <img src="/images/search.svg" width="20" />
+                        <img src="/images/search.svg" width="20" alt="" />
                         <StyledInput
                             onChange={(e) => inputStream.next(e.target.value)}
                             placeholder="Enter Country Name"
@@ -320,9 +345,9 @@ const Visited = ({ ui, user }) => {
             <CountriesMap>
                 <VisitedTotal>
                     <div>
-                        <h3>Your trips</h3>
+                        <MainHeading>Your trips</MainHeading>
                         <AddVisit onClick={() => setModalOpen(true)}>
-                            <img src={'/images/addTrip.svg'} />
+                            <img src={'/images/addTrip.svg'} alt="" />
                         </AddVisit>
                     </div>
                     <Total>{user.userVisitedCountries.length} / 195 countries visited</Total>
@@ -332,7 +357,13 @@ const Visited = ({ ui, user }) => {
                         {user && filteredCountries.length ? (
                             filteredCountries
                                 .slice(pageMapping.start, pageMapping.end)
-                                .map((country) => <Country country={country} selectedContinent={selectedContinent} />)
+                                .map((country) => (
+                                    <Country
+                                        key={country.name}
+                                        country={country}
+                                        selectedContinent={selectedContinent}
+                                    />
+                                ))
                         ) : (
                             <NoTrips>Trips will appear here once you've added them</NoTrips>
                         )}
@@ -341,7 +372,7 @@ const Visited = ({ ui, user }) => {
 
                 <Pagination>
                     {pages.map((pg) => (
-                        <PageNumber selectedPage={page === pg} onClick={() => setPageHelper(pg)}>
+                        <PageNumber key={pg} selectedPage={page === pg} onClick={() => setPageHelper(pg)}>
                             {pg}
                         </PageNumber>
                     ))}
@@ -350,7 +381,7 @@ const Visited = ({ ui, user }) => {
         </Container>
     ) : (
         <LoadingContainer>
-            <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} />
+            <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} alt="" />
             Retrieving trips...
         </LoadingContainer>
     )

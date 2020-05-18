@@ -1,15 +1,18 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 
+import { ACHIEVEMENTS_LIST } from 'constants/achievements-list'
 import { KIERAN_GREY } from 'styles'
 
 const Container = styled.div`
+    background: #e1e3e3;
     color: ${KIERAN_GREY};
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    height: 100%;
     align-items: center;
+    padding-top: 10px;
 `
 
 const Achievement = styled.div`
@@ -30,47 +33,84 @@ const Top = styled.div`
     align-items: center;
     display: flex;
     flex-direction: row;
-    & > h2 {
-        margin-right: 20px;
+    border-bottom: 1px solid #c9c9c9;
+    margin-bottom: 20px;
+    justify-content: space-between;
+`
+
+const Bottom = styled.div`
+    ::-webkit-scrollbar-thumb {
+        background: #a2a6a6;
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar {
+        background: #c7c9c9;
+        width: 10px;
+    }
+    overflow-y: scroll;
+    height: 500px;
+`
+
+const AchievementsList = styled.div`
+    height: 500px;
+`
+
+const Achieved = styled.div`
+    width: 40px;
+    & > img {
+        width: 40px;
     }
 `
 
-const achievements = [
-    { title: 'Antartic Adventurer', description: 'You have been to Antartica', achieved: false },
-    { title: 'Aussie! Aussie! Aussie!', description: 'You went to Straya mate', achieved: false },
-    { title: 'Continent Crusader', description: 'You have been to all 7 continents', achieved: false },
-    { title: 'First Country', description: 'You added your first country!', achieved: false },
-    { title: 'French Baguette', description: 'You conquered France!', achieved: false },
-    { title: 'Twenty Club', description: 'You have been to at least 20 countries', achieved: false },
-    { title: 'US OF A', description: 'You have been to the USA', achieved: false },
-]
+const Title = styled.div`
+    color: #4a4947;
+    font-size: 48px;
+    margin-bottom: 20px;
+    margin: 0;
+`
 
-const AchievementsContainer = () => (
-    <Container>
-        <Top>
-            <h2>Achievements</h2>
-            <div>
-                {achievements.filter((achievement) => achievement.achieved).length} / {achievements.length}
-            </div>
-        </Top>
-        <div style={{ height: '500px', overflowY: 'scroll' }}>
-            {achievements.map((achievement) => (
-                <Achievement achieved={achievement.achieved}>
+const AchievementsContainer = ({ user }) => {
+    const [achievements, setAchievements] = useState(ACHIEVEMENTS_LIST)
+
+    useEffect(() => {
+        setAchievements(achievements.map((obj) => user.achievements.find((o) => o.title === obj.title) || obj))
+    }, [user.achievements])
+
+    return (
+        <Container>
+            <AchievementsList>
+                <Top>
+                    <Title>Your Achievements</Title>
                     <div>
-                        <h2 style={{ margin: 0 }}>{achievement.title}</h2>
-                        <div>{achievement.description}</div>
+                        {achievements.filter((achievement) => achievement.achieved).length} / {achievements.length}
                     </div>
-                    {achievement.achieved ? (
-                        <div style={{ width: '40px' }}>
-                            <img src={'/images/tada.png'} width="40px" />
-                        </div>
-                    ) : null}
-                </Achievement>
-            ))}
-        </div>
-    </Container>
-)
+                </Top>
+                <Bottom>
+                    {achievements.map((achievement) => (
+                        <Achievement key={achievement.title} achieved={achievement.achieved}>
+                            <div>
+                                <h2 style={{ margin: 0 }}>{achievement.title}</h2>
+                                <div>{achievement.description}</div>
+                            </div>
+                            {achievement.achieved ? (
+                                <Achieved>
+                                    <img src={'/images/tada.png'} alt="" />
+                                </Achieved>
+                            ) : (
+                                <Achieved>
+                                    <img src={'/images/lock.png'} alt="" />
+                                </Achieved>
+                            )}
+                        </Achievement>
+                    ))}
+                </Bottom>
+            </AchievementsList>
+        </Container>
+    )
+}
 
-const mapState = () => ({})
+const mapState = ({ user }) => ({
+    user,
+})
 
 export const CONNECTED_Achievments = connect(mapState)(AchievementsContainer)

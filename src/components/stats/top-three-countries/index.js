@@ -25,7 +25,7 @@ const Top3 = styled(StatComponent)`
 
     & > div {
         margin: 10px;
-        font-size: 22px;
+        font-size: 18px;
     }
 `
 
@@ -43,11 +43,11 @@ export const TopThreeCountries = ({ top3Countries }) => (
             <>
                 <div>
                     Most Visited Countries
-                    <img src="/images/aeroplane.svg" width="35" />
+                    <img src="/images/aeroplane.svg" width="35" alt="" />
                 </div>
-                {top3Countries.map((country, index) => (
-                    <div>
-                        <img src={country.flag} width="25" /> {country.name}
+                {top3Countries.map((country) => (
+                    <div key={country.name}>
+                        <img src={country.flag} width="25" alt="" /> {country.name}
                         <span style={{ fontSize: '10px' }}> ({country.visits.length} visits)</span>
                     </div>
                 ))}

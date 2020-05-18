@@ -14,10 +14,10 @@ const CalendarImage = styled.img`
 `
 
 const DateComponent = styled.div`
-    background: ${KIERAN_GREY};
+    background: #ccc;
     border: 1px solid #ccc;
     border-radius: 5px;
-    color: ${({ date }) => (date ? '#fff' : '#757575')};
+    color: ${({ date }) => (date ? KIERAN_GREY : '#757575')};
     font-size: 15px;
     margin-bottom: 20px;
     padding: 15px;

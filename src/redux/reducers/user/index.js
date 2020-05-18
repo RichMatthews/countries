@@ -12,41 +12,70 @@ import {
 } from 'redux/types'
 
 const initialState = {
+    achievements: [],
     details: {},
-    mapDetails: [['country']],
+    mapDetails: [],
     isLoggedIn: false,
+    notifications: [],
     userVisitedCountries: [],
     stats: {
         top3Countries: null,
-        continentVisits: [['Continents', 'Visits']],
+        continentVisits: [],
         firstTrip: null,
         lastTrip: null,
         countriesByContinent: null,
-        tripsByYear: [['Year', 'Trip Total']],
+        tripsByYear: [],
     },
 }
 
 export function user(state = initialState, action) {
     switch (action.type) {
+        case 'ADD_ACHIEVEMENT':
+            return { ...state, achievements: state.achievements.concat(action.achievement) }
+        case 'CLEAR_NOTIFICATIONS':
+            return { ...state, notifications: [] }
+        case 'ADD_NOTIFICATION':
+            return { ...state, notifications: state.notifications.concat(action.notification) }
         case ADD_USER_VISITED_COUNTRY:
-            return { ...state, userVisitedCountries: [...state.userVisitedCountries, action.country] }
+            const foundUserCountry = state.userVisitedCountries.filter(
+                (country) => country.name === action.country.name,
+            )
+            if (foundUserCountry.length) {
+                return {
+                    ...state,
+                    userVisitedCountries: state.userVisitedCountries.map((country) =>
+                        country.name === action.country.name
+                            ? { ...country, visits: country.visits.concat(action.country.visits) }
+                            : country,
+                    ),
+                }
+            }
+            return { ...state, userVisitedCountries: state.userVisitedCountries.concat(action.country) }
         case SET_USER_DATA:
             return { ...state, details: action.user, isLoggedIn: true }
+        case 'GET_USER_ACHIEVEMENTS_SUCCESS':
+            return { ...state, achievements: action.achievements }
         case GET_USER_VISITED_COUNTRIES_SUCCESS:
             return { ...state, userVisitedCountries: action.payload }
         case COUNTRIES_CONVERTED_TO_CHART_FORMAT_SUCCESS:
-            return { ...state, mapDetails: state.mapDetails.concat(action.countries) }
+            const newMapDetails = [['Country']].concat(action.countries)
+            return { ...state, mapDetails: newMapDetails }
         case SET_TOP_THREE_COUNTRES_STAT:
             return { ...state, stats: { ...state.stats, top3Countries: action.countries } }
         case SET_CALCULATED_CONTINENTS_STAT:
+            const newContinentVisits = [['Continents', 'Visits']].concat(action.continentVisits)
             return {
                 ...state,
-                stats: { ...state.stats, continentVisits: state.stats.continentVisits.concat(action.continentVisits) },
+                stats: {
+                    ...state.stats,
+                    continentVisits: newContinentVisits,
+                },
             }
         case 'SET_TRIPS_BY_YEAR_STAT':
+            const newTripsByYear = [['Year', 'Trip Total']].concat(action.trips)
             return {
                 ...state,
-                stats: { ...state.stats, tripsByYear: state.stats.tripsByYear.concat(action.trips) },
+                stats: { ...state.stats, tripsByYear: newTripsByYear },
             }
         case SET_FIRST_TRIP_STAT:
             return { ...state, stats: { ...state.stats, firstTrip: action.firstTrip } }

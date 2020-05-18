@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 
 import { CONNECTED_CountryModal } from 'components/country-visited-modal'
@@ -53,45 +53,8 @@ const Button = styled.div`
     text-align: center;
 `
 
-const SVG = styled.svg`
-    position: absolute;
-    height: 650px;
-    top: 40px;
-    z-index: -1000;
-`
-
 export const Home = ({ options, restAPICountries, user }) => {
     const [isModalOpen, setModalOpen] = useState(false)
-    const [array, setArray] = useState(['', 24, 6, 4, 1, 19, 27, 29, 40, 45, 56, 64, 70, 73, 74])
-    // useLayoutEffect(() => {
-    //     const interval = setInterval(() => {
-    //         if (array.length > 1) {
-    //             setArray(array.shift())
-    //             addAnimation()
-    //         }
-    //     }, 1500)
-    //     return () => {
-    //         clearInterval(interval)
-    //     }
-    // }, [])
-
-    const addAnimation = () => {
-        const svg = document.querySelector('svg')
-        let anim = document.createElementNS('http://www.w3.org/2000/svg', 'animate')
-        anim.setAttribute('begin', 'indefinite')
-        anim.setAttribute('from', '#F2F4F9')
-        anim.setAttribute('to', '#125c23')
-        // anim.setAttribute('values', '#F2F4F9;#125c23;')
-        anim.setAttribute('dur', '0.25s')
-        anim.setAttribute('repeatCount', '1')
-        anim.setAttribute('attributeName', 'fill')
-        anim.setAttribute('fill', 'freeze')
-
-        svg.children[array[0]].appendChild(anim)
-        // svg.children[count + 1].appendChild(anim)
-        // svg.children[count + 2].appendChild(anim)
-        anim.beginElement()
-    }
 
     return (
         <Container>

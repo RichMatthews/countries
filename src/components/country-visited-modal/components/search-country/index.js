@@ -8,17 +8,25 @@ import { KIERAN_GREY } from 'styles'
 const customStyles = {
     control: (base, state) => ({
         ...base,
-        background: KIERAN_GREY,
-        color: '#ccc',
+        background: '#ccc',
+        color: KIERAN_GREY,
         fontSize: 15,
         marginBottom: 20,
         minHeight: 50,
         paddingLeft: state.selectProps.country ? 0 : 30,
     }),
+    option: (base, state) => ({
+        ...base,
+
+        color: 'red',
+        padding: 10,
+        '&:hover': {
+            color: 'green',
+        },
+    }),
     menuList: (base) => ({
         ...base,
-        background: KIERAN_GREY,
-        color: '#ccc',
+        color: KIERAN_GREY,
         padding: 0,
     }),
 }
@@ -41,8 +49,8 @@ const Option = styled.div`
 
 const formatOptionLabel = ({ value, label, flag }) => (
     <Option>
-        <img src={flag} style={{ marginRight: '10px', width: 30 }} />
-        <div style={{ color: '#ccc' }}>{label}</div>
+        <img src={flag} style={{ marginRight: '10px', width: 30 }} alt="" />
+        <div style={{ color: KIERAN_GREY }}>{label}</div>
     </Option>
 )
 

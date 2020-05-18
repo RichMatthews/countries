@@ -8,13 +8,6 @@ export const CHART_OPTIONS = {
     },
     backgroundColor: '#fff',
     colors: [KIERAN_GREY],
-    chartArea: {
-        backgroundColor: {
-            fill: KIERAN_GREY,
-            opacity: 1,
-        },
-    },
-    chartArea: { width: '60%' },
     hAxis: {
         textStyle: {
             color: '#4a4947',
@@ -28,6 +21,10 @@ export const CHART_OPTIONS = {
     title: 'Continents by visits',
     titleTextStyle: { color: '#4a4947', fontSize: 20 },
     vAxis: {
+        format: '0',
+        maxValue: 10,
+        minValue: 0,
+        gridlines: { count: 7 },
         textStyle: {
             color: '#4a4947',
         },

@@ -15,35 +15,49 @@ const firebaseApp = firebase.initializeApp(firebaseConfig)
 
 exports.handler = (event, context, callback) => {
     context.callbackWaitsForEmptyEventLoop = false
-
     const userID = event['queryStringParameters']['userId'] || ''
-    const readCountries = firebaseApp.database().ref(`users/${userID}/countries`)
+    let readData = firebaseApp.database().ref(`users/${userID}/countries`)
 
-    readCountries.off()
+    if (event.resource.includes('achievements')) {
+        readData = firebaseApp.database().ref(`users/${userID}/achievements`)
+    }
 
-    readCountries.on('value', (snapshot) => {
-        if (snapshot.exists()) {
-            const data = snapshot.val()
-            const myData = Object.keys(data).map((key) => {
-                return data[key]
-            })
-            callback(null, {
-                body: JSON.stringify(myData),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                },
-                statusCode: 200,
-            })
-        } else {
-            callback(null, {
-                body: JSON.stringify([]),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                },
-                statusCode: 200,
-            })
-        }
-    })
+    readData.off()
+
+    try {
+        readData.on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val()
+                const myData = Object.keys(data).map((key) => {
+                    return data[key]
+                })
+                callback(null, {
+                    body: JSON.stringify(myData),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    statusCode: 200,
+                })
+            } else {
+                callback(null, {
+                    body: JSON.stringify([]),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                    statusCode: 200,
+                })
+            }
+        })
+    } catch (e) {
+        callback(null, {
+            body: JSON.stringify(e),
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+            statusCode: 400,
+        })
+    }
 }

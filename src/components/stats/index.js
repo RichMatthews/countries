@@ -1,7 +1,7 @@
-import React, { Component, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import google, { Chart } from 'react-google-charts'
+import { Chart } from 'react-google-charts'
 import moment from 'moment'
 import { fadeIn } from 'components/react-modal-adapter'
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
@@ -61,7 +61,6 @@ const Bottom = styled.div`
 
 const Continents = styled(StatComponent)`
     height: 255px;
-    padding: 5px;
     min-width: 470px;
 `
 
@@ -75,17 +74,15 @@ const FirstAndLast = styled.div`
 const FirstOrLast = styled(StatComponent)`
     display: flex;
     height: 100px;
-    padding: 7px;
+    padding: 10px;
     justify-content: space-between;
-    & > div {
+    & div:first-child {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        font-size: 22px;
-    }
-
-    & > div > p {
-        font-size: 13px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid #ccc;
+        font-size: 20px;
     }
 `
 
@@ -110,6 +107,7 @@ const SpinnerContainer = styled.div`
 const Top3AndFirstAndLast = styled.div`
     display: flex;
     justify-content: space-between;
+    min-width: 470px;
     width: 470px;
 `
 
@@ -124,6 +122,23 @@ const TotalCountries = styled(StatComponent)`
     width: 200px;
     & > p {
         font-size: 20px;
+    }
+`
+
+const NoStats = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-top: 100px;
+`
+
+const TripNameAndDate = styled.div`
+    align-items: flex-end;
+    display: flex;
+    font-size: 13px;
+    justify-content: space-between;
+
+    & > p {
+        margin: 0;
     }
 `
 
@@ -153,7 +168,7 @@ export const Stats = ({ user }) => {
 
     const { countriesByContinent, continentVisits, firstTrip, lastTrip, top3Countries, tripsByYear } = user.stats
 
-    return (
+    return user.userVisitedCountries.length > 0 ? (
         <Container>
             <InnerContainer>
                 <MainHeading>Your stats</MainHeading>
@@ -166,14 +181,12 @@ export const Stats = ({ user }) => {
                                     <>
                                         <div>
                                             {firstTrip.visitName}
-                                            <img src="/images/passport.svg" width="50" />
+                                            <img src={firstTrip.flag} width="50" alt="" />
                                         </div>
-                                        <div>
+                                        <TripNameAndDate>
                                             <p>First Trip</p>
-                                            <p>
-                                                {firstTrip.name}, {moment.unix(firstTrip.startDate).format('MMM YYYY')}
-                                            </p>
-                                        </div>
+                                            <div>{moment.unix(firstTrip.startDate).format('MMM YYYY')}</div>
+                                        </TripNameAndDate>
                                     </>
                                 ) : (
                                     <SpinnerContainer>
@@ -186,14 +199,12 @@ export const Stats = ({ user }) => {
                                     <>
                                         <div>
                                             {lastTrip.visitName}
-                                            <img src="/images/passport.svg" width="50" />
+                                            <img src={lastTrip.flag} width="50" alt="" />
                                         </div>
-                                        <div>
+                                        <TripNameAndDate>
                                             <p>Latest Trip</p>
-                                            <p>
-                                                {lastTrip.name}, {moment.unix(lastTrip.startDate).format('MMM YYYY')}
-                                            </p>
-                                        </div>
+                                            <div>{moment.unix(lastTrip.startDate).format('MMM YYYY')}</div>
+                                        </TripNameAndDate>
                                     </>
                                 ) : (
                                     <SpinnerContainer>
@@ -264,9 +275,9 @@ export const Stats = ({ user }) => {
                             <Chart
                                 width={'450px'}
                                 height={'250px'}
-                                chartType="Bar"
+                                chartType="ColumnChart"
                                 data={tripsByYear}
-                                options={CHART_OPTIONS}
+                                options={{ ...CHART_OPTIONS, title: 'Trips By Year' }}
                             />
                         ) : (
                             <SpinnerContainer>
@@ -277,6 +288,8 @@ export const Stats = ({ user }) => {
                 </Bottom>
             </InnerContainer>
         </Container>
+    ) : (
+        <NoStats>Stats will appear here once you add your first country</NoStats>
     )
 }
 

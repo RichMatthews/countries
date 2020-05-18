@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
-import Unsplash, { toJson } from 'unsplash-js'
 
 import { CountryInformation } from 'components/country-information'
 
@@ -15,7 +14,6 @@ const Container = styled.div`
     justify-content: center;
     height: 70px;
     margin: 10px;
-    width: 500px;
 }
 `
 
@@ -23,6 +21,10 @@ const CountryName = styled.div`
     color: #b6b6b6;
     font-size: 32px;
     font-weight: 900;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 350px;
 `
 
 const CountryVisitsAndFlag = styled.div`
@@ -30,7 +32,7 @@ const CountryVisitsAndFlag = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    width: 250px;
+    width: 256px;
 `
 
 const InnerContainer = styled.div`
@@ -75,7 +77,8 @@ export const Country = ({ country, selectedContinent }) => {
                         <img
                             src={`/images/countries/${country.name}.jpg`}
                             loading="lazy"
-                            onError={(e) => (e.target.src = '/images/countries/australia.jpg')}
+                            onError={(e) => (e.target.src = '/images/generic.webp')}
+                            alt=""
                         />
                     </ImageContainer>
                 </InnerContainer>

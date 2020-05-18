@@ -1,9 +1,12 @@
-import { catchError, map, mergeMap, tap } from 'rxjs/operators'
+import { EMPTY } from 'rxjs'
+import { mergeMap } from 'rxjs/operators'
 import { ofType } from 'redux-observable'
 import { sortBy } from 'underscore'
 import moment from 'moment'
 
 import {
+    ADD_USER_VISITED_COUNTRY,
+    COUNTRIES_CONVERTED_TO_CHART_FORMAT_SUCCESS,
     GET_USER_VISITED_COUNTRIES_SUCCESS,
     SET_CALCULATED_CONTINENTS_STAT,
     SET_COUNTRIES_AGGREGATED_BY_CONTINENT_STAT,
@@ -21,6 +24,7 @@ const setFirstTrip = (payload) => ({ type: SET_FIRST_TRIP_STAT, firstTrip: paylo
 const setLastTrip = (payload) => ({ type: SET_LAST_TRIP_STAT, lastTrip: payload })
 const setTopThreeCountries = (payload) => ({ type: SET_TOP_THREE_COUNTRES_STAT, countries: payload })
 const setTripsByYear = (payload) => ({ type: 'SET_TRIPS_BY_YEAR_STAT', trips: payload })
+const countriesConverted = (countries) => ({ type: COUNTRIES_CONVERTED_TO_CHART_FORMAT_SUCCESS, countries })
 
 const calculateTopThreeCountries = (countries) => {
     const sortedCountries = sortBy(countries, (country) => {
@@ -59,6 +63,7 @@ const calculateFirstTrip = (countries) => {
     })
     return {
         name: countryToReturn.name,
+        flag: countryToReturn.flag,
         startDate: countryToReturn.visits[0].startDate,
         visitName: countryToReturn.visits[0].visitName,
     }
@@ -77,6 +82,7 @@ const calculateLastTrip = (countries) => {
     })
     return {
         name: countryToReturn.name,
+        flag: countryToReturn.flag,
         startDate: countryToReturn.visits[0].startDate,
         visitName: countryToReturn.visits[0].visitName,
     }
@@ -130,10 +136,19 @@ const calculateTripsByYear = (countries) => {
     return Object.entries(dates)
 }
 
+const convertCountriesForMapFormat = (countries) => {
+    let newArr = []
+    countries.forEach((country) => newArr.push([country['name']]))
+    return newArr
+}
+
 export const convertDataReadyForStatsEpic = (action$, state$) =>
     action$.pipe(
         ofType(GET_USER_VISITED_COUNTRIES_SUCCESS),
         mergeMap((action) => {
+            if (action.payload.length === 0) {
+                return EMPTY
+            }
             const calculatedTop3 = calculateTopThreeCountries(action.payload)
             const calculateContinents = calculateContinentsVisits(action.payload)
             const firstTrip = calculateFirstTrip(action.payload)
@@ -152,3 +167,28 @@ export const convertDataReadyForStatsEpic = (action$, state$) =>
         }),
     )
 // catchError((err) => Promise.resolve({ type: 'CHANGE_THIS_AT_SOME_POINT', message: err.message }))
+
+export const updateStatsEpic = (action$, store) =>
+    action$.pipe(
+        ofType(ADD_USER_VISITED_COUNTRY),
+        mergeMap((action) => {
+            const { userVisitedCountries } = store.value.user
+            const calculatedTop3 = calculateTopThreeCountries(userVisitedCountries)
+            const calculateContinents = calculateContinentsVisits(userVisitedCountries)
+            const firstTrip = calculateFirstTrip(userVisitedCountries)
+            const lastTrip = calculateLastTrip(userVisitedCountries)
+            const calculateCountriesByContinent = calculateCountriesVisitedByContinent(userVisitedCountries)
+            const tripsByYear = calculateTripsByYear(userVisitedCountries)
+            const convertedMapCountries = convertCountriesForMapFormat(userVisitedCountries)
+
+            return [
+                setTopThreeCountries(calculatedTop3),
+                setCalculatedContinents(calculateContinents),
+                setFirstTrip(firstTrip),
+                setLastTrip(lastTrip),
+                setCountriesAggregatedByContinent(calculateCountriesByContinent),
+                setTripsByYear(tripsByYear),
+                countriesConverted(convertedMapCountries),
+            ]
+        }),
+    )

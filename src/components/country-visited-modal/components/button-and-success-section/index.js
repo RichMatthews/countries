@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 import { KIERAN_GREY } from 'styles'
@@ -16,8 +16,7 @@ const Button = styled.div`
 
 const Image = styled.img`
     margin: auto;
-    margin-top
-    width: 30;
+    width: 30px;
 `
 
 export const ButtonAndSuccessSection = ({ isLoading, submitCountryDetailsToBackend, success }) => {

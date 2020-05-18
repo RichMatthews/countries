@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
-import styled, { createGlobalStyle } from 'styled-components'
+import styled from 'styled-components'
 import { connect } from 'react-redux'
 
 import { CONNECTED_Achievments } from 'components/achievements'
@@ -16,11 +16,6 @@ import { setUser } from 'redux/action-creators/user/set-user'
 import { logUserOut } from 'redux/action-creators/user/log-out'
 import { firebaseApp } from '../../config.mjs'
 
-const Container = styled.div`
-    & > div {
-        height: 100%;
-    }
-`
 export const MainRouter = ({ fetchData, fetchRESTCountries, logUserOut, setUser, user }) => {
     const [loaded, setLoaded] = useState(false)
     const [newUser, setNewUser] = useState(JSON.parse(localStorage.getItem('authUser')))
@@ -31,6 +26,7 @@ export const MainRouter = ({ fetchData, fetchRESTCountries, logUserOut, setUser,
                 localStorage.setItem('authUser', JSON.stringify(user))
                 setLoaded(true)
                 setUser(user)
+                fetchData(user.uid)
             } else {
                 localStorage.removeItem('authUser')
                 setLoaded(true)
@@ -43,11 +39,10 @@ export const MainRouter = ({ fetchData, fetchRESTCountries, logUserOut, setUser,
         fetchRESTCountries()
     }, [])
 
-    useEffect(() => {
-        if (user.isLoggedIn) {
-            fetchData(user.details.uid)
-        }
-    }, [user.isLoggedIn])
+    // useEffect(() => {
+    //     if (newUser) {
+    //     }
+    // }, [user.isLoggedIn])
 
     const logUserOutFirebaseAndRedux = async () => {
         try {
@@ -69,6 +64,7 @@ export const MainRouter = ({ fetchData, fetchRESTCountries, logUserOut, setUser,
         <Router>
             <CONNECTED_Nav logUserOut={logUserOutFirebaseAndRedux} newUser={newUser} />
             <Switch>
+                <Route exact path="/:id/map" />
                 <PublicRoute exact component={Home} path="/" />
                 <PublicRoute exact component={CONNECTED_Login} path="/login" loaded={loaded} newUser={newUser} />
                 <ProtectedRoute
@@ -98,4 +94,4 @@ const mapDispatch = {
     setUser,
 }
 
-export const CONNECTED_Router = connect(mapState, mapDispatch)(MainRouter)
+export const CONNECTED_ROUTER = connect(mapState, mapDispatch)(MainRouter)

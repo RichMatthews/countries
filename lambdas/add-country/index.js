@@ -1,4 +1,5 @@
-const firebase = require('firebase')
+const firebase = require('firebase/app')
+require('firebase/database')
 
 const firebaseConfig = {
     apiKey: 'AIzaSyBEBd5lVUlDr3CUYPDR2qhE-5RRjRBuD8M',
@@ -14,20 +15,35 @@ const firebaseConfig = {
 const firebaseApp = firebase.initializeApp(firebaseConfig)
 
 exports.handler = (event, context, callback) => {
-    // if (event.body !== null && event.body !== undefined) {
     let body = JSON.parse(event.body)
     context.callbackWaitsForEmptyEventLoop = false
-    const setSchema = body.country
-    const updateSchema = body.country.visits
-
+    let setSchema
+    let updateSchema
+    let URL
     const { country, userId } = body
-    const URL = `users/${userId}/countries/${country.name}`
-    const doescountryexist = firebaseApp.database().ref(URL)
 
-    doescountryexist.once('value', (snapshot) => {
+    if (body.country) {
+        setSchema = body.country
+        updateSchema = body.country.visits
+        URL = `users/${userId}/countries/${country.name}`
+    } else {
+        setSchema = body.achievement
+        updateSchema = body.achievement
+        URL = `users/${userId}/achievements/${body.achievement.title}`
+    }
+
+    const DOES_NODE_EXIST = firebaseApp.database().ref(URL)
+
+    DOES_NODE_EXIST.once('value', (snapshot) => {
         if (snapshot.val()) {
-            const newTripId = snapshot.val().visits.length
-            firebaseApp.database().ref(URL).update(updateSchema)
+            if (body.country) {
+                const NEXT_ITERATOR_VALUE = snapshot.val().visits.length
+                URL = `${URL}/visits/${NEXT_ITERATOR_VALUE}`
+                firebaseApp.database().ref(URL).update(updateSchema)
+            } else {
+                firebaseApp.database().ref(URL).set(updateSchema)
+            }
+
             callback(null, {
                 body: JSON.stringify('Successfully set in firebase!'),
                 headers: {
@@ -50,14 +66,4 @@ exports.handler = (event, context, callback) => {
             })
         }
     })
-    // } else {
-    //     callback(null, {
-    //         body: JSON.stringify('body not ok!'),
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //             'Access-Control-Allow-Origin': '*',
-    //         },
-    //         statusCode: 400,
-    //     })
-    // }
 }
