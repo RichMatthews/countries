@@ -7,6 +7,7 @@ import {
     SET_FIRST_TRIP_STAT,
     SET_LAST_TRIP_STAT,
     SET_TOP_THREE_COUNTRES_STAT,
+    SET_TRIPS_BY_YEAR_STAT,
     SET_USER_DATA,
     USER_LOGGED_OUT_SUCCESS,
 } from 'redux/types'
@@ -71,7 +72,7 @@ export function user(state = initialState, action) {
                     continentVisits: newContinentVisits,
                 },
             }
-        case 'SET_TRIPS_BY_YEAR_STAT':
+        case SET_TRIPS_BY_YEAR_STAT:
             const newTripsByYear = [['Year', 'Trip Total']].concat(action.trips)
             return {
                 ...state,

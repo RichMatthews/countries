@@ -12,7 +12,7 @@ const Container = styled.div`
     align-items:  ${({ user }) => (user.details.isLoggedIn ? 'flex-start' : 'center')};
     background:  ${({ location }) => (location.pathname === '/' ? '' : KIERAN_GREY)};
     box-sizing: border-box;
-    box-shadow: 0 2px 6px 0 rgba(0,0,0,0.5);
+    box-shadow:  ${({ location }) => (location.pathname === '/' ? 'none' : '0 2px 6px 0 rgba(0,0,0,0.5)')}; 
     display: flex;
     flex-direction: row;
     justify-content: space-between;

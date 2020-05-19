@@ -24,7 +24,7 @@ exports.handler = (event, context, callback) => {
 
     if (body.country) {
         setSchema = body.country
-        updateSchema = body.country.visits
+        updateSchema = body.country.visits[0]
         URL = `users/${userId}/countries/${country.name}`
     } else {
         setSchema = body.achievement
@@ -37,8 +37,7 @@ exports.handler = (event, context, callback) => {
     DOES_NODE_EXIST.once('value', (snapshot) => {
         if (snapshot.val()) {
             if (body.country) {
-                const NEXT_ITERATOR_VALUE = snapshot.val().visits.length
-                URL = `${URL}/visits/${NEXT_ITERATOR_VALUE}`
+                URL = `${URL}/visits/${snapshot.val().visits.length}`
                 firebaseApp.database().ref(URL).update(updateSchema)
             } else {
                 firebaseApp.database().ref(URL).set(updateSchema)

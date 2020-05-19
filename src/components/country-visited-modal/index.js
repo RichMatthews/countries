@@ -4,7 +4,9 @@ import { Observable, timer } from 'rxjs'
 import { retryWhen, delayWhen } from 'rxjs/operators'
 import styled from 'styled-components'
 import moment from 'moment'
-import Picker from 'emoji-picker-react'
+import { Picker } from 'emoji-mart'
+import 'emoji-mart/css/emoji-mart.css'
+import uniqid from 'uniqid'
 
 import { fadeIn, ReactModalAdapter } from 'components/react-modal-adapter'
 import { ButtonAndSuccessSection } from 'components/country-visited-modal/components/button-and-success-section'
@@ -15,6 +17,7 @@ import { VisitNameField } from 'components/country-visited-modal/components/visi
 import { getRESTAPICountries } from 'redux/action-creators/countries/get-rest-api-countries'
 import { addNewUserCountry } from 'redux/action-creators/user/add-new-user-visited-country'
 import { KIERAN_GREY } from 'styles'
+import { Input } from 'components/country-visited-modal/components/shared/input'
 
 const AddVisit = styled.div`
     color: ${KIERAN_GREY};
@@ -64,10 +67,22 @@ const StyledModal = styled(ReactModalAdapter)`
         border-radius: 4px;
         outline: none;
         padding: 20px;
-        height: 405px;
+        height: 450px;
         margin: auto;
         width: 450px;
     }
+`
+
+const EmojiSection = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background: #ccc;
+    border-radius: 4px;
+    height: 50px;
+    margin-bottom: 20px;
+    padding: 0 20px 0 15px;
 `
 
 export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAPICountries, setModalOpen, user }) => {
@@ -83,19 +98,10 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
     const [chosenEmoji, setChosenEmoji] = useState(null)
     const [showPicker, setShowPicker] = useState(false)
 
-    const onEmojiClick = (event, emojiObject) => {
-        setChosenEmoji(emojiObject)
+    const onEmojiClick = (emojiObject) => {
+        setChosenEmoji(emojiObject.native)
+        setShowPicker(false)
     }
-
-    const usePrevious = (value) => {
-        const ref = useRef()
-        useEffect(() => {
-            ref.current = value
-        })
-        return ref.current
-    }
-
-    const prevAmount = usePrevious(formErrors)
 
     useEffect(() => {
         getRESTAPICountries(restAPICountries)
@@ -109,25 +115,6 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
         setDate(`${from} - ${to}`)
         setTimestamp([fromTimestamp, ToTimestamp])
         showCalendar(false)
-    }
-
-    const isFormValid = () => {
-        const fields = [
-            { name: 'country', stateName: country },
-            { name: 'date', stateName: date },
-            { name: 'people', stateName: people },
-            { name: 'visitName', stateName: visitName },
-        ]
-        let newErrors = {}
-        fields.forEach((field) => {
-            if (!field.stateName) {
-                newErrors = { ...newErrors, [field.name]: 'error' }
-            } else {
-                newErrors = { ...newErrors, [field.name]: '' }
-            }
-        })
-        setFormErrors(newErrors)
-        return false
     }
 
     const submitCountryDetailsToBackend = () => {
@@ -151,16 +138,18 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
                 continent,
                 flag,
                 name: country,
+                trimmed: country.toLowerCase().replace(/ /g, ''),
                 visits: [
                     {
                         startDate: timestamp[0],
                         endDate: timestamp[0],
                         people,
-                        visitName,
+                        visitName: visitName + ' ' + chosenEmoji,
                     },
                 ],
             },
             userId,
+            uniqueId: uniqid(),
         }
 
         const data = JSON.stringify(serverData)
@@ -195,12 +184,6 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
         addNewUserCountry(newCountry)
     }
 
-    const sortArray = (newCountry) => {
-        //     const newCountries = [...user.userVisitedCountries, newCountry]
-        //     const sortedArray = sortBy([newCountries], 'name')
-        //    return
-    }
-
     return (
         <StyledModal isOpen={isModalOpen} closeTimeoutMS={500} ariaHideApp={false}>
             <ModalContent>
@@ -217,13 +200,26 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
                     showCalendar={showCalendar}
                 />
                 <CompanionsField setPeople={setPeople} />
+                {showPicker ? (
+                    <Picker
+                        onSelect={onEmojiClick}
+                        style={{ position: 'absolute', bottom: '20px', cursor: 'pointer', right: '20px' }}
+                    />
+                ) : null}
+                <EmojiSection>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <span style={{ marginRight: '10px' }}>
+                            {!chosenEmoji ? 'Select an emoji to sum up your trip!' : null}
+                        </span>
+                        <span style={{ fontSize: '25px' }}>{chosenEmoji ? chosenEmoji : null} </span>
+                    </div>
+                    <img src={'/images/emojiselector.svg'} width={20} onClick={() => setShowPicker(!showPicker)} />
+                </EmojiSection>
                 <ButtonAndSuccessSection
                     isLoading={isLoading}
                     submitCountryDetailsToBackend={submitCountryDetailsToBackend}
                     success={success}
                 />
-                <button onClick={() => setShowPicker(!showPicker)}></button>
-                {showPicker ? <Picker onEmojiClick={onEmojiClick} /> : null}
             </ModalContent>
         </StyledModal>
     )

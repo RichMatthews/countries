@@ -13,6 +13,7 @@ import {
     SET_FIRST_TRIP_STAT,
     SET_LAST_TRIP_STAT,
     SET_TOP_THREE_COUNTRES_STAT,
+    SET_TRIPS_BY_YEAR_STAT,
 } from 'redux/types'
 
 const setCountriesAggregatedByContinent = (payload) => ({
@@ -23,7 +24,7 @@ const setCalculatedContinents = (payload) => ({ type: SET_CALCULATED_CONTINENTS_
 const setFirstTrip = (payload) => ({ type: SET_FIRST_TRIP_STAT, firstTrip: payload })
 const setLastTrip = (payload) => ({ type: SET_LAST_TRIP_STAT, lastTrip: payload })
 const setTopThreeCountries = (payload) => ({ type: SET_TOP_THREE_COUNTRES_STAT, countries: payload })
-const setTripsByYear = (payload) => ({ type: 'SET_TRIPS_BY_YEAR_STAT', trips: payload })
+const setTripsByYear = (payload) => ({ type: SET_TRIPS_BY_YEAR_STAT, trips: payload })
 const countriesConverted = (countries) => ({ type: COUNTRIES_CONVERTED_TO_CHART_FORMAT_SUCCESS, countries })
 
 const calculateTopThreeCountries = (countries) => {
@@ -129,7 +130,7 @@ const calculateTripsByYear = (countries) => {
             if (date in dates) {
                 dates[date] = dates[date] + 1
             } else {
-                dates[date] = 0
+                dates[date] = 1
             }
         })
     })

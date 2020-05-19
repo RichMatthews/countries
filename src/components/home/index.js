@@ -46,10 +46,10 @@ const Button = styled.div`
     background: ${KIERAN_GREY};
     color: #fff;
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: 3px;
     padding: 10px;
     position: absolute;
-    top: 350px;
+    top: 425px;
     text-align: center;
 `
 
@@ -60,7 +60,7 @@ export const Home = ({ options, restAPICountries, user }) => {
         <Container>
             <Inner>
                 <Heading>Remember every trip to every country</Heading>
-                <Button onClick={() => setModalOpen(true)}>Add Trip</Button>
+                {/* <Button onClick={() => setModalOpen(true)}>Add Trip</Button> */}
             </Inner>
 
             <CONNECTED_CountryModal

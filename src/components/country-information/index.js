@@ -12,35 +12,34 @@ const ModalInner = styled.div`
 `
 
 const CountryHeading = styled.h3`
+    border-bottom: 1px solid #ccc;
     color: #323c46;
     margin: 0;
     font-style: normal;
     font-weight: 900;
     font-size: 32px;
     line-height: 60px;
+    margin: auto;
+    margin-top: 20px;
     text-align: center;
-`
-
-const Ticket = styled.div`
-    cursor: pointer;
+    width: 80%;
 `
 
 const Visit = styled.div`
+    align-items: center;
     background: #fff;
-    border-radius: 6px;
-    box-shadow: 0 1px 4px rgba(41, 51, 57, 0.5);
     color: ${KIERAN_GREY};
     display: flex;
-    flex-direction: row;
-    margin: 15px;
+    flex-direction: column;
+    font-size: 26px;
+    border-bottom: 1px solid #ccc;
+    width: 80%;
+    margin: auto;
+    margin-top: 25px;
+    padding-bottom: 25px;
 
     & div:first-child {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        & div:first-child {
-            font-size: 20px;
-        }
+        padding-bottom: 10px;
     }
 `
 
@@ -80,27 +79,13 @@ const StyledModal = styled(ReactModalAdapter)`
     }
 `
 
-const VisitNameAndDate = styled.div`
-    display: flex;
-    font-size: 20px;
-    align-items: flex-start;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 100%;
-    margin-left: 10px;
-    padding: 5px;
-
-    & > div {
-        width: 100%;
-    }
-`
-
 const Dates = styled.div`
-    font-size: 10px;
+    color: #ccc;
+    font-size: 15px;
 `
 
 const Travellers = styled.div`
-    font-size: 12px;
+    font-size: 14px;
 `
 
 const Left = styled.div`
@@ -108,17 +93,11 @@ const Left = styled.div`
 `
 
 const Right = styled.div`
-    background-image: ${({ country }) => `url(/images/countries/${country.name.toLowerCase()}.jpg)`};
+    background-image: ${({ country }) => `url(/images/countries/${country}.jpg)`};
     background-repeat: no-repeat;
-    background-size: 1000px;
+    background-size: cover;
     height: 100%;
     width: 67%;
-`
-
-const Marker = styled.div`
-    background: #ccf;
-    height: 75px;
-    width: 30px;
 `
 
 export const CountryInformation = ({ country, setShowModal, showModal }) => {
@@ -134,22 +113,18 @@ export const CountryInformation = ({ country, setShowModal, showModal }) => {
                     <CountryHeading>{country.name}</CountryHeading>
                     {country.visits.map((visit) => (
                         <Visit>
-                            <Marker />
-
-                            <VisitNameAndDate>
+                            <div>{visit.visitName}</div>
+                            <Dates>
                                 <div>
-                                    <div>{visit.visitName}</div>
-                                    <Dates>
-                                        {moment.unix(visit.startDate).format('Do MMM')} -{' '}
-                                        {moment.unix(visit.endDate).format('Do MMM YYYY')}
-                                    </Dates>
+                                    {moment.unix(visit.startDate).format('Do MMM')} -{' '}
+                                    {moment.unix(visit.endDate).format('Do MMM YYYY')}
                                 </div>
-                                <Travellers>You went with {visit.people} </Travellers>
-                            </VisitNameAndDate>
+                            </Dates>
+                            <Travellers>You went with {visit.people} </Travellers>
                         </Visit>
                     ))}
                 </Left>
-                <Right country={country} />
+                <Right country={country.trimmed} />
             </ModalInner>
         </StyledModal>
     )

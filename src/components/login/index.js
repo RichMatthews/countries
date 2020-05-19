@@ -29,7 +29,6 @@ const SignInButton = styled.div`
     margin: auto;
     margin-bottom: 10px;
     padding: 10px;
-    width: 220px;
 
     & > img {
         margin-right: 15px;
