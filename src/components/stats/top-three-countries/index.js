@@ -3,12 +3,13 @@ import styled from 'styled-components'
 
 const StatComponent = styled.div`
     background: #fff;
-    border-radius: 10px;
+    border-radius: 5px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     color: #4a4947;
     display: flex;
     flex-direction: column;
     padding: 10px;
+    width: 220px;
 `
 const Top3 = styled(StatComponent)`
     display: flex;

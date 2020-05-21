@@ -93,7 +93,7 @@ const Left = styled.div`
 `
 
 const Right = styled.div`
-    background-image: ${({ country }) => `url(/images/countries/${country}.jpg)`};
+    background-image: ${({ country }) => `url(https://dl6ghv8ryvhmk.cloudfront.net/countries/${country}.jpg)`};
     background-repeat: no-repeat;
     background-size: cover;
     height: 100%;

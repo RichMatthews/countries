@@ -35,7 +35,7 @@ const InnerContainer = styled.div`
 
 const StatComponent = styled.div`
     background: #fff;
-    border-radius: 10px;
+    border-radius: 5px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     color: #4a4947;
     display: flex;
@@ -68,7 +68,7 @@ const FirstAndLast = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 220px;
+    width: 235px;
 `
 
 const FirstOrLast = styled(StatComponent)`
@@ -104,13 +104,6 @@ const SpinnerContainer = styled.div`
     margin: auto;
 `
 
-const Top3AndFirstAndLast = styled.div`
-    display: flex;
-    justify-content: space-between;
-    min-width: 470px;
-    width: 470px;
-`
-
 const Gauge = styled(StatComponent)`
     width: 200px;
 `
@@ -119,7 +112,7 @@ const TotalCountries = styled(StatComponent)`
     color: ${KIERAN_GREY};
     font-size: 120px;
     text-align: center;
-    width: 200px;
+    width: 225px;
     & > p {
         font-size: 20px;
     }
@@ -173,47 +166,46 @@ export const Stats = ({ user }) => {
             <InnerContainer>
                 <MainHeading>Your stats</MainHeading>
                 <Top>
-                    <Top3AndFirstAndLast>
-                        <TopThreeCountries top3Countries={top3Countries} />
-                        <FirstAndLast>
-                            <FirstOrLast>
-                                {firstTrip ? (
-                                    <>
-                                        <div>
-                                            {firstTrip.visitName}
-                                            <img src={firstTrip.flag} width="50" alt="" />
-                                        </div>
-                                        <TripNameAndDate>
-                                            <p>First Trip</p>
-                                            <div>{moment.unix(firstTrip.startDate).format('MMM YYYY')}</div>
-                                        </TripNameAndDate>
-                                    </>
-                                ) : (
-                                    <SpinnerContainer>
-                                        <Spinner src={'/images/loading.gif'} />
-                                    </SpinnerContainer>
-                                )}
-                            </FirstOrLast>
-                            <FirstOrLast>
-                                {lastTrip ? (
-                                    <>
-                                        <div>
-                                            {lastTrip.visitName}
-                                            <img src={lastTrip.flag} width="50" alt="" />
-                                        </div>
-                                        <TripNameAndDate>
-                                            <p>Latest Trip</p>
-                                            <div>{moment.unix(lastTrip.startDate).format('MMM YYYY')}</div>
-                                        </TripNameAndDate>
-                                    </>
-                                ) : (
-                                    <SpinnerContainer>
-                                        <Spinner src={'/images/loading.gif'} />
-                                    </SpinnerContainer>
-                                )}
-                            </FirstOrLast>
-                        </FirstAndLast>
-                    </Top3AndFirstAndLast>
+                    <TopThreeCountries top3Countries={top3Countries} />
+                    <FirstAndLast>
+                        <FirstOrLast>
+                            {firstTrip ? (
+                                <>
+                                    <div>
+                                        {firstTrip.visitName}
+                                        <img src={firstTrip.flag} width="50" alt="" />
+                                    </div>
+                                    <TripNameAndDate>
+                                        <p>First Trip</p>
+                                        <div>{moment.unix(firstTrip.startDate).format('MMM YYYY')}</div>
+                                    </TripNameAndDate>
+                                </>
+                            ) : (
+                                <SpinnerContainer>
+                                    <Spinner src={'/images/loading.gif'} />
+                                </SpinnerContainer>
+                            )}
+                        </FirstOrLast>
+                        <FirstOrLast>
+                            {lastTrip ? (
+                                <>
+                                    <div>
+                                        {lastTrip.visitName}
+                                        <img src={lastTrip.flag} width="50" alt="" />
+                                    </div>
+                                    <TripNameAndDate>
+                                        <p>Latest Trip</p>
+                                        <div>{moment.unix(lastTrip.startDate).format('MMM YYYY')}</div>
+                                    </TripNameAndDate>
+                                </>
+                            ) : (
+                                <SpinnerContainer>
+                                    <Spinner src={'/images/loading.gif'} />
+                                </SpinnerContainer>
+                            )}
+                        </FirstOrLast>
+                    </FirstAndLast>
+
                     <TotalCountries>
                         {countriesByContinent ? (
                             <>

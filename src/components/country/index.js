@@ -75,9 +75,11 @@ export const Country = ({ country, selectedContinent }) => {
                     </div>
                     <ImageContainer>
                         <img
-                            src={`/images/countries/${country.trimmed}.jpg`}
+                            src={`https://dl6ghv8ryvhmk.cloudfront.net/countries/${country.trimmed}.jpg`}
                             loading="lazy"
-                            onError={(e) => (e.target.src = '/images/generic.webp')}
+                            onError={(e) =>
+                                (e.target.src = 'https://dl6ghv8ryvhmk.cloudfront.net/countries/generic.webp')
+                            }
                             alt=""
                         />
                     </ImageContainer>

@@ -6,7 +6,6 @@ import styled from 'styled-components'
 import moment from 'moment'
 import { Picker } from 'emoji-mart'
 import 'emoji-mart/css/emoji-mart.css'
-import uniqid from 'uniqid'
 
 import { fadeIn, ReactModalAdapter } from 'components/react-modal-adapter'
 import { ButtonAndSuccessSection } from 'components/country-visited-modal/components/button-and-success-section'
@@ -117,6 +116,35 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
         showCalendar(false)
     }
 
+    const countryNameConverter = (country) => {
+        if (country.toLowerCase().includes('america')) {
+            return 'USA'
+        }
+        if (country.toLowerCase().includes('britain')) {
+            return 'United Kingdom'
+        }
+        if (country.toLowerCase().includes('bolivia')) {
+            return 'Bolivia'
+        }
+        if (country.toLowerCase().includes('islamic')) {
+            return 'Iran'
+        }
+        if (country.toLowerCase().includes('macedonia')) {
+            return 'Macedonia'
+        }
+        if (country.toLowerCase().includes('moldova')) {
+            return 'Moldova'
+        }
+        if (country.toLowerCase().includes('korea (D')) {
+            return 'North Korea'
+        }
+        if (country.toLowerCase().includes('venezuela')) {
+            return 'Venezuela'
+        }
+
+        return country
+    }
+
     const submitCountryDetailsToBackend = () => {
         setLoading(true)
         const userId = user.details.uid
@@ -133,12 +161,14 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
             }
         }
 
+        const convertedName = countryNameConverter(country)
+
         const serverData = {
             country: {
                 continent,
                 flag,
-                name: country,
-                trimmed: country.toLowerCase().replace(/ /g, ''),
+                name: convertedName,
+                trimmed: convertedName.toLowerCase().replace(/ /g, ''),
                 visits: [
                     {
                         startDate: timestamp[0],
@@ -149,7 +179,6 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
                 ],
             },
             userId,
-            uniqueId: uniqid(),
         }
 
         const data = JSON.stringify(serverData)
@@ -208,7 +237,7 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
                 ) : null}
                 <EmojiSection>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <span style={{ marginRight: '10px' }}>
+                        <span style={{ color: '#757575', marginRight: '10px' }}>
                             {!chosenEmoji ? 'Select an emoji to sum up your trip!' : null}
                         </span>
                         <span style={{ fontSize: '25px' }}>{chosenEmoji ? chosenEmoji : null} </span>

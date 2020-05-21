@@ -23,7 +23,7 @@ export const ButtonAndSuccessSection = ({ isLoading, submitCountryDetailsToBacke
     return (
         <div>
             <Button onClick={submitCountryDetailsToBackend}>
-                {isLoading ? <Image src="/images/loading.gif" /> : 'Save'}
+                {isLoading ? <Image src="/images/loading.gif" /> : 'Save Trip'}
             </Button>
             <div>{success || null}</div>
         </div>

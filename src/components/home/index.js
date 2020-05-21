@@ -5,7 +5,7 @@ import { CONNECTED_CountryModal } from 'components/country-visited-modal'
 import { KIERAN_GREY } from 'styles'
 
 const Container = styled.div`
-    background-image: url(https://dl6ghv8ryvhmk.cloudfront.net/beach.jpg);
+    background-image: url(https://dl6ghv8ryvhmk.cloudfront.net/maldives2.webp);
     background-size: cover;
     height: 100%;
     position: absolute;

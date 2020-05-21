@@ -236,6 +236,12 @@ const MainHeading = styled.div`
     font-size: 48px;
 `
 
+const comparator = (prevProps, nextProps) => {
+    console.log('prev', prevProps)
+    console.log('next', nextProps)
+    return true
+}
+
 const Visited = ({ ui, user }) => {
     const [filteredCountries, setFilteredCountries] = useState([])
     const [isModalOpen, setModalOpen] = useState(false)
@@ -247,7 +253,7 @@ const Visited = ({ ui, user }) => {
     useEffect(() => {
         setFilteredCountries(user.userVisitedCountries)
         workoutRequiredPages(user.userVisitedCountries)
-    }, [])
+    }, [user.userVisitedCountries])
 
     const filterCountriesByValue = (value) => {
         if (!value) {
