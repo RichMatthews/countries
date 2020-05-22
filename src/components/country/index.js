@@ -78,7 +78,7 @@ export const Country = ({ country, selectedContinent }) => {
                             src={`https://dl6ghv8ryvhmk.cloudfront.net/countries/${country.trimmed}.jpg`}
                             loading="lazy"
                             onError={(e) =>
-                                (e.target.src = 'https://dl6ghv8ryvhmk.cloudfront.net/countries/generic.webp')
+                                (e.target.src = 'https://dl6ghv8ryvhmk.cloudfront.net/countries/generic.jpg')
                             }
                             alt=""
                         />

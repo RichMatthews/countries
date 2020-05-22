@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { Observable, timer } from 'rxjs'
 import { retryWhen, delayWhen } from 'rxjs/operators'
@@ -16,7 +16,6 @@ import { VisitNameField } from 'components/country-visited-modal/components/visi
 import { getRESTAPICountries } from 'redux/action-creators/countries/get-rest-api-countries'
 import { addNewUserCountry } from 'redux/action-creators/user/add-new-user-visited-country'
 import { KIERAN_GREY } from 'styles'
-import { Input } from 'components/country-visited-modal/components/shared/input'
 
 const AddVisit = styled.div`
     color: ${KIERAN_GREY};
@@ -82,13 +81,22 @@ const EmojiSection = styled.div`
     height: 50px;
     margin-bottom: 20px;
     padding: 0 20px 0 15px;
+
+    & > div {
+        display: flex;
+        alignitems: scenter;
+
+        & > span {
+            color: #757575;
+            marginright: 10px;
+        }
+    }
 `
 
 export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAPICountries, setModalOpen, user }) => {
     const [calendar, showCalendar] = useState(false)
     const [country, setCountry] = useState(null)
     const [date, setDate] = useState(null)
-    const [formErrors, setFormErrors] = useState({})
     const [isLoading, setLoading] = useState(false)
     const [people, setPeople] = useState(null)
     const [success, setSuccess] = useState(null)
@@ -108,17 +116,17 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
 
     const calendarFormatter = (date) => {
         const fromTimestamp = moment(date[0]).unix()
-        const ToTimestamp = moment(date[1]).unix()
+        const toTimestamp = moment(date[1]).unix()
         const from = moment(date[0]).format('Do MMM YYYY')
         const to = moment(date[1]).format('Do MMM YYYY')
         setDate(`${from} - ${to}`)
-        setTimestamp([fromTimestamp, ToTimestamp])
+        setTimestamp([fromTimestamp, toTimestamp])
         showCalendar(false)
     }
 
     const countryNameConverter = (country) => {
         if (country.toLowerCase().includes('america')) {
-            return 'USA'
+            return 'United States'
         }
         if (country.toLowerCase().includes('britain')) {
             return 'United Kingdom'
@@ -126,11 +134,17 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
         if (country.toLowerCase().includes('bolivia')) {
             return 'Bolivia'
         }
+        if (country.toLowerCase().includes('russia')) {
+            return 'Russia'
+        }
         if (country.toLowerCase().includes('islamic')) {
             return 'Iran'
         }
         if (country.toLowerCase().includes('macedonia')) {
             return 'Macedonia'
+        }
+        if (country.toLowerCase().includes('viet nam')) {
+            return 'Vietnam'
         }
         if (country.toLowerCase().includes('moldova')) {
             return 'Moldova'
@@ -172,7 +186,7 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
                 visits: [
                     {
                         startDate: timestamp[0],
-                        endDate: timestamp[0],
+                        endDate: timestamp[1],
                         people,
                         visitName: visitName + ' ' + chosenEmoji,
                     },
@@ -211,6 +225,12 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
         setLoading(true)
         setModalOpen(false)
         addNewUserCountry(newCountry)
+
+        setTimeout(() => {
+            setDate(null)
+            setLoading(false)
+            setChosenEmoji(null)
+        }, 1000)
     }
 
     return (
@@ -236,10 +256,8 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
                     />
                 ) : null}
                 <EmojiSection>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <span style={{ color: '#757575', marginRight: '10px' }}>
-                            {!chosenEmoji ? 'Select an emoji to sum up your trip!' : null}
-                        </span>
+                    <div>
+                        <span>{!chosenEmoji ? 'Select an emoji to sum up your trip!' : null}</span>
                         <span style={{ fontSize: '25px' }}>{chosenEmoji ? chosenEmoji : null} </span>
                     </div>
                     <img src={'/images/emojiselector.svg'} width={20} onClick={() => setShowPicker(!showPicker)} />

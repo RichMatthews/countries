@@ -9,7 +9,7 @@ import { clearNotifications } from 'redux/action-creators/user/clear-notificatio
 import { BRAND_COLOR, KIERAN_GREY } from 'styles'
 
 const Container = styled.div`
-    align-items:  ${({ user }) => (user.details.isLoggedIn ? 'flex-start' : 'center')};
+    align-items:  ${({ user }) => (user ? 'flex-start' : 'center')};
     background:  ${({ location }) => (location.pathname === '/' ? '' : KIERAN_GREY)};
     box-sizing: border-box;
     box-shadow:  ${({ location }) => (location.pathname === '/' ? 'none' : '0 2px 6px 0 rgba(0,0,0,0.5)')}; 
@@ -39,6 +39,13 @@ const StyledAccountLink = styled(StyledLink)`
     color: #000;
 `
 
+const StyledLoginLink = styled(StyledLink)`
+    border-bottom: none;
+    display: flex;
+    justify-content: flex-end;
+    min-width: 150px;
+`
+
 const Title = styled.div`
     align-items: center;
 `
@@ -48,8 +55,12 @@ const RightHandSide = styled.div`
     color: #ccc2c9;
     display: flex;
     justify-content: space-between;
-    min-width: 450px;
-    width: 450px;
+    min-width: 500px;
+
+    & > div {
+        display: flex;
+        justify-content: space-evenly;
+    }
 `
 
 const MAPPALink = styled(Link)`
@@ -73,15 +84,15 @@ const Welcome = styled.div`
 
 const Dropdown = styled.div`
     background: #fff;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     color: #000;
     display: none;
     padding: 5px 5px 0 5px;
     position: absolute;
-    width: 139px;
-
-    border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px;
+    width: 144px;
+    top: 49px;
 
     > * {
         margin: 10px;
@@ -92,6 +103,9 @@ const AccountAndWelcomeLink = styled.div`
     border-top-right-radius: 5px;
     border-top-left-radius: 5px;
     color: #fff;
+    min-width: 150px;
+    padding: 2px 2px 0 2px;
+
     &:hover {
         background: #fff;
         color: ${KIERAN_GREY};
@@ -124,7 +138,7 @@ const NotificationHandler = styled.div`
     & div:nth-child(2) {
         display: flex;
         align-items: center;
-        justify-content: space-evenly;
+        justify-content: space-between;
     }
 `
 
@@ -164,12 +178,12 @@ export const Nav = ({ clearNotifications, location, logUserOut, newUser, user })
     }
 
     return (
-        <Container location={location} user={user}>
+        <Container location={location} user={newUser}>
             <Title>
                 <img src={'/images/globe.svg'} width="30" />
                 <MAPPALink to="/">MAPPA MUNDI</MAPPALink>
             </Title>
-            <RightHandSide loggedIn={newUser}>
+            <RightHandSide loggedIn={newUser} user={newUser}>
                 <StyledLink isselected={isSelected('visited')} to="/visited">
                     Visited
                 </StyledLink>
@@ -187,11 +201,11 @@ export const Nav = ({ clearNotifications, location, logUserOut, newUser, user })
                     <AccountAndWelcomeLink>
                         <ProfilePhoto>
                             <ImageContainer>
-                                <img src={newUser.photoURL} />
+                                <img src={newUser.photoURL} onError={(e) => (e.target.src = '/images/account.svg')} />
                             </ImageContainer>
                             <Welcome>
                                 <div>Welcome, {newUser.displayName.split(' ')[0]}</div>
-                                <div style={{ fontSize: '13px' }}>Account & settings</div>
+                                <div>Account & settings</div>
                             </Welcome>
                         </ProfilePhoto>
                         <Dropdown>
@@ -200,9 +214,9 @@ export const Nav = ({ clearNotifications, location, logUserOut, newUser, user })
                         </Dropdown>
                     </AccountAndWelcomeLink>
                 ) : (
-                    <StyledLink isselected={isSelected('login')} to="/login">
-                        Login
-                    </StyledLink>
+                    <StyledLoginLink isselected={isSelected('login')} to="/login">
+                        <div>Login</div>
+                    </StyledLoginLink>
                 )}
             </RightHandSide>
             {user.notifications.length > 0 ? (

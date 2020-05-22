@@ -94,7 +94,7 @@ const Total = styled.div`
 // }
 
 const CountriesList = styled.div`
-    animation: ${fadeIn} 1s;
+    animation: ${fadeIn} 2s;
     display: grid;
     grid-gap: 5px;
     min-height: 500px;
@@ -187,6 +187,9 @@ const LoadingContainer = styled.div`
     margin: auto;
     margin-top: 50px;
     width: 200px;
+
+    & > img {
+    }
 `
 
 const ResetButton = styled.div`
@@ -236,13 +239,16 @@ const MainHeading = styled.div`
     font-size: 48px;
 `
 
-const comparator = (prevProps, nextProps) => {
-    console.log('prev', prevProps)
-    console.log('next', nextProps)
-    return true
+const comparator = (previous, next) => {
+    if (previous.user.userVisitedCountries.length > 0) {
+        if (previous.user.userVisitedCountries.length === next.user.userVisitedCountries.length) {
+            return true
+        }
+    }
+    return false
 }
 
-const Visited = ({ ui, user }) => {
+const Visited = React.memo(({ ui, user }) => {
     const [filteredCountries, setFilteredCountries] = useState([])
     const [isModalOpen, setModalOpen] = useState(false)
     const [selectedContinent, setSelectedContinent] = useState(null)
@@ -387,11 +393,11 @@ const Visited = ({ ui, user }) => {
         </Container>
     ) : (
         <LoadingContainer>
-            <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} alt="" />
+            <img src="/images/loading.gif" width="30" alt="" />
             Retrieving trips...
         </LoadingContainer>
     )
-}
+}, comparator)
 
 const mapState = ({ countries, ui, user }) => ({
     countries,

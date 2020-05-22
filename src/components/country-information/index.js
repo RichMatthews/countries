@@ -93,11 +93,21 @@ const Left = styled.div`
 `
 
 const Right = styled.div`
-    background-image: ${({ country }) => `url(https://dl6ghv8ryvhmk.cloudfront.net/countries/${country}.jpg)`};
+    background-image: ${({ country }) =>
+        `url(https://dl6ghv8ryvhmk.cloudfront.net/countries/${country}.jpg), url(https://dl6ghv8ryvhmk.cloudfront.net/countries/generic.jpg)`};
     background-repeat: no-repeat;
     background-size: cover;
     height: 100%;
     width: 67%;
+`
+
+const ClosedIcon = styled.img`
+    cursor: pointer;
+    height: 13px;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 13px;
 `
 
 export const CountryInformation = ({ country, setShowModal, showModal }) => {
@@ -109,6 +119,7 @@ export const CountryInformation = ({ country, setShowModal, showModal }) => {
             onRequestClose={() => setShowModal(!showModal)}
         >
             <ModalInner>
+                <ClosedIcon src="/images/cancel.svg" onClick={() => setShowModal(!showModal)} />
                 <Left>
                     <CountryHeading>{country.name}</CountryHeading>
                     {country.visits.map((visit) => (

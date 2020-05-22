@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
-import styled from 'styled-components'
 import { connect } from 'react-redux'
 
 import { CONNECTED_Achievments } from 'components/achievements'
 import { CONNECTED_Visited } from 'components/visited'
 import { CONNECTED_Map } from 'components/map'
+import { SharedMap } from 'components/shared-map'
 import { CONNECTED_Nav } from 'components/nav'
 import { CONNECTED_Login } from 'components/login'
 import { CONNECTED_Stats } from 'components/stats'
@@ -16,7 +16,14 @@ import { setUser } from 'redux/action-creators/user/set-user'
 import { logUserOut } from 'redux/action-creators/user/log-out'
 import { firebaseApp } from '../../config.mjs'
 
-export const MainRouter = ({ fetchData, fetchRESTCountries, logUserOut, setUser, user }) => {
+const comparator = (prevProps, nextProps) => {
+    if (nextProps.countries.restAPICountries.length === 250) {
+        return true
+    }
+    return false
+}
+
+export const MainRouter = React.memo(({ fetchData, fetchRESTCountries, logUserOut, setUser, user }) => {
     const [loaded, setLoaded] = useState(false)
     const [newUser, setNewUser] = useState(JSON.parse(localStorage.getItem('authUser')))
 
@@ -39,11 +46,6 @@ export const MainRouter = ({ fetchData, fetchRESTCountries, logUserOut, setUser,
         fetchRESTCountries()
     }, [])
 
-    // useEffect(() => {
-    //     if (newUser) {
-    //     }
-    // }, [user.isLoggedIn])
-
     const logUserOutFirebaseAndRedux = async () => {
         try {
             await firebaseApp.auth().signOut()
@@ -62,9 +64,12 @@ export const MainRouter = ({ fetchData, fetchRESTCountries, logUserOut, setUser,
 
     return (
         <Router>
-            <CONNECTED_Nav logUserOut={logUserOutFirebaseAndRedux} newUser={newUser} />
+            {window.location.href.includes('shared-map') ? null : (
+                <CONNECTED_Nav logUserOut={logUserOutFirebaseAndRedux} newUser={newUser} />
+            )}
             <Switch>
-                <Route exact path="/:id/map" />
+                <Route exact component={SharedMap} path="/:id/shared-map" />
+                <Route exact component={CONNECTED_Login} path="/account" />
                 <PublicRoute exact component={Home} path="/" />
                 <PublicRoute exact component={CONNECTED_Login} path="/login" loaded={loaded} newUser={newUser} />
                 <ProtectedRoute
@@ -80,7 +85,7 @@ export const MainRouter = ({ fetchData, fetchRESTCountries, logUserOut, setUser,
             </Switch>
         </Router>
     )
-}
+}, comparator)
 
 const mapState = ({ countries, user }) => ({
     countries,

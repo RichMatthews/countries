@@ -10,6 +10,7 @@ import { KIERAN_GREY } from 'styles'
 
 const AccountContainer = styled.div`
     background: #f4f4f4;
+    color: ${KIERAN_GREY};
     border-radius: 10px;
     margin-bottom: 25px;
     margin-left: 200px;
@@ -21,15 +22,16 @@ const AccountContainer = styled.div`
 const SignInButton = styled.div`
     align-items: center;
     background: #fff;
+    border: 1px solid #ccc;
     color: ${KIERAN_GREY};
     cursor: pointer;
-    border-radius: 3px;
-    box-shadow: 0 1px 4px rgba(41, 51, 57, 0.5);
+    border-radius: 30px;
     display: flex;
-    justify-content: stretch;
+    justify-content: flex-start;
     margin: auto;
     margin-bottom: 10px;
-    padding: 10px;
+    padding: 5px 30px 5px 40px;
+    width: 210px;
 
     & > img {
         margin-right: 15px;
@@ -48,7 +50,13 @@ const SignInContainer = styled.div`
     align-items: center;
     display: flex;
     justify-content: center;
-    margin-top: 100px;
+`
+
+const SignInSection = styled.div`
+    & > p {
+        text-align: center;
+        width: 280px;
+    }
 `
 
 export const Login = ({ loaded, newUser, setUser }) => {
@@ -78,8 +86,6 @@ export const Login = ({ loaded, newUser, setUser }) => {
             })
     }
 
-    const facebookLogin = () => {}
-
     return loaded ? (
         <SignInContainer>
             {newUser ? (
@@ -88,7 +94,8 @@ export const Login = ({ loaded, newUser, setUser }) => {
                     <AccountContainer>Request new features</AccountContainer>
                 </>
             ) : (
-                <div>
+                <SignInSection>
+                    <p>Mappa Mundi requires you to log in to access all features</p>
                     <SignInButton onClick={() => selectProvider('google')}>
                         <img src={'/images/google.png'} width="30" />
                         <div>Sign in with Google</div>
@@ -98,12 +105,13 @@ export const Login = ({ loaded, newUser, setUser }) => {
                         <img src={'/images/facebook.png'} width="30" />
                         <div>Sign in with Facebook</div>
                     </SignInButton>
-                </div>
+                </SignInSection>
             )}
         </SignInContainer>
     ) : (
         <LoadingContainer>
-            <img src="/images/loading.gif" width="30" style={{ margin: 'auto' }} />
+            <img src="/images/loading.gif" width="30" />
+            Loading
         </LoadingContainer>
     )
 }

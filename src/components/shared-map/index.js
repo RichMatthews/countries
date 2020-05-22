@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Chart } from 'react-google-charts'
-import { connect } from 'react-redux'
+import { Link } from 'react-router-dom'
 
 import { fadeIn } from 'components/react-modal-adapter'
 import { BRAND_COLOR } from 'styles'
@@ -26,9 +26,7 @@ const LoadingContainer = styled.div`
 `
 
 const StyledChart = styled(Chart)`
-    & > * {
-        stroke: red !important;
-    }
+    margin-top: 50px;
 `
 
 const NoMap = styled.div`
@@ -37,35 +35,44 @@ const NoMap = styled.div`
     margin-top: 100px;
 `
 
-export const Map = ({ user }) =>
-    user.mapDetails.length > 1 ? (
+export const SharedMap = () => {
+    const [countries, setCountries] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const id = window.location.pathname.split('/')[1]
+        fetch(`https://eaq7kxyf7d.execute-api.us-east-1.amazonaws.com/countries/get-shared-map?mapId=${id}`)
+            .then((res) => res.json())
+            .then((res2) => {
+                setCountries(res2[0])
+                setLoading(false)
+            })
+    }, [])
+
+    return !loading ? (
         <Container>
+            <div>
+                Hey, I just created my countries visited map! Click <Link to="/visited">here</Link> to create yours
+            </div>
             <StyledChart
                 width={'1000px'}
                 height={'575px'}
                 chartType="GeoChart"
-                data={user.mapDetails}
+                data={countries}
                 mapsApiKey="YAIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"
                 rootProps={{ 'data-testid': '1' }}
                 options={{
                     backgroundColor: 'transparent',
                     defaultColor: BRAND_COLOR,
+                    marginTop: 50,
                     animation: {
                         startup: true,
                         duration: 2500,
                     },
                 }}
             />
-            <div>Share your map!</div>
         </Container>
     ) : (
-        <NoMap>Your map will appear here once you've added your first country</NoMap>
+        <NoMap>Getting Map...</NoMap>
     )
-
-const mapState = ({ user }) => ({
-    user,
-})
-
-const mapDispatch = {}
-
-export const CONNECTED_Map = connect(mapState, mapDispatch)(Map)
+}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
+import { Emoji } from 'emoji-mart'
 
 import { ACHIEVEMENTS_LIST } from 'constants/achievements-list'
 import { KIERAN_GREY } from 'styles'
@@ -94,7 +95,7 @@ const AchievementsContainer = ({ user }) => {
                             </div>
                             {achievement.achieved ? (
                                 <Achieved>
-                                    <img src={'/images/tada.png'} alt="" />
+                                    <Emoji emoji={{ id: achievement.emojiId }} size={42} />
                                 </Achieved>
                             ) : (
                                 <Achieved>

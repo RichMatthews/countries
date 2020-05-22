@@ -38,6 +38,12 @@ const SpinnerContainer = styled.div`
     margin: auto;
 `
 
+const Countries = styled.div`
+    & > span {
+        font-size: 10px;
+    }
+`
+
 export const TopThreeCountries = ({ top3Countries }) => (
     <Top3>
         {top3Countries ? (
@@ -47,10 +53,10 @@ export const TopThreeCountries = ({ top3Countries }) => (
                     <img src="/images/aeroplane.svg" width="35" alt="" />
                 </div>
                 {top3Countries.map((country) => (
-                    <div key={country.name}>
+                    <Countries key={country.name}>
                         <img src={country.flag} width="25" alt="" /> {country.name}
-                        <span style={{ fontSize: '10px' }}> ({country.visits.length} visits)</span>
-                    </div>
+                        <span> ({country.visits.length} visits)</span>
+                    </Countries>
                 ))}
             </>
         ) : (

@@ -45,12 +45,21 @@ const Option = styled.div`
     &:hover {
         color: black;
     }
+
+    & img {
+        margin-right: 10px;
+        width: 30px;
+    }
+
+    & > div {
+        color: ${KIERAN_GREY};
+    }
 `
 
 const formatOptionLabel = ({ value, label, flag }) => (
     <Option>
-        <img src={flag} style={{ marginRight: '10px', width: 30 }} alt="" />
-        <div style={{ color: KIERAN_GREY }}>{label}</div>
+        <img src={flag} alt="" />
+        <div>{label}</div>
     </Option>
 )
 
