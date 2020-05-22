@@ -92,7 +92,6 @@ export const Map = ({ user }) => {
     const [generatedId, setGeneratedId] = useState(Date.now())
 
     const showModalAndGenerateId = () => {
-        console.log(generatedId, 'gid')
         setShowModal(true)
         createShareLink()
     }
@@ -100,7 +99,6 @@ export const Map = ({ user }) => {
     const createShareLink = () => {
         const data = user.mapDetails
         const stringifiedData = JSON.stringify({ data, generatedId })
-        console.log(stringifiedData, 'sd')
         fetch('https://eaq7kxyf7d.execute-api.us-east-1.amazonaws.com/countries/create-shared-map', {
             method: 'POST',
             headers: {
@@ -139,7 +137,6 @@ export const Map = ({ user }) => {
                     <InnerModal>
                         <ClosedIcon src="/images/cancel.svg" onClick={() => setShowModal(!showModal)} />
                         <div>Copy this link and share it on your favourite social media</div>
-                        {console.log(generatedId, 'gid inside')}
                         <input value={`https://countries-visited.com/${generatedId}/shared-map`} />
                     </InnerModal>
                 </StyledModal>

@@ -44,7 +44,6 @@ export const listenToAddCountryEpic = (action$, store) =>
                 const achievement = ACHIEVEMENTS_LIST.find((ach) => ach.id === 3)
                 return addAchievementHelper(achievement, details)
             }
-            console.log('uu', userVisitedCountries.length)
             if (userVisitedCountries.length === 10) {
                 const achievement = ACHIEVEMENTS_LIST.find((ach) => ach.id === 4)
                 return addAchievementHelper(achievement, details)

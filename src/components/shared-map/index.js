@@ -17,14 +17,6 @@ const Container = styled.div`
     padding-top: 30px;
 `
 
-const LoadingContainer = styled.div`
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    margin: auto;
-    width: 200px;
-`
-
 const StyledChart = styled(Chart)`
     margin-top: 50px;
 `
