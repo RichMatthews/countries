@@ -1,14 +1,19 @@
 import React from 'react'
 import styled from 'styled-components'
-import moment from 'moment'
-
+import { connect } from 'react-redux'
 import { ReactModalAdapter, fadeIn } from 'components/react-modal-adapter'
 import { KIERAN_GREY } from 'styles'
+
+import { CONNECTED_VISIT } from './visit'
 
 const ModalInner = styled.div`
     display: flex;
     flex-direction: row;
     height: 100%;
+
+    @media (max-width: 700px) {
+        flex-direction: column;
+    }
 `
 
 const CountryHeading = styled.h3`
@@ -23,28 +28,11 @@ const CountryHeading = styled.h3`
     margin-top: 20px;
     text-align: center;
     width: 80%;
-`
 
-const Visit = styled.div`
-    align-items: center;
-    background: #fff;
-    color: ${KIERAN_GREY};
-    display: flex;
-    flex-direction: column;
-    font-size: 26px;
-    border-bottom: 1px solid #ccc;
-    width: 80%;
-    margin: auto;
-    margin-top: 25px;
-    padding-bottom: 25px;
-
-    & div:first-child {
-        padding-bottom: 10px;
+    @media (max-width: 700px) {
+        font-size: 20px;
+        margin-top: 0;
     }
-`
-
-const Image = styled.img`
-    width: 55px;
 `
 
 const StyledModal = styled(ReactModalAdapter)`
@@ -79,17 +67,14 @@ const StyledModal = styled(ReactModalAdapter)`
     }
 `
 
-const Dates = styled.div`
-    color: #ccc;
-    font-size: 15px;
-`
-
-const Travellers = styled.div`
-    font-size: 14px;
-`
-
 const Left = styled.div`
     width: 33%;
+
+    @media (max-width: 700px) {
+        height: 100%;
+        overflow-y: scroll;
+        width: 100%;
+    }
 `
 
 const Right = styled.div`
@@ -110,6 +95,32 @@ const ClosedIcon = styled.img`
     width: 13px;
 `
 
+const ExtraDetails = styled.div`
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 33%;
+    align-items: flex-end;
+    & > div {
+        background: ${KIERAN_GREY};
+        border-radius: 3px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 12px;
+        margin: 5px;
+        padding: 10px;
+        width: 103px;
+    }
+`
+
+const Visits = styled.div`
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 35px;
+`
+
 export const CountryInformation = ({ country, setShowModal, showModal }) => {
     return (
         <StyledModal
@@ -122,18 +133,17 @@ export const CountryInformation = ({ country, setShowModal, showModal }) => {
                 <ClosedIcon src="/images/cancel.svg" onClick={() => setShowModal(!showModal)} />
                 <Left>
                     <CountryHeading>{country.name}</CountryHeading>
-                    {country.visits.map((visit) => (
-                        <Visit>
-                            <div>{visit.visitName}</div>
-                            <Dates>
-                                <div>
-                                    {moment.unix(visit.startDate).format('Do MMM')} -{' '}
-                                    {moment.unix(visit.endDate).format('Do MMM YYYY')}
-                                </div>
-                            </Dates>
-                            <Travellers>You went with {visit.people} </Travellers>
-                        </Visit>
-                    ))}
+                    <Visits>
+                        {country.visits.map((visit) => {
+                            const people = visit.people ? visit.people.split(',') : []
+                            const places = visit.places ? visit.places.split(',') : []
+                            return <CONNECTED_VISIT country={country.name} visit={{ ...visit, people, places }} />
+                        })}
+                    </Visits>
+                    <ExtraDetails>
+                        <div>View on map</div>
+                        <div onClick={() => setShowModal(!showModal)}>Return to Countries</div>
+                    </ExtraDetails>
                 </Left>
                 <Right country={country.trimmed} />
             </ModalInner>
@@ -141,7 +151,4 @@ export const CountryInformation = ({ country, setShowModal, showModal }) => {
     )
 }
 
-//<Close onClick={() => setShowModal(!showModal)}>Return to Countries</Close>
-//                          <Ticket>
-// <Image src={'/images/ticket.svg'} />
-//</Ticket>
+export const CONNECTED_COUNTRY_INFORMATION = connect()(CountryInformation)

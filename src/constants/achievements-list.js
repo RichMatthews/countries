@@ -106,10 +106,10 @@ export const ACHIEVEMENTS_LIST = [
     },
     {
         id: 13,
-        title: 'Paella Pals',
+        title: 'The Great Wall',
         difficult: 'easy',
-        description: 'You visited Spain',
+        description: 'You visited China',
         achieved: false,
-        emojiId: 'flag-gr',
+        emojiId: 'flag-cn',
     },
 ]

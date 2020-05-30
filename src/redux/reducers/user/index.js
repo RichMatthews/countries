@@ -37,6 +37,22 @@ export function user(state = initialState, action) {
             return { ...state, notifications: [] }
         case 'ADD_NOTIFICATION':
             return { ...state, notifications: state.notifications.concat(action.notification) }
+        case 'UPDATE_VISIT_SUCCESS':
+            return {
+                ...state,
+                userVisitedCountries: state.userVisitedCountries.map((country) =>
+                    country.name === action.details.country
+                        ? {
+                              ...country,
+                              visits: country.visits.map((visit) =>
+                                  visit.visitName === action.details.current
+                                      ? (visit = action.details.newVisitDetails)
+                                      : visit,
+                              ),
+                          }
+                        : country,
+                ),
+            }
         case ADD_USER_VISITED_COUNTRY:
             const foundUserCountry = state.userVisitedCountries.filter(
                 (country) => country.name === action.country.name,

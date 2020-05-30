@@ -17,7 +17,7 @@ const addAchievementHelper = (achievement, details) => {
     }
 
     return ajax
-        .post('https://eaq7kxyf7d.execute-api.us-east-1.amazonaws.com/countries/add-achievement', data, {
+        .post(`${process.env.REACT_APP_API_GATEWAY_URL}/countries/add-achievement`, data, {
             'Content-Type': 'application/json',
         })
         .pipe(
@@ -54,6 +54,10 @@ export const listenToAddCountryEpic = (action$, store) =>
             }
             if (action.country.name === 'Greece') {
                 const achievement = ACHIEVEMENTS_LIST.find((ach) => ach.id === 12)
+                return addAchievementHelper(achievement, details)
+            }
+            if (action.country.name === 'China') {
+                const achievement = ACHIEVEMENTS_LIST.find((ach) => ach.id === 13)
                 return addAchievementHelper(achievement, details)
             } else {
                 return EMPTY

@@ -1,14 +1,32 @@
-import firebase from 'firebase'
+import firebase from 'firebase/app'
+import 'firebase/database'
 
-const firebaseConfig = {
-    apiKey: 'AIzaSyBEBd5lVUlDr3CUYPDR2qhE-5RRjRBuD8M',
-    authDomain: 'countries-5e1e5.firebaseapp.com',
-    databaseURL: 'https://countries-5e1e5.firebaseio.com',
-    projectId: 'countries-5e1e5',
-    storageBucket: 'countries-5e1e5.appspot.com',
-    messagingSenderId: '659521859435',
-    appId: '1:659521859435:web:c1ecbe3433a55fff0f662e',
-    measurementId: 'G-L6ZJB7SFN6',
+export let firebaseApp
+
+if (process.env === 'production') {
+    const firebaseConfig = {
+        apiKey: 'AIzaSyBEBd5lVUlDr3CUYPDR2qhE-5RRjRBuD8M',
+        authDomain: 'countries-5e1e5.firebaseapp.com',
+        databaseURL: 'https://countries-5e1e5.firebaseio.com',
+        projectId: 'countries-5e1e5',
+        storageBucket: 'countries-5e1e5.appspot.com',
+        messagingSenderId: '659521859435',
+        appId: '1:659521859435:web:c1ecbe3433a55fff0f662e',
+        measurementId: 'G-L6ZJB7SFN6',
+    }
+
+    firebaseApp = firebase.initializeApp(firebaseConfig)
+} else {
+    const firebaseDevelopmentConfig = {
+        apiKey: 'AIzaSyDqnmovBZFAVJ-kKJyMU8JN27JkBPd49HE',
+        authDomain: 'countries-development.firebaseapp.com',
+        databaseURL: 'https://countries-development.firebaseio.com',
+        projectId: 'countries-development',
+        storageBucket: 'countries-development.appspot.com',
+        messagingSenderId: '742557780049',
+        appId: '1:742557780049:web:265ea4981c094fb2469070',
+        measurementId: 'G-XFDPZW61ZW',
+    }
+
+    firebaseApp = firebase.initializeApp(firebaseDevelopmentConfig)
 }
-
-export const firebaseApp = firebase.initializeApp(firebaseConfig)

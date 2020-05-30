@@ -17,11 +17,13 @@ const Container = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    height: 100%;
-    height: 100%;
     position: absolute;
-    overflow: scroll;
+    overflow: auto;
     width: 100%;
+
+    @media (max-width: 700px) {
+        flex-direction: column;
+    }
 `
 
 const ImageAndSearch = styled.div`
@@ -75,24 +77,6 @@ const Total = styled.div`
     padding: 0 5px 0 0;
 `
 
-// & > div:nth-child(5n + 1) {
-//     grid-row: 1;
-// }
-
-// & > div:nth-child(5n + 2) {
-//     grid-row: 2;
-// }
-
-// & > div:nth-child(5n + 3) {
-//     grid-row: 3;
-// }
-// & > div:nth-child(5n + 4) {
-//     grid-row: 4;
-// }
-// & > div:nth-child(5n + 5) {
-//     grid-row: 5;
-// }
-
 const CountriesList = styled.div`
     animation: ${fadeIn} 2s;
     display: grid;
@@ -113,6 +97,15 @@ const CountriesList = styled.div`
         margin: 0;
         padding: 13px;
     }
+
+    @media (max-width: 700px) {
+        display: block;
+        min-height: 0;
+
+        & > div {
+            margin: 10px;
+        }
+    }
 `
 
 const AddVisit = styled.div`
@@ -126,6 +119,14 @@ const AddVisit = styled.div`
     & > p {
         color: ${BRAND_COLOR};
         margin: 0;
+    }
+
+    @media (max-width: 700px) {
+        width: 30px;
+
+        & > img {
+            width: 100%;
+        }
     }
 `
 
@@ -154,6 +155,21 @@ const Continent = styled.div`
     margin: 10px;
     padding: 6px;
     width: 65px;
+
+    & > img {
+        width: 50px;
+    }
+
+    @media (max-width: 700px) {
+        font-size: 10px;
+        height: 30px;
+        padding: 10px;
+        margin: 5px;
+        width: 30px;
+        & > img {
+            width: 20px;
+        }
+    }
 `
 
 const ContinentsContainer = styled.div`
@@ -167,6 +183,13 @@ const ContinentsContainer = styled.div`
         width: 300px;
     }
 
+    @media (max-width: 700px) {
+        margin-top: 70px;
+        & > div {
+            width: auto;
+        }
+    }
+
     & > p {
         color: #fff;
         margin: 0;
@@ -175,8 +198,13 @@ const ContinentsContainer = styled.div`
 
 const ContinentName = styled.div`
     padding-top: 10px;
+
     text-align: center;
     text-transform: uppercase;
+
+    @media (max-width: 700px) {
+        padding-top: 3px;
+    }
 `
 
 const LoadingContainer = styled.div`
@@ -188,7 +216,8 @@ const LoadingContainer = styled.div`
     margin-top: 50px;
     width: 200px;
 
-    & > img {
+    @media (max-width: 700px) {
+        margin-top: 80px;
     }
 `
 
@@ -215,6 +244,10 @@ const Pagination = styled.div`
     flex-direction: row;
     justify-content: flex-end;
     margin-top: 5px;
+
+    @media (max-width: 700px) {
+        display: none;
+    }
 `
 
 const PageNumber = styled.div`
@@ -237,11 +270,15 @@ const MainHeading = styled.div`
     color: #4a4947;
     width: 100%;
     font-size: 48px;
-`
 
+    @media (max-width: 700px) {
+        font-size: 24px;
+    }
+`
+// check this
 const comparator = (previous, next) => {
     if (previous.user.userVisitedCountries.length > 0) {
-        if (previous.user.userVisitedCountries.length === next.user.userVisitedCountries.length) {
+        if (previous.user.userVisitedCountries === next.user.userVisitedCountries) {
             return true
         }
     }
@@ -319,7 +356,7 @@ const Visited = React.memo(({ ui, user }) => {
         <Container>
             <ContinentsContainer>
                 <div>
-                    <p>Filter by continent</p>
+                    <p>Filter trips by continent</p>
                     <Continents>
                         {continents.map((continent) => (
                             <Continent
@@ -333,7 +370,6 @@ const Visited = React.memo(({ ui, user }) => {
                                             ? `${continent['svg-light']}.svg`
                                             : `${continent.svg}.svg`
                                     }
-                                    width="50"
                                     alt=""
                                 />
                                 <ContinentName>{continent.name}</ContinentName>
@@ -348,7 +384,7 @@ const Visited = React.memo(({ ui, user }) => {
                             placeholder="Enter Country Name"
                         />
                     </ImageAndSearch>
-                    <ResetButton onClick={() => filterCountriesByContinent(null)}>Reset</ResetButton>
+                    <ResetButton onClick={() => filterCountriesByContinent(null)}>Reset Filters</ResetButton>
                 </div>
             </ContinentsContainer>
 

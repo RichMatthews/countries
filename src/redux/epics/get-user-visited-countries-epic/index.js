@@ -23,7 +23,7 @@ export const getUserVisitedCountriesEpic = (action$) =>
     action$.pipe(
         ofType(GET_USER_DATA),
         mergeMap((action) =>
-            ajax.getJSON(`https://eaq7kxyf7d.execute-api.us-east-1.amazonaws.com/countries?userId=${action.id}`).pipe(
+            ajax.getJSON(`${process.env.REACT_APP_API_GATEWAY_URL}/countries?userId=${action.id}`).pipe(
                 mergeMap((response) => {
                     const sortedCountries = sortBy(response, 'name')
                     const convertedMapCountries = convertCountriesForMapFormat(response)

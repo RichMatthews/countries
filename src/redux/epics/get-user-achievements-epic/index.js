@@ -11,9 +11,7 @@ export const getUserAchievementsEpic = (action$) =>
         ofType(GET_USER_DATA),
         mergeMap((action) =>
             ajax
-                .getJSON(
-                    `https://eaq7kxyf7d.execute-api.us-east-1.amazonaws.com/countries/get-achievements?userId=${action.id}`,
-                )
+                .getJSON(`${process.env.REACT_APP_API_GATEWAY_URL}/countries/get-achievements?userId=${action.id}`)
                 .pipe(
                     mergeMap((response) => {
                         return [userAchievementsFulfilled(response)]

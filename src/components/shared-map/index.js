@@ -18,7 +18,7 @@ const Container = styled.div`
 `
 
 const StyledChart = styled(Chart)`
-    margin-top: 50px;
+    margin-top: 10px;
 `
 
 const NoMap = styled.div`
@@ -33,7 +33,7 @@ export const SharedMap = () => {
 
     useEffect(() => {
         const id = window.location.pathname.split('/')[1]
-        fetch(`https://eaq7kxyf7d.execute-api.us-east-1.amazonaws.com/countries/get-shared-map?mapId=${id}`)
+        fetch(`${process.env.REACT_APP_API_GATEWAY_URL}/countries/get-shared-map?mapId=${id}`)
             .then((res) => res.json())
             .then((res2) => {
                 setCountries(res2[0])

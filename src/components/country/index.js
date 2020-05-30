@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 
-import { CountryInformation } from 'components/country-information'
+import { CONNECTED_COUNTRY_INFORMATION } from 'components/country-information'
+import { KIERAN_GREY } from 'styles'
 
 const Container = styled.div`
     align-items: center;
@@ -14,6 +15,10 @@ const Container = styled.div`
     justify-content: center;
     height: 70px;
     margin: 10px;
+
+    @media (max-width: 700px) {
+        height: 40px;
+     }
 }
 `
 
@@ -24,7 +29,11 @@ const CountryName = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    width: 350px;
+
+    @media (max-width: 700px) {
+        color: ${KIERAN_GREY};
+        font-size: 24px;
+    }
 `
 
 const CountryVisitsAndFlag = styled.div`
@@ -33,6 +42,22 @@ const CountryVisitsAndFlag = styled.div`
     justify-content: space-between;
     align-items: center;
     width: 256px;
+
+    & > img {
+        width: 50px;
+    }
+
+    @media (max-width: 700px) {
+        color: #b6b6b6;
+        margin-top: 5px;
+        & > div {
+            margin-left: 10px;
+        }
+        & > img {
+            width: 32px;
+        }
+        width: auto;
+    }
 `
 
 const InnerContainer = styled.div`
@@ -52,6 +77,15 @@ const ImageContainer = styled.div`
         border-top-right-radius: 5px;
         width: 100%;
     }
+
+    @media (max-width: 700px) {
+        & > img {
+            border-bottom-right-radius: 0;
+            border-top-right-radius: 0;
+        }
+        height: 55px;
+        width: 80px;
+    }
 `
 
 export const Country = ({ country, selectedContinent }) => {
@@ -64,7 +98,7 @@ export const Country = ({ country, selectedContinent }) => {
                     <div>
                         <CountryName>{country.name}</CountryName>
                         <CountryVisitsAndFlag>
-                            <img src={country.flag} width="50" alt="flag" />
+                            <img src={country.flag} alt="flag" />
                             <div>
                                 You've travelled here{' '}
                                 {country.visits.length === 1
@@ -86,7 +120,7 @@ export const Country = ({ country, selectedContinent }) => {
                 </InnerContainer>
             </Container>
             {showModal ? (
-                <CountryInformation country={country} setShowModal={setShowModal} showModal={showModal} />
+                <CONNECTED_COUNTRY_INFORMATION country={country} setShowModal={setShowModal} showModal={showModal} />
             ) : null}
         </>
     ) : null

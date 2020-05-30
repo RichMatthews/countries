@@ -31,6 +31,10 @@ const InnerContainer = styled.div`
     justify-content: flex-start;
     align-items: center;
     margin: auto;
+
+    @media (max-width: 700px) {
+        width: 100%;
+    }
 `
 
 const StatComponent = styled.div`
@@ -41,6 +45,10 @@ const StatComponent = styled.div`
     display: flex;
     flex-direction: column;
     padding: 10px;
+
+    @media (max-width: 700px) {
+        height: 400px;
+    }
 `
 
 const Top = styled.div`
@@ -49,6 +57,17 @@ const Top = styled.div`
     justify-content: space-between;
     height: 250px;
     width: 100%;
+
+    @media (max-width: 700px) {
+        flex-direction: row;
+        flex-wrap: wrap;
+        height: 700px;
+        width: 90%;
+        & > div {
+            height: 150px;
+            width: 150px;
+        }
+    }
 `
 
 const Bottom = styled.div`
@@ -69,6 +88,11 @@ const FirstAndLast = styled.div`
     flex-direction: column;
     justify-content: space-between;
     width: 235px;
+
+    @media (max-width: 700px) {
+        height: 150px;
+        width: 150px;
+    }
 `
 
 const FirstOrLast = styled(StatComponent)`
@@ -106,6 +130,11 @@ const SpinnerContainer = styled.div`
 
 const Gauge = styled(StatComponent)`
     width: 200px;
+
+    @media (max-width: 700px) {
+        height: 150px;
+        width: 150px;
+    }
 `
 
 const TotalCountries = styled(StatComponent)`
@@ -115,6 +144,15 @@ const TotalCountries = styled(StatComponent)`
     width: 225px;
     & > p {
         font-size: 20px;
+    }
+
+    @media (max-width: 700px) {
+        font-size: 80px;
+        & > p {
+            font-size: 20px;
+        }
+        height: 150px;
+        width: 150px;
     }
 `
 

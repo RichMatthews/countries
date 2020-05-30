@@ -1,45 +1,99 @@
 import React from 'react'
 import styled from 'styled-components'
-import Calendar from 'react-calendar'
+import { SingleDatePicker } from 'react-dates'
+import 'react-dates/initialize'
+import 'react-dates/lib/css/_datepicker.css'
 import 'react-calendar/dist/Calendar.css'
 
 import { FormErrors } from 'components/country-visited-modal/components/shared/form-errors'
-import { KIERAN_GREY } from 'styles'
 
 const CalendarImage = styled.img`
-    margin-left: -5px;
-    margin-top: -3px;
+    margin-left: 8px;
+    margin-top: 11px;
     position: absolute;
     width: 25px;
+    z-index: 1;
 `
 
-const DateComponent = styled.div`
-    background: #ccc;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    color: ${({ date }) => (date ? KIERAN_GREY : '#757575')};
-    font-size: 15px;
-    margin-bottom: 20px;
-    padding: 15px;
+const CalendarImageRight = styled(CalendarImage)`
+    margin-left: 163px;
+`
 
-    & > div {
+const StyledWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    .SingleDatePicker {
+        width: 38%;
+    }
+    .SingleDatePicker_picker {
+        z-index: 999;
+    }
+    .SingleDatePickerInput {
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        height: 46px;
+        overflow: hidden;
+        width: 100%;
+    }
+    .DateInput {
+        background: transparent;
+        font-size: 15px;
         padding-left: 25px;
+        width: 100%;
+    }
+    .DateInput_input {
+        color: #9393a8;
+        font-size: 15px;
+        background: transparent;
     }
 `
 
-const StyledCalendar = styled(Calendar)`
-    position: absolute;
-    top: 100px;
-    z-index: 9;
+const MonthViewSwitch = styled.div`
+    font-size: 13px;
+    width: 55px;
 `
 
-export const CalendarField = ({ calendar, calendarFormatter, date, showCalendar }) => (
+export const CalendarField = ({
+    endDate,
+    endDateFocused,
+    onDatesChange,
+    startDate,
+    setEndDateFocused,
+    setStartDateFocused,
+    startDateFocused,
+}) => (
     <div>
         <FormErrors category="visitName" errorMsg="You need to enter a name" />
-        <DateComponent date={date} onClick={() => showCalendar(!calendar)} value={date}>
-            <CalendarImage src="/images/calendar.svg" />
-            <div>{date ? date : 'Select date'}</div>
-        </DateComponent>
-        {calendar ? <StyledCalendar selectRange onChange={(date) => calendarFormatter(date)} /> : null}
+        <CalendarImage src="/images/calendar.svg" />
+        <CalendarImageRight src="/images/calendar.svg" />
+        <StyledWrapper>
+            <SingleDatePicker
+                date={startDate}
+                onDateChange={onDatesChange}
+                displayFormat={() => 'Do MMM YYYY'}
+                focused={startDateFocused}
+                numberOfMonths={1}
+                isOutsideRange={() => null}
+                hideKeyboardShortcutsPanel={true}
+                onFocusChange={({ focused }) => setStartDateFocused(focused)}
+                id="startDate"
+            />
+
+            <SingleDatePicker
+                date={endDate}
+                onDateChange={onDatesChange}
+                displayFormat={() => 'Do MMM YYYY'}
+                focused={endDateFocused}
+                numberOfMonths={1}
+                isOutsideRange={() => null}
+                hideKeyboardShortcutsPanel={true}
+                onFocusChange={({ focused }) => setEndDateFocused(focused)}
+                id="endDate"
+            />
+            <MonthViewSwitch>hu</MonthViewSwitch>
+        </StyledWrapper>
     </div>
 )

@@ -28,6 +28,14 @@ const Top3 = styled(StatComponent)`
         margin: 10px;
         font-size: 18px;
     }
+
+    @media (max-width: 700px) {
+        & > :first-child {
+            font-size: 11px;
+        }
+        height: 150px;
+        width: 150px;
+    }
 `
 
 const Spinner = styled.img`

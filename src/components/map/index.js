@@ -16,6 +16,10 @@ const Container = styled.div`
     justify-content: flex-start;
     height: 100%;
     padding-top: 30px;
+
+    @media (max-width: 700px) {
+        padding-top: 100px;
+    }
 `
 
 const NoMap = styled.div`
@@ -99,7 +103,7 @@ export const Map = ({ user }) => {
     const createShareLink = () => {
         const data = user.mapDetails
         const stringifiedData = JSON.stringify({ data, generatedId })
-        fetch('https://eaq7kxyf7d.execute-api.us-east-1.amazonaws.com/countries/create-shared-map', {
+        fetch(`${process.env.REACT_APP_API_GATEWAY_URL}/countries/create-shared-map`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -109,10 +113,17 @@ export const Map = ({ user }) => {
         })
     }
 
+    const calculateMapHeight = () => {
+        if (window.innerWidth < 500) {
+            return '400px'
+        }
+        return '1000px'
+    }
+
     return user.mapDetails.length > 1 ? (
         <Container>
             <Chart
-                width={'1000px'}
+                width={calculateMapHeight()}
                 height={'575px'}
                 chartType="GeoChart"
                 data={user.mapDetails}
@@ -137,7 +148,7 @@ export const Map = ({ user }) => {
                     <InnerModal>
                         <ClosedIcon src="/images/cancel.svg" onClick={() => setShowModal(!showModal)} />
                         <div>Copy this link and share it on your favourite social media</div>
-                        <input value={`https://countries-visited.com/${generatedId}/shared-map`} />
+                        <input value={`${window.location.host}/${generatedId}/shared-map`} />
                     </InnerModal>
                 </StyledModal>
             ) : null}

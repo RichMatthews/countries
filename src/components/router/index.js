@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom'
+import { BrowserRouter as Router, Switch, Route, Redirect, useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
 
 import { CONNECTED_Achievments } from 'components/achievements'
@@ -26,6 +26,7 @@ const comparator = (prevProps, nextProps) => {
 export const MainRouter = React.memo(({ fetchData, fetchRESTCountries, logUserOut, setUser, user }) => {
     const [loaded, setLoaded] = useState(false)
     const [newUser, setNewUser] = useState(JSON.parse(localStorage.getItem('authUser')))
+    const history = useHistory()
 
     useEffect(() => {
         firebaseApp.auth().onAuthStateChanged((user) => {
@@ -61,12 +62,16 @@ export const MainRouter = React.memo(({ fetchData, fetchRESTCountries, logUserOu
     }
 
     const PublicRoute = ({ component: Component, ...rest }) => <Component {...rest} />
+    const notSharedMap = /^(?!.*(\/shared-map)).*$/
 
     return (
         <Router>
-            {window.location.href.includes('shared-map') ? null : (
-                <CONNECTED_Nav logUserOut={logUserOutFirebaseAndRedux} newUser={newUser} />
-            )}
+            <PublicRoute
+                path={notSharedMap}
+                component={CONNECTED_Nav}
+                logUserOut={logUserOutFirebaseAndRedux}
+                newUser={newUser}
+            />
             <Switch>
                 <Route exact component={SharedMap} path="/:id/shared-map" />
                 <Route exact component={CONNECTED_Login} path="/account" />

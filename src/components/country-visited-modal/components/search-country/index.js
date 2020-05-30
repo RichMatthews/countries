@@ -3,33 +3,7 @@ import Select from 'react-select'
 import styled from 'styled-components'
 
 import { FormErrors } from 'components/country-visited-modal/components/shared/form-errors'
-import { KIERAN_GREY } from 'styles'
-
-const customStyles = {
-    control: (base, state) => ({
-        ...base,
-        background: '#ccc',
-        color: KIERAN_GREY,
-        fontSize: 15,
-        marginBottom: 20,
-        minHeight: 50,
-        paddingLeft: state.selectProps.country ? 0 : 30,
-    }),
-    option: (base, state) => ({
-        ...base,
-
-        color: 'red',
-        padding: 10,
-        '&:hover': {
-            color: 'green',
-        },
-    }),
-    menuList: (base) => ({
-        ...base,
-        color: KIERAN_GREY,
-        padding: 0,
-    }),
-}
+import { customReactSelectStyles, KIERAN_GREY } from 'styles'
 
 const WorldImage = styled.img`
     margin-left: 11px;
@@ -66,7 +40,7 @@ const formatOptionLabel = ({ value, label, flag }) => (
 export const SearchCountryField = ({ country, options, setCountry }) => (
     <div>
         <FormErrors category="country" errorMsg="You need to enter a country" />
-        {country ? null : <WorldImage src="/images/small-world.svg" />}
+        {country ? null : <WorldImage src="/images/worldwide.svg" />}
         <Select
             country={country}
             formatOptionLabel={formatOptionLabel}
@@ -74,7 +48,7 @@ export const SearchCountryField = ({ country, options, setCountry }) => (
             onChange={(country) => setCountry(country.value)}
             options={options}
             placeholder="Start typing to find a country..."
-            styles={customStyles}
+            styles={customReactSelectStyles}
         />
     </div>
 )

@@ -11,6 +11,8 @@ import { fadeIn, ReactModalAdapter } from 'components/react-modal-adapter'
 import { ButtonAndSuccessSection } from 'components/country-visited-modal/components/button-and-success-section'
 import { CalendarField } from 'components/country-visited-modal/components/calendar'
 import { CompanionsField } from 'components/country-visited-modal/components/companions'
+import { MemorablePlaces } from 'components/country-visited-modal/components/memorable-places'
+import { Emoji } from 'components/country-visited-modal/components/emoji'
 import { SearchCountryField } from 'components/country-visited-modal/components/search-country'
 import { VisitNameField } from 'components/country-visited-modal/components/visit-name'
 import { getRESTAPICountries } from 'redux/action-creators/countries/get-rest-api-countries'
@@ -22,11 +24,7 @@ const AddVisit = styled.div`
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
-`
-
-const ModalContent = styled.div`
-    margin: auto;
-    width: 400px;
+    text-align: center;
 `
 
 const ClosedIcon = styled.img`
@@ -36,6 +34,11 @@ const ClosedIcon = styled.img`
     right: 20px;
     top: 20px;
     width: 13px;
+`
+
+const ModalContent = styled.div`
+    margin: auto;
+    width: 400px;
 `
 
 const StyledModal = styled(ReactModalAdapter)`
@@ -65,45 +68,31 @@ const StyledModal = styled(ReactModalAdapter)`
         border-radius: 4px;
         outline: none;
         padding: 20px;
-        height: 450px;
+        height: 520px;
         margin: auto;
         width: 450px;
     }
 `
 
-const EmojiSection = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    background: #ccc;
-    border-radius: 4px;
-    height: 50px;
-    margin-bottom: 20px;
-    padding: 0 20px 0 15px;
-
-    & > div {
-        display: flex;
-        alignitems: scenter;
-
-        & > span {
-            color: #757575;
-            marginright: 10px;
-        }
-    }
+const Error = styled.div`
+    color: red;
 `
 
 export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAPICountries, setModalOpen, user }) => {
-    const [calendar, showCalendar] = useState(false)
+    const [chosenEmoji, setChosenEmoji] = useState(null)
     const [country, setCountry] = useState(null)
-    const [date, setDate] = useState(null)
+    const [endDate, setEndDate] = useState(null)
+    const [errors, setErrors] = useState(false)
+    const [endDateFocused, setEndDateFocused] = useState(false)
     const [isLoading, setLoading] = useState(false)
     const [people, setPeople] = useState(null)
+    const [memorablePlaces, setMemorablePlaces] = useState(null)
+    const [showPicker, setShowPicker] = useState(false)
+    const [startDate, setStartDate] = useState(null)
+    const [startDateFocused, setStartDateFocused] = useState(false)
     const [success, setSuccess] = useState(null)
     const [timestamp, setTimestamp] = useState(null)
     const [visitName, setVisitName] = useState(null)
-    const [chosenEmoji, setChosenEmoji] = useState(null)
-    const [showPicker, setShowPicker] = useState(false)
 
     const onEmojiClick = (emojiObject) => {
         setChosenEmoji(emojiObject.native)
@@ -114,14 +103,26 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
         getRESTAPICountries(restAPICountries)
     }, [restAPICountries])
 
-    const calendarFormatter = (date) => {
-        const fromTimestamp = moment(date[0]).unix()
-        const toTimestamp = moment(date[1]).unix()
-        const from = moment(date[0]).format('Do MMM YYYY')
-        const to = moment(date[1]).format('Do MMM YYYY')
-        setDate(`${from} - ${to}`)
-        setTimestamp([fromTimestamp, toTimestamp])
-        showCalendar(false)
+    const checkError = () => {
+        const error = !startDate || !people || !country || !visitName || !chosenEmoji
+        if (error) {
+            setErrors(true)
+            return true
+        } else {
+            setErrors(false)
+            return false
+        }
+    }
+
+    const onDatesChange = (date) => {
+        if (startDateFocused) {
+            setStartDate(date)
+        } else {
+            const fromTimestamp = moment(startDate).unix()
+            const toTimestamp = moment(date).unix()
+            setTimestamp([fromTimestamp, toTimestamp])
+            setEndDate(date)
+        }
     }
 
     const countryNameConverter = (country) => {
@@ -159,7 +160,18 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
         return country
     }
 
+    const handlePeopleChange = (newValue, actionMeta) => {
+        setPeople(newValue)
+    }
+
+    const handleMemorablePlacesChange = (newValue, actionMeta) => {
+        setMemorablePlaces(newValue)
+    }
+
     const submitCountryDetailsToBackend = () => {
+        if (checkError()) {
+            return
+        }
         setLoading(true)
         const userId = user.details.uid
         const selectedCountryDetails = countries.restAPICountries.filter((ctry) => ctry.name === country)
@@ -187,8 +199,13 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
                     {
                         startDate: timestamp[0],
                         endDate: timestamp[1],
-                        people,
+                        people: Array.from(people, (val) => val['label'])
+                            .toString()
+                            .replace(/^,+|,+$/g, ''),
                         visitName: visitName + ' ' + chosenEmoji,
+                        places: Array.from(memorablePlaces, (val) => val['label'])
+                            .toString()
+                            .replace(/^,+|,+$/g, ''),
                     },
                 ],
             },
@@ -199,7 +216,7 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
 
         const postHttpObservable = () => {
             return Observable.create((observer) => {
-                fetch('https://eaq7kxyf7d.execute-api.us-east-1.amazonaws.com/countries/add-country', {
+                fetch(`${process.env.REACT_APP_API_GATEWAY_URL}/countries/add-country`, {
                     method: 'POST',
                     headers: {
                         Accept: 'application/json',
@@ -227,7 +244,8 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
         addNewUserCountry(newCountry)
 
         setTimeout(() => {
-            setDate(null)
+            setStartDate(null)
+            setEndDate(null)
             setLoading(false)
             setChosenEmoji(null)
         }, 1000)
@@ -239,29 +257,28 @@ export const CountryModal = ({ addNewUserCountry, countries, isModalOpen, restAP
                 <div>
                     <ClosedIcon src="/images/cancel.svg" onClick={() => setModalOpen(false)} />
                     <AddVisit>ADD A VISIT</AddVisit>
+                    {errors ? <Error>You need to fill in all form fields</Error> : null}
                 </div>
                 <VisitNameField setVisitName={setVisitName} />
                 <SearchCountryField country={country} options={countries.selectOptions} setCountry={setCountry} />
                 <CalendarField
-                    calendar={calendar}
-                    calendarFormatter={calendarFormatter}
-                    date={date}
-                    showCalendar={showCalendar}
+                    endDate={endDate}
+                    endDateFocused={endDateFocused}
+                    onDatesChange={onDatesChange}
+                    setEndDateFocused={setEndDateFocused}
+                    setStartDateFocused={setStartDateFocused}
+                    startDate={startDate}
+                    startDateFocused={startDateFocused}
                 />
-                <CompanionsField setPeople={setPeople} />
+                <CompanionsField handleChange={handlePeopleChange} />
+                <MemorablePlaces handleChange={handleMemorablePlacesChange} />
                 {showPicker ? (
                     <Picker
                         onSelect={onEmojiClick}
                         style={{ position: 'absolute', bottom: '20px', cursor: 'pointer', right: '20px' }}
                     />
                 ) : null}
-                <EmojiSection>
-                    <div>
-                        <span>{!chosenEmoji ? 'Select an emoji to sum up your trip!' : null}</span>
-                        <span style={{ fontSize: '25px' }}>{chosenEmoji ? chosenEmoji : null} </span>
-                    </div>
-                    <img src={'/images/emojiselector.svg'} width={20} onClick={() => setShowPicker(!showPicker)} />
-                </EmojiSection>
+                <Emoji chosenEmoji={chosenEmoji} setShowPicker={setShowPicker} showPicker={showPicker} />
                 <ButtonAndSuccessSection
                     isLoading={isLoading}
                     submitCountryDetailsToBackend={submitCountryDetailsToBackend}

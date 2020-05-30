@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
+import Instafeed from 'instafeed.js'
 
 import { CONNECTED_CountryModal } from 'components/country-visited-modal'
 import { KIERAN_GREY } from 'styles'
@@ -9,7 +10,6 @@ const Container = styled.div`
     background-size: cover;
     height: 100%;
     position: absolute;
-
     width: 100%;
 
     &:before {
@@ -21,6 +21,10 @@ const Container = styled.div`
         left: 0;
         background-image: linear-gradient(to bottom right, #000, #fff);
         opacity: 0.2;
+    }
+
+    @media (max-width: 700px) {
+        background-image: url(https://dl6ghv8ryvhmk.cloudfront.net/mobile-back.jpg);
     }
 `
 
@@ -39,28 +43,32 @@ const Heading = styled.div`
     position: absolute;
     width: 450px;
     text-align: center;
-    top: 140px;
-`
+    top: 180px;
 
-const Button = styled.div`
-    background: ${KIERAN_GREY};
-    color: #fff;
-    cursor: pointer;
-    border-radius: 3px;
-    padding: 10px;
-    position: absolute;
-    top: 425px;
-    text-align: center;
+    @media (max-width: 700px) {
+        font-size: 32px;
+        width: 300px;
+    }
 `
 
 export const Home = ({ options, restAPICountries, user }) => {
     const [isModalOpen, setModalOpen] = useState(false)
+    const [images, setImages] = useState([])
+
+    useEffect(() => {
+        getInstagramPhotos()
+    }, [])
+
+    const getInstagramPhotos = async () => {
+        // const data = await fetch(
+        // ).then((res) => res.json())
+        // setImages(data.data)
+    }
 
     return (
         <Container>
             <Inner>
                 <Heading>Remember every trip to every country</Heading>
-                {/* <Button onClick={() => setModalOpen(true)}>Add Trip</Button> */}
             </Inner>
 
             <CONNECTED_CountryModal

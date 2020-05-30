@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { compose } from 'redux'
 import styled from 'styled-components'
 import { Link, useHistory, withRouter } from 'react-router-dom'
 
-import { fadeIn } from 'components/react-modal-adapter'
+import { fadeInNout } from 'components/react-modal-adapter'
 import { clearNotifications } from 'redux/action-creators/user/clear-notifications'
 import { BRAND_COLOR, KIERAN_GREY } from 'styles'
 
@@ -21,6 +21,10 @@ const Container = styled.div`
     position:  ${({ location }) => (location.pathname === '/' ? 'absolute' : 'relative')};
     z-index: 1;
     width: 100%;
+
+    @media (max-width: 700px) {
+        position: fixed;
+    }
 }
 `
 const StyledLink = styled(Link)`
@@ -32,6 +36,10 @@ const StyledLink = styled(Link)`
 
     &:hover {
         color: ${BRAND_COLOR};
+    }
+
+    @media (min-width: 700px) {
+        color: ${({ isselected }) => (isselected === 'true' ? BRAND_COLOR : '#ccc')};
     }
 `
 
@@ -57,9 +65,26 @@ const RightHandSide = styled.div`
     justify-content: space-between;
     min-width: 500px;
 
-    & > div {
+    & > :first-child {
         display: flex;
-        justify-content: space-evenly;
+    }
+
+    @media (min-width: 700px) {
+        & > :first-child {
+            display: none;
+        }
+    }
+
+    @media (max-width: 700px) {
+        align-items: center;
+        color: #fff;
+        font-size: 20px;
+        justify-content: center;
+        height: 100%;
+        min-width: 0;
+        & > :not(:first-child) {
+            display: none;
+        }
     }
 `
 
@@ -71,6 +96,10 @@ const MAPPALink = styled(Link)`
     height: 100%;
     text-align: center;
     text-decoration: none;
+
+    @media (min-width: 700px) {
+        font-size: 15px;
+    }
 `
 
 const LogOutBtn = styled.div`
@@ -78,7 +107,7 @@ const LogOutBtn = styled.div`
 `
 
 const Welcome = styled.div`
-    font-size: 10px;
+    font-size: 13px;
     padding: 5px 5px 1px 5px;
 `
 
@@ -92,7 +121,7 @@ const Dropdown = styled.div`
     padding: 5px 5px 0 5px;
     position: absolute;
     width: 144px;
-    top: 49px;
+    top: 53px;
 
     > * {
         margin: 10px;
@@ -118,7 +147,7 @@ const AccountAndWelcomeLink = styled.div`
 `
 
 const NotificationHandler = styled.div`
-    animation: ${fadeIn} 2s;
+    animation: ${fadeInNout} 6.5s linear forwards;
     background: ${KIERAN_GREY};
     border-radius: 3px;
     color: #fff;
@@ -148,6 +177,16 @@ const ProfilePhoto = styled.div`
     align-items: center;
 `
 
+const MobileProfile = styled.div`
+    align-items: center;
+    box-sizing: border-box;
+    color: #ccc;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 10px;
+`
+
 const ImageContainer = styled.div`
     width: 30px;
     height: 30px;
@@ -163,7 +202,41 @@ const ImageContainer = styled.div`
         width: -webkit-fill-available;
     }
 `
+
+const MobileImageContainer = styled(ImageContainer)`
+    height: 75px;
+    width: 75px;
+`
+
+const MobileMenu = styled.div`
+    background: #282d31;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    flex-direction: column;
+    height: 1000px;
+    top: 0;
+    left: 0;
+    width: 80%;
+
+    & > a {
+        color: #ccc;
+        font-size: 20px;
+        margin-top: 20px;
+        padding: 25px;
+        border-bottom: 1px solid #5e666b;
+    }
+`
+
+const MobileUserDetails = styled.div`
+    color: #ccc;
+    & > :first-child {
+        color: #fff;
+    }
+`
+
 export const Nav = ({ clearNotifications, location, logUserOut, newUser, user }) => {
+    const [showMobileMenu, setShowMobileMenu] = useState(false)
     const history = useHistory()
     const isSelected = (path) => {
         if (location.pathname.includes(path)) {
@@ -184,6 +257,57 @@ export const Nav = ({ clearNotifications, location, logUserOut, newUser, user })
                 <MAPPALink to="/">MAPPA MUNDI</MAPPALink>
             </Title>
             <RightHandSide loggedIn={newUser} user={newUser}>
+                <div>
+                    <div onClick={() => setShowMobileMenu(!showMobileMenu)}>Menu</div>
+                    {showMobileMenu ? (
+                        <MobileMenu>
+                            {newUser ? (
+                                <MobileProfile>
+                                    <MobileImageContainer>
+                                        <img
+                                            src={newUser.photoURL}
+                                            onError={(e) => (e.target.src = '/images/account.svg')}
+                                        />
+                                    </MobileImageContainer>
+                                    <MobileUserDetails>
+                                        <div>{newUser.displayName}</div>
+                                        <div>Standard user</div>
+                                    </MobileUserDetails>
+                                    {/* <div onClick={() => setShowMobileMenu(false)}>Close</div> */}
+                                </MobileProfile>
+                            ) : null}
+                            <StyledLink
+                                onClick={() => setShowMobileMenu(false)}
+                                isselected={isSelected('visited')}
+                                to="/visited"
+                            >
+                                Visited
+                            </StyledLink>
+                            <StyledLink
+                                onClick={() => setShowMobileMenu(false)}
+                                isselected={isSelected('map')}
+                                to="/map"
+                            >
+                                Your Map
+                            </StyledLink>
+                            <StyledLink
+                                onClick={() => setShowMobileMenu(false)}
+                                isselected={isSelected('stats')}
+                                to="/stats"
+                            >
+                                Stats
+                            </StyledLink>
+                            <StyledLink
+                                onClick={() => setShowMobileMenu(false)}
+                                isselected={isSelected('achievements')}
+                                to="/achievements"
+                            >
+                                Achievements
+                            </StyledLink>
+                            <LogOutBtn onClick={logUserOut}>Logout</LogOutBtn>
+                        </MobileMenu>
+                    ) : null}
+                </div>
                 <StyledLink isselected={isSelected('visited')} to="/visited">
                     Visited
                 </StyledLink>

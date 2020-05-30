@@ -17,17 +17,21 @@ const Container = styled.div`
 `
 
 const Achievement = styled.div`
+    align-items: center;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     color: #4a4947;
     display: flex;
-
     justify-content: space-between;
     margin-bottom: 20px;
     padding: 10px;
     opacity: ${({ achieved }) => (achieved ? 1 : 0.4)};
     width: 800px;
+
+    @media (max-width: 700px) {
+        width: auto;
+    }
 `
 
 const Top = styled.div`
@@ -37,6 +41,10 @@ const Top = styled.div`
     border-bottom: 1px solid #c9c9c9;
     margin-bottom: 20px;
     justify-content: space-between;
+
+    @media (max-width: 700px) {
+        margin: 10px;
+    }
 `
 
 const Bottom = styled.div`
@@ -48,12 +56,23 @@ const Bottom = styled.div`
         background: #c7c9c9;
         width: 10px;
     }
-    overflow-y: scroll;
-    height: 500px;
+    overflow-y: auto;
+    height: 550px;
+
+    @media (max-width: 700px) {
+        height: auto;
+        margin: 20px;
+        overflow-y: auto;
+    }
 `
 
 const AchievementsList = styled.div`
-    height: 500px;
+    height: 100%;
+
+    @media (max-width: 700px) {
+        margin-top: 100px;
+        width: 100%;
+    }
 `
 
 const Achieved = styled.div`
@@ -68,6 +87,10 @@ const Title = styled.div`
     font-size: 48px;
     margin-bottom: 20px;
     margin: 0;
+
+    @media (max-width: 700px) {
+        font-size: 32px;
+    }
 `
 
 const AchievementsContainer = ({ user }) => {
