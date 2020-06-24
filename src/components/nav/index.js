@@ -41,6 +41,16 @@ const StyledLink = styled(Link)`
     @media (min-width: 700px) {
         color: ${({ isselected }) => (isselected === 'true' ? BRAND_COLOR : '#ccc')};
     }
+
+    @media (max-width: 700px) {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        & > div {
+            margin-left: 25px;
+        }
+    }
 `
 
 const StyledAccountLink = styled(StyledLink)`
@@ -78,7 +88,6 @@ const RightHandSide = styled.div`
     @media (max-width: 700px) {
         align-items: center;
         color: #fff;
-        font-size: 20px;
         justify-content: center;
         height: 100%;
         min-width: 0;
@@ -93,7 +102,6 @@ const MAPPALink = styled(Link)`
     color: #fff;
     display: flex;
     justify-content: center;
-    height: 100%;
     text-align: center;
     text-decoration: none;
 
@@ -182,9 +190,10 @@ const MobileProfile = styled.div`
     box-sizing: border-box;
     color: #ccc;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    flex-direction: row;
+    justify-content: flex-start;
     margin: 10px;
+    padding: 20px 20px 0 20px;
 `
 
 const ImageContainer = styled.div`
@@ -222,15 +231,17 @@ const MobileMenu = styled.div`
     & > a {
         color: #ccc;
         font-size: 20px;
-        margin-top: 20px;
-        padding: 25px;
+        padding: 30px;
         border-bottom: 1px solid #5e666b;
     }
 `
 
 const MobileUserDetails = styled.div`
     color: #ccc;
-    & > :first-child {
+    margin-left: 10px;
+    font-size: 13px;
+    & > div:first-child {
+        font-size: 20px;
         color: #fff;
     }
 `
@@ -250,15 +261,17 @@ export const Nav = ({ clearNotifications, location, logUserOut, newUser, user })
         history.push('/achievements')
     }
 
-    return (
+    return location.pathname.includes('trips') ? null : (
         <Container location={location} user={newUser}>
             <Title>
-                <img src={'/images/globe.svg'} width="30" />
+                <img src={'/images/globe.svg'} width="30" alt="" />
                 <MAPPALink to="/">MAPPA MUNDI</MAPPALink>
             </Title>
             <RightHandSide loggedIn={newUser} user={newUser}>
                 <div>
-                    <div onClick={() => setShowMobileMenu(!showMobileMenu)}>Menu</div>
+                    <div onClick={() => setShowMobileMenu(!showMobileMenu)}>
+                        <img src="/images/menu.svg" width="30px" />
+                    </div>
                     {showMobileMenu ? (
                         <MobileMenu>
                             {newUser ? (
@@ -267,6 +280,7 @@ export const Nav = ({ clearNotifications, location, logUserOut, newUser, user })
                                         <img
                                             src={newUser.photoURL}
                                             onError={(e) => (e.target.src = '/images/account.svg')}
+                                            alt=""
                                         />
                                     </MobileImageContainer>
                                     <MobileUserDetails>
@@ -281,30 +295,45 @@ export const Nav = ({ clearNotifications, location, logUserOut, newUser, user })
                                 isselected={isSelected('visited')}
                                 to="/visited"
                             >
-                                Visited
+                                <img src="/images/visited.svg" width="30" alt="" />
+                                <div>Visited</div>
                             </StyledLink>
                             <StyledLink
                                 onClick={() => setShowMobileMenu(false)}
                                 isselected={isSelected('map')}
                                 to="/map"
                             >
-                                Your Map
+                                <img src="/images/map.svg" width="30" alt="" />
+                                <div>Your Map</div>
                             </StyledLink>
                             <StyledLink
                                 onClick={() => setShowMobileMenu(false)}
                                 isselected={isSelected('stats')}
                                 to="/stats"
                             >
-                                Stats
+                                <img src="/images/stats.svg" width="30" alt="" />
+                                <div>Stats</div>
                             </StyledLink>
                             <StyledLink
                                 onClick={() => setShowMobileMenu(false)}
                                 isselected={isSelected('achievements')}
                                 to="/achievements"
                             >
-                                Achievements
+                                <img src="/images/achievement.svg" width="30" alt="" />
+                                <div>Achievements</div>
                             </StyledLink>
-                            <LogOutBtn onClick={logUserOut}>Logout</LogOutBtn>
+                            <StyledLink
+                                onClick={() => setShowMobileMenu(false)}
+                                isselected={isSelected('account')}
+                                to="/account"
+                            >
+                                <img src="/images/achievement.svg" width="30" alt="" />
+                                <div>Account</div>
+                            </StyledLink>
+                            <StyledLink onClick={logUserOut} isselected={isSelected('achievements')} to="/">
+                                <img src="/images/logout.svg" width="30" alt="" />
+                                <div>Logout</div>
+                            </StyledLink>
                         </MobileMenu>
                     ) : null}
                 </div>
@@ -325,7 +354,11 @@ export const Nav = ({ clearNotifications, location, logUserOut, newUser, user })
                     <AccountAndWelcomeLink>
                         <ProfilePhoto>
                             <ImageContainer>
-                                <img src={newUser.photoURL} onError={(e) => (e.target.src = '/images/account.svg')} />
+                                <img
+                                    src={newUser.photoURL}
+                                    onError={(e) => (e.target.src = '/images/account.svg')}
+                                    alt=""
+                                />
                             </ImageContainer>
                             <Welcome>
                                 <div>Welcome, {newUser.displayName.split(' ')[0]}</div>

@@ -7,12 +7,12 @@ import { ACHIEVEMENTS_LIST } from 'constants/achievements-list'
 import { KIERAN_GREY } from 'styles'
 
 const Container = styled.div`
+    align-items: center;
     background: #e1e3e3;
     color: ${KIERAN_GREY};
     display: flex;
     flex-direction: column;
     height: 100%;
-    align-items: center;
     padding-top: 10px;
 `
 
@@ -58,6 +58,12 @@ const Bottom = styled.div`
     }
     overflow-y: auto;
     height: 550px;
+
+    @media (max-width: 700px) {
+        height: auto;
+        margin: 20px;
+        overflow-y: auto;
+    }
 
     @media (max-width: 700px) {
         height: auto;

@@ -7,12 +7,11 @@ import moment from 'moment'
 import {
     ADD_USER_VISITED_COUNTRY,
     COUNTRIES_CONVERTED_TO_CHART_FORMAT_SUCCESS,
+    GET_MOST_VISITED_COUNTRY,
     GET_USER_VISITED_COUNTRIES_SUCCESS,
     SET_CALCULATED_CONTINENTS_STAT,
     SET_COUNTRIES_AGGREGATED_BY_CONTINENT_STAT,
-    SET_FIRST_TRIP_STAT,
-    SET_LAST_TRIP_STAT,
-    SET_TOP_THREE_COUNTRES_STAT,
+    SET_MOST_VISITED_COUNTRY,
     SET_TRIPS_BY_YEAR_STAT,
 } from 'redux/types'
 
@@ -21,18 +20,19 @@ const setCountriesAggregatedByContinent = (payload) => ({
     data: payload,
 })
 const setCalculatedContinents = (payload) => ({ type: SET_CALCULATED_CONTINENTS_STAT, continentVisits: payload })
-const setFirstTrip = (payload) => ({ type: SET_FIRST_TRIP_STAT, firstTrip: payload })
-const setLastTrip = (payload) => ({ type: SET_LAST_TRIP_STAT, lastTrip: payload })
-const setTopThreeCountries = (payload) => ({ type: SET_TOP_THREE_COUNTRES_STAT, countries: payload })
+const setMostVisitedCountry = (payload) => ({ type: SET_MOST_VISITED_COUNTRY, country: payload })
 const setTripsByYear = (payload) => ({ type: SET_TRIPS_BY_YEAR_STAT, trips: payload })
 const countriesConverted = (countries) => ({ type: COUNTRIES_CONVERTED_TO_CHART_FORMAT_SUCCESS, countries })
 
-const calculateTopThreeCountries = (countries) => {
+const calculateMostVisitedCountry = (countries) => {
     const sortedCountries = sortBy(countries, (country) => {
-        return country.visits.length
+        if (country.visits) {
+            return country.visits.length
+        }
+        return 1
     })
 
-    return sortedCountries.reverse().slice(0, 3)
+    return sortedCountries.reverse().slice(0, 1)
 }
 
 const calculateContinentsVisits = (countries) => {
@@ -49,44 +49,6 @@ const calculateContinentsVisits = (countries) => {
     })
 
     return Object.entries(continents)
-}
-
-const calculateFirstTrip = (countries) => {
-    let num = 20000000000000
-    let countryToReturn = null
-    countries.forEach((country) => {
-        country.visits.forEach((visit) => {
-            if (visit.startDate < num) {
-                num = visit.startDate
-                countryToReturn = country
-            }
-        })
-    })
-    return {
-        name: countryToReturn.name,
-        flag: countryToReturn.flag,
-        startDate: countryToReturn.visits[0].startDate,
-        visitName: countryToReturn.visits[0].visitName,
-    }
-}
-
-const calculateLastTrip = (countries) => {
-    let num = 0
-    let countryToReturn = null
-    countries.forEach((country) => {
-        country.visits.forEach((visit) => {
-            if (visit.startDate > num) {
-                num = visit.startDate
-                countryToReturn = country
-            }
-        })
-    })
-    return {
-        name: countryToReturn.name,
-        flag: countryToReturn.flag,
-        startDate: countryToReturn.visits[0].startDate,
-        visitName: countryToReturn.visits[0].visitName,
-    }
 }
 
 const calculateCountriesVisitedByContinent = (countries) => {
@@ -125,14 +87,16 @@ const calculateCountriesVisitedByContinent = (countries) => {
 const calculateTripsByYear = (countries) => {
     let dates = {}
     countries.forEach((country) => {
-        country.visits.forEach((visit) => {
-            const date = moment.unix(visit.startDate).format('YYYY')
-            if (date in dates) {
-                dates[date] = dates[date] + 1
-            } else {
-                dates[date] = 1
-            }
-        })
+        if (country.visits) {
+            country.visits.forEach((visit) => {
+                const date = moment.unix(visit.startDate).format('YYYY')
+                if (date in dates) {
+                    dates[date] = dates[date] + 1
+                } else {
+                    dates[date] = 1
+                }
+            })
+        }
     })
     return Object.entries(dates)
 }
@@ -150,18 +114,14 @@ export const convertDataReadyForStatsEpic = (action$, state$) =>
             if (action.payload.length === 0) {
                 return EMPTY
             }
-            const calculatedTop3 = calculateTopThreeCountries(action.payload)
+            const calculatedMostVisitedCountry = calculateMostVisitedCountry(action.payload)
             const calculateContinents = calculateContinentsVisits(action.payload)
-            const firstTrip = calculateFirstTrip(action.payload)
-            const lastTrip = calculateLastTrip(action.payload)
             const calculateCountriesByContinent = calculateCountriesVisitedByContinent(action.payload)
             const tripsByYear = calculateTripsByYear(action.payload)
 
             return [
-                setTopThreeCountries(calculatedTop3),
+                setMostVisitedCountry(calculatedMostVisitedCountry),
                 setCalculatedContinents(calculateContinents),
-                setFirstTrip(firstTrip),
-                setLastTrip(lastTrip),
                 setCountriesAggregatedByContinent(calculateCountriesByContinent),
                 setTripsByYear(tripsByYear),
             ]
@@ -174,22 +134,29 @@ export const updateStatsEpic = (action$, store) =>
         ofType(ADD_USER_VISITED_COUNTRY),
         mergeMap((action) => {
             const { userVisitedCountries } = store.value.user
-            const calculatedTop3 = calculateTopThreeCountries(userVisitedCountries)
+            const calculatedMostVisitedCountry = calculateMostVisitedCountry(userVisitedCountries)
             const calculateContinents = calculateContinentsVisits(userVisitedCountries)
-            const firstTrip = calculateFirstTrip(userVisitedCountries)
-            const lastTrip = calculateLastTrip(userVisitedCountries)
             const calculateCountriesByContinent = calculateCountriesVisitedByContinent(userVisitedCountries)
             const tripsByYear = calculateTripsByYear(userVisitedCountries)
             const convertedMapCountries = convertCountriesForMapFormat(userVisitedCountries)
 
             return [
-                setTopThreeCountries(calculatedTop3),
+                setMostVisitedCountry(calculatedMostVisitedCountry),
                 setCalculatedContinents(calculateContinents),
-                setFirstTrip(firstTrip),
-                setLastTrip(lastTrip),
                 setCountriesAggregatedByContinent(calculateCountriesByContinent),
                 setTripsByYear(tripsByYear),
                 countriesConverted(convertedMapCountries),
             ]
+        }),
+    )
+
+export const getMostVisitedCountryEpic = (action$, store) =>
+    action$.pipe(
+        ofType(GET_MOST_VISITED_COUNTRY),
+        mergeMap((action) => {
+            const { userVisitedCountries } = store.value.user
+            const calculatedMostVisitedCountry = calculateMostVisitedCountry(userVisitedCountries)
+
+            return [setMostVisitedCountry(calculatedMostVisitedCountry)]
         }),
     )

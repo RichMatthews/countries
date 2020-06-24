@@ -7,33 +7,46 @@ import { fadeIn } from 'components/react-modal-adapter'
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import Select from 'react-select'
-import CountUp from 'react-countup'
+import { Link } from 'react-router-dom'
 
-import { TopThreeCountries } from './top-three-countries'
 import { CHART_OPTIONS } from 'components/stats/charts/options'
 import { KIERAN_GREY } from 'styles'
 
 // animation: ${fadeIn} 1s;
 const Container = styled.div`
-    background: #e1e3e3;
+    background: #fff;
     height: 100%;
-    padding-top: 10px;
     width: 100%;
 `
 
 // animation: ${fadeIn} 1s;
 const InnerContainer = styled.div`
-    background: #e1e3e3;
+    background: #fff;
     height: 100%;
-    width: 1000px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    margin: auto;
 
     @media (max-width: 700px) {
+        padding-top: 70px;
         width: 100%;
+    }
+`
+
+const StyledLink = styled(Link)`
+    align-items: center;
+    color: #fff;
+    display: flex;
+    font-weight: bold;
+    flex-direction: column;
+    font-size: 22px;
+    justify-content: center;
+    height: 100%;
+    text-decoration: none;
+
+    & div:first-child {
+        font-size: 60px;
     }
 `
 
@@ -41,14 +54,21 @@ const StatComponent = styled.div`
     background: #fff;
     border-radius: 5px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    color: #4a4947;
+    color: #fff;
     display: flex;
     flex-direction: column;
-    padding: 10px;
+    font-size: 18px;
+    justify-content: center;
+    height: 150px;
+    padding: 5px;
+    width: 150px;
+`
 
-    @media (max-width: 700px) {
-        height: 400px;
-    }
+const TopStats = styled(StatComponent)`
+    background-image: url(/images/stats/volcano.jpg);
+    background-size: 500px;
+    background-repeat: no-repeat;
+    background-position: right;
 `
 
 const Top = styled.div`
@@ -56,66 +76,34 @@ const Top = styled.div`
     flex-direction: row;
     justify-content: space-between;
     height: 250px;
-    width: 100%;
+    margin: 15px;
 
     @media (max-width: 700px) {
         flex-direction: row;
         flex-wrap: wrap;
-        height: 700px;
-        width: 90%;
+        height: 100%;
         & > div {
-            height: 150px;
-            width: 150px;
+            height: 175px;
+            width: 175px;
         }
     }
 `
 
-const Bottom = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-top: 20px;
-    width: 100%;
-`
+const Continents = styled(StatComponent)``
 
-const Continents = styled(StatComponent)`
-    height: 255px;
-    min-width: 470px;
-`
-
-const FirstAndLast = styled.div`
+const FirstAndLast = styled(StatComponent)`
+    background-image: url(/images/stats/sunset.jpg);
+    background-size: 300px;
+    background-repeat: no-repeat;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 235px;
-
-    @media (max-width: 700px) {
-        height: 150px;
-        width: 150px;
-    }
-`
-
-const FirstOrLast = styled(StatComponent)`
-    display: flex;
-    height: 100px;
-    padding: 10px;
-    justify-content: space-between;
-    & div:first-child {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-bottom: 18px;
-        border-bottom: 1px solid #ccc;
-        font-size: 20px;
-    }
 `
 
 const MainHeading = styled.div`
     color: #4a4947;
-    width: 100%;
-    font-size: 48px;
-    border-bottom: 1px solid #c9c9c9;
-    margin-bottom: 20px;
+    font-size: 32px;
+    margin: 15px 15px 0 15px;
 `
 
 const ByYear = styled(Continents)``
@@ -129,37 +117,23 @@ const SpinnerContainer = styled.div`
 `
 
 const Gauge = styled(StatComponent)`
-    width: 200px;
-
-    @media (max-width: 700px) {
-        height: 150px;
-        width: 150px;
-    }
+    background-image: url(/images/stats/earth.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    color: #fff;
 `
 
 const TotalCountries = styled(StatComponent)`
-    color: ${KIERAN_GREY};
-    font-size: 120px;
-    text-align: center;
-    width: 225px;
-    & > p {
-        font-size: 20px;
-    }
-
-    @media (max-width: 700px) {
-        font-size: 80px;
-        & > p {
-            font-size: 20px;
-        }
-        height: 150px;
-        width: 150px;
-    }
+    background-image: url(/images/stats/beach.jpg);
+    background-size: 280px;
+    background-repeat: no-repeat;
+    background-position: center;
 `
 
 const NoStats = styled.div`
     display: flex;
     justify-content: center;
-    margin-top: 100px;
+    padding-top: 100px;
 `
 
 const TripNameAndDate = styled.div`
@@ -171,6 +145,12 @@ const TripNameAndDate = styled.div`
     & > p {
         margin: 0;
     }
+`
+
+const AWorldWithFriends = styled(StatComponent)`
+    background-image: url(/images/stats/explorer.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat;
 `
 
 const continent$ = [
@@ -197,69 +177,56 @@ const customStyles = {
 export const Stats = ({ user }) => {
     const [continent, setContinent] = useState('Africa')
 
-    const { countriesByContinent, continentVisits, firstTrip, lastTrip, top3Countries, tripsByYear } = user.stats
+    const { countriesByContinent, continentVisits, firstTrip, lastTrip, mostVisitedCountry, tripsByYear } = user.stats
 
     return user.userVisitedCountries.length > 0 ? (
         <Container>
             <InnerContainer>
-                <MainHeading>Your stats</MainHeading>
+                <MainHeading>Your trips in numbers</MainHeading>
                 <Top>
-                    <TopThreeCountries top3Countries={top3Countries} />
+                    <TotalCountries>
+                        <StyledLink to="/stats/total-countries">
+                            <div>{user.userVisitedCountries.length}</div>
+                            <div>countries</div>
+                        </StyledLink>
+                    </TotalCountries>
                     <FirstAndLast>
-                        <FirstOrLast>
-                            {firstTrip ? (
-                                <>
-                                    <div>
-                                        {firstTrip.visitName}
-                                        <img src={firstTrip.flag} width="50" alt="" />
-                                    </div>
-                                    <TripNameAndDate>
-                                        <p>First Trip</p>
-                                        <div>{moment.unix(firstTrip.startDate).format('MMM YYYY')}</div>
-                                    </TripNameAndDate>
-                                </>
-                            ) : (
-                                <SpinnerContainer>
-                                    <Spinner src={'/images/loading.gif'} />
-                                </SpinnerContainer>
-                            )}
-                        </FirstOrLast>
-                        <FirstOrLast>
-                            {lastTrip ? (
-                                <>
-                                    <div>
-                                        {lastTrip.visitName}
-                                        <img src={lastTrip.flag} width="50" alt="" />
-                                    </div>
-                                    <TripNameAndDate>
-                                        <p>Latest Trip</p>
-                                        <div>{moment.unix(lastTrip.startDate).format('MMM YYYY')}</div>
-                                    </TripNameAndDate>
-                                </>
-                            ) : (
-                                <SpinnerContainer>
-                                    <Spinner src={'/images/loading.gif'} />
-                                </SpinnerContainer>
-                            )}
-                        </FirstOrLast>
+                        <StyledLink to="/stats/random-stats">Other fun stats</StyledLink>
+                        {/* {firstTrip && (
+                            <>
+                                <div>
+                                    {firstTrip.visitName}
+                                    <img src={firstTrip.flag} width="50" alt="" />
+                                </div>
+                                <TripNameAndDate>
+                                    <p>First Trip</p>
+                                    <div>{moment.unix(firstTrip.startDate).format('MMM YYYY')}</div>
+                                </TripNameAndDate>
+                            </>
+                        )}
+                        {lastTrip && (
+                            <>
+                                <div>
+                                    {lastTrip.visitName}
+                                    <img src={lastTrip.flag} width="50" alt="" />
+                                </div>
+                                <TripNameAndDate>
+                                    <p>Latest Trip</p>
+                                    <div>{moment.unix(lastTrip.startDate).format('MMM YYYY')}</div>
+                                </TripNameAndDate>
+                            </>
+                        )} */}
                     </FirstAndLast>
 
-                    <TotalCountries>
-                        {countriesByContinent ? (
-                            <>
-                                <CountUp end={user.userVisitedCountries.length} duration={3.5} />
-                                <p>countries visited</p>
-                            </>
-                        ) : (
-                            <SpinnerContainer>
-                                <Spinner src={'/images/loading.gif'} />
-                            </SpinnerContainer>
-                        )}
-                    </TotalCountries>
+                    <TopStats>
+                        <StyledLink to="/stats/top">Top Stats</StyledLink>
+                    </TopStats>
+
                     <Gauge>
                         {countriesByContinent ? (
-                            <>
-                                <CircularProgressbar
+                            <StyledLink to="/stats/random-stats">Other fun stats</StyledLink>
+                        ) : (
+                            /* <CircularProgressbar
                                     value={
                                         (countriesByContinent[continent].visited /
                                             countriesByContinent[continent].total) *
@@ -274,48 +241,38 @@ export const Stats = ({ user }) => {
                                     options={continent$}
                                     defaultValue={{ label: continent, value: continent }}
                                     styles={customStyles}
-                                />
-                            </>
-                        ) : (
+                                /> */
+
                             <SpinnerContainer>
                                 <Spinner src={'/images/loading.gif'} />
                             </SpinnerContainer>
                         )}
                     </Gauge>
-                </Top>
-                <Bottom>
-                    <Continents>
-                        {continentVisits.length > 1 ? (
+                    <AWorldWithFriends>
+                        <div>A world with friends</div>
+                        {/* {continentVisits.length > 1 && (
                             <Chart
-                                width={'450px'}
-                                height={'250px'}
+                                width={'150px'}
+                                height={'150px'}
                                 chartType="BarChart"
                                 mapsApiKey="YAIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"
                                 data={continentVisits}
                                 options={CHART_OPTIONS}
                             />
-                        ) : (
-                            <SpinnerContainer>
-                                <Spinner src={'/images/loading.gif'} />
-                            </SpinnerContainer>
-                        )}
-                    </Continents>
-                    <ByYear>
-                        {tripsByYear.length > 1 ? (
+                        )} */}
+                    </AWorldWithFriends>
+                    <StatComponent>
+                        {/* {tripsByYear.length > 1 && (
                             <Chart
-                                width={'450px'}
-                                height={'250px'}
+                                width={'150px'}
+                                height={'150px'}
                                 chartType="ColumnChart"
                                 data={tripsByYear}
                                 options={{ ...CHART_OPTIONS, title: 'Trips By Year' }}
                             />
-                        ) : (
-                            <SpinnerContainer>
-                                <Spinner src={'/images/loading.gif'} />
-                            </SpinnerContainer>
-                        )}
-                    </ByYear>
-                </Bottom>
+                        )} */}
+                    </StatComponent>
+                </Top>
             </InnerContainer>
         </Container>
     ) : (

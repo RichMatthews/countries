@@ -1,9 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
-import Instafeed from 'instafeed.js'
-
-import { CONNECTED_CountryModal } from 'components/country-visited-modal'
-import { KIERAN_GREY } from 'styles'
 
 const Container = styled.div`
     background-image: url(https://dl6ghv8ryvhmk.cloudfront.net/maldives-background.jpg);
@@ -51,33 +47,10 @@ const Heading = styled.div`
     }
 `
 
-export const Home = ({ options, restAPICountries, user }) => {
-    const [isModalOpen, setModalOpen] = useState(false)
-    const [images, setImages] = useState([])
-
-    useEffect(() => {
-        getInstagramPhotos()
-    }, [])
-
-    const getInstagramPhotos = async () => {
-        // const data = await fetch(
-        // ).then((res) => res.json())
-        // setImages(data.data)
-    }
-
-    return (
-        <Container>
-            <Inner>
-                <Heading>Remember every trip to every country</Heading>
-            </Inner>
-
-            <CONNECTED_CountryModal
-                isModalOpen={isModalOpen}
-                options={options}
-                restAPICountries={restAPICountries}
-                setModalOpen={setModalOpen}
-                user={user}
-            />
-        </Container>
-    )
-}
+export const Home = () => (
+    <Container>
+        <Inner>
+            <Heading>Remember every trip to every country</Heading>
+        </Inner>
+    </Container>
+)

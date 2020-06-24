@@ -12,6 +12,9 @@ export function ui(state = initialState, action) {
         case 'GET_DATA_FAILURE':
             return { ...state, loading: false }
         case 'FAILED_TO_FETCH_DATA':
+            return { ...state, loading: false }
+        case 'CHANGE_THIS_AT_SOME_POINT':
+            console.log(action, 'act')
         default:
             return state
     }

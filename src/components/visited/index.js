@@ -4,16 +4,16 @@ import { Subject } from 'rxjs'
 import { connect } from 'react-redux'
 import { getRESTAPICountries } from 'redux/action-creators/countries/get-rest-api-countries'
 
-import { Input } from 'components/country-visited-modal/components/shared/input'
+import { Input } from 'components/shared/input'
 import { Country } from 'components/country'
-import { CONNECTED_CountryModal } from 'components/country-visited-modal'
 import { fadeIn } from 'components/react-modal-adapter'
-import { BRAND_COLOR, KIERAN_GREY } from 'styles'
+import { KIERAN_GREY } from 'styles'
+import { QuickAddCountryContainer } from 'components/select-countries'
 
 let inputStream = new Subject()
 
 const Container = styled.div`
-    background: #f2f5f5;
+    background: #fff;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -23,6 +23,7 @@ const Container = styled.div`
 
     @media (max-width: 700px) {
         flex-direction: column;
+        margin-top: 70px;
     }
 `
 
@@ -32,6 +33,15 @@ const ImageAndSearch = styled.div`
         margin-top: 11px;
         margin-left: 10px;
     }
+
+    @media (max-width: 700px) {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        margin-bottom: 10px;
+        width: 100%;
+    }
 `
 
 const StyledInput = styled(Input)`
@@ -40,18 +50,24 @@ const StyledInput = styled(Input)`
     box-sizing: border-box;
     border-radius: 6px;
     color: #31404f;
-    font-size: 16px;
-    height: 40px;
+    font-size: 14px;
+    height: 34px;
     width: 257px;
+
+    @media (max-width: 700px) {
+        margin-bottom: 0;
+        padding-left: 10px;
+        width: 40%;
+    }
 `
 
 const VisitedTotal = styled.div`
     align-items: center;
-    border-bottom: 1px solid #c9c9c9;
     color: #1c1c1c;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    margin-top: 10px;
     margin-bottom: 15px;
 
     & div:first-child {
@@ -64,80 +80,64 @@ const VisitedTotal = styled.div`
         font-size: 48px;
         margin: 0;
     }
+
+    @media (max-width: 700px) {
+        flex-direction: column;
+    }
 `
 
 const Total = styled.div`
     align-items: center;
-    color: ##1c1c1c;
+    color: #b0b0b0;
     display: flex;
-    height: 65px;
     font-size: 18px;
     font-weight: 900;
     justify-content: center;
     padding: 0 5px 0 0;
 `
 
+// animation: ${fadeIn} 2s;
 const CountriesList = styled.div`
-    animation: ${fadeIn} 2s;
-    display: grid;
-    grid-gap: 5px;
-    min-height: 500px;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(4, 100px);
-
-    @media (max-width: 1870px) {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    @media (max-width: 1275px) {
-        grid-template-columns: repeat(1, 1fr);
-    }
+    display: flex;
+    flex-wrap: wrap;
 
     & > div {
-        margin: 0;
-        padding: 13px;
+        margin: 10px;
+    }
+
+    &::after {
+        content: '';
+        flex: 1 1 100%;
+        max-width: 47%;
     }
 
     @media (max-width: 700px) {
-        display: block;
+        display: flex;
+        justify-content: space-evenly;
         min-height: 0;
-
-        & > div {
-            margin: 10px;
-        }
     }
 `
 
 const AddVisit = styled.div`
-    align-items: center;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 68px;
-
-    & > p {
-        color: ${BRAND_COLOR};
-        margin: 0;
-    }
-
-    @media (max-width: 700px) {
-        width: 30px;
-
-        & > img {
-            width: 100%;
-        }
-    }
+    background: ${KIERAN_GREY};
+    border-radius: 30px;
+    color: #fff;
+    padding: 5px;
+    text-align: center;
+    width: 100px;
 `
 
 const Continents = styled.div`
-    border-bottom: 1px solid #c9c9c9;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
     margin-bottom: 15px;
     padding-bottom: 10px;
+
+    @media (max-width: 700px) {
+        margin-bottom: 0;
+    }
 `
 
 const Continent = styled.div`
@@ -162,10 +162,10 @@ const Continent = styled.div`
 
     @media (max-width: 700px) {
         font-size: 10px;
-        height: 30px;
+        height: 35px;
         padding: 10px;
         margin: 5px;
-        width: 30px;
+        width: 35px;
         & > img {
             width: 20px;
         }
@@ -184,8 +184,9 @@ const ContinentsContainer = styled.div`
     }
 
     @media (max-width: 700px) {
-        margin-top: 70px;
+        border-bottom: 1px solid #c9c9c9;
         & > div {
+            padding: 0;
             width: auto;
         }
     }
@@ -198,10 +199,8 @@ const ContinentsContainer = styled.div`
 
 const ContinentName = styled.div`
     padding-top: 10px;
-
     text-align: center;
     text-transform: uppercase;
-
     @media (max-width: 700px) {
         padding-top: 3px;
     }
@@ -212,18 +211,16 @@ const LoadingContainer = styled.div`
     color: ${KIERAN_GREY};
     display: flex;
     flex-direction: column;
-    margin: auto;
-    margin-top: 50px;
-    width: 200px;
+    padding-top: 50px;
 
     @media (max-width: 700px) {
-        margin-top: 80px;
+        padding-top: 100px;
     }
 `
 
 const ResetButton = styled.div`
     align-items: center;
-    background: #113331;
+    background: ${KIERAN_GREY};
     border-radius: 4px;
     color: #fff;
     cursor: pointer;
@@ -233,6 +230,10 @@ const ResetButton = styled.div`
     justify-content: center;
     text-align: center;
     width: 66%;
+
+    @media (max-width: 700px) {
+        width: 40%;
+    }
 `
 
 const CountriesMap = styled.div`
@@ -272,7 +273,8 @@ const MainHeading = styled.div`
     font-size: 48px;
 
     @media (max-width: 700px) {
-        font-size: 24px;
+        font-size: 32px;
+        margin-bottom: 10px;
     }
 `
 // check this
@@ -287,11 +289,11 @@ const comparator = (previous, next) => {
 
 const Visited = React.memo(({ ui, user }) => {
     const [filteredCountries, setFilteredCountries] = useState([])
-    const [isModalOpen, setModalOpen] = useState(false)
+    const [showAddCountryForm, setShowAddCountryForm] = useState(false)
     const [selectedContinent, setSelectedContinent] = useState(null)
     const [page, setPage] = useState(1)
     const [pages, setPages] = useState([1])
-    const [pageMapping, setPageMapping] = useState({ start: 0, end: 10 })
+    const [pageMapping, setPageMapping] = useState({ start: 0, end: 30 })
 
     useEffect(() => {
         setFilteredCountries(user.userVisitedCountries)
@@ -353,55 +355,51 @@ const Visited = React.memo(({ ui, user }) => {
     }
 
     return !ui.loading ? (
-        <Container>
-            <ContinentsContainer>
-                <div>
-                    <p>Filter trips by continent</p>
-                    <Continents>
-                        {continents.map((continent) => (
-                            <Continent
-                                key={continent.name}
-                                onClick={() => filterCountriesByContinent(continent)}
-                                isselected={selectedContinent && selectedContinent.name === continent.name}
-                            >
-                                <img
-                                    src={
-                                        selectedContinent && selectedContinent.name === continent.name
-                                            ? `${continent['svg-light']}.svg`
-                                            : `${continent.svg}.svg`
-                                    }
-                                    alt=""
-                                />
-                                <ContinentName>{continent.name}</ContinentName>
-                            </Continent>
-                        ))}
-                    </Continents>
-
-                    <ImageAndSearch>
-                        <img src="/images/search.svg" width="20" alt="" />
-                        <StyledInput
-                            onChange={(e) => inputStream.next(e.target.value)}
-                            placeholder="Enter Country Name"
-                        />
-                    </ImageAndSearch>
-                    <ResetButton onClick={() => filterCountriesByContinent(null)}>Reset Filters</ResetButton>
-                </div>
-            </ContinentsContainer>
-
-            <CONNECTED_CountryModal isModalOpen={isModalOpen} setModalOpen={setModalOpen} />
-
-            <CountriesMap>
-                <VisitedTotal>
+        showAddCountryForm ? (
+            <QuickAddCountryContainer setShowAddCountryForm={setShowAddCountryForm} />
+        ) : (
+            <Container>
+                <ContinentsContainer>
                     <div>
-                        <MainHeading>Your trips</MainHeading>
-                        <AddVisit onClick={() => setModalOpen(true)}>
-                            <img src={'/images/addTrip.svg'} alt="" />
-                        </AddVisit>
+                        <p>Filter trips by continent</p>
+                        <Continents>
+                            {continents.map((continent) => (
+                                <Continent
+                                    key={continent.name}
+                                    onClick={() => filterCountriesByContinent(continent)}
+                                    isselected={selectedContinent && selectedContinent.name === continent.name}
+                                >
+                                    <img
+                                        src={
+                                            selectedContinent && selectedContinent.name === continent.name
+                                                ? `${continent['svg-light']}.svg`
+                                                : `${continent.svg}.svg`
+                                        }
+                                    />
+                                    <ContinentName>{continent.name}</ContinentName>
+                                </Continent>
+                            ))}
+                        </Continents>
+
+                        <ImageAndSearch>
+                            <StyledInput
+                                onChange={(e) => inputStream.next(e.target.value)}
+                                placeholder="Enter Country Name"
+                            />
+                            <ResetButton onClick={() => filterCountriesByContinent(null)}>Reset Filters</ResetButton>
+                        </ImageAndSearch>
                     </div>
-                    <Total>{user.userVisitedCountries.length} / 195 countries visited</Total>
-                </VisitedTotal>
-                <CountriesList>
-                    <>
+                </ContinentsContainer>
+
+                <CountriesMap>
+                    <VisitedTotal>
+                        <div>
+                            <MainHeading>Your trips</MainHeading>
+                        </div>
+                        <AddVisit onClick={() => setShowAddCountryForm(true)}>Add visit</AddVisit>
+                        {/* <Total>{user.userVisitedCountries.length} / 195 countries visited</Total> */}
+                    </VisitedTotal>
+                    <CountriesList>
                         {user && filteredCountries.length ? (
                             filteredCountries
                                 .slice(pageMapping.start, pageMapping.end)
@@ -415,18 +413,18 @@ const Visited = React.memo(({ ui, user }) => {
                         ) : (
                             <NoTrips>Trips will appear here once you've added them</NoTrips>
                         )}
-                    </>
-                </CountriesList>
+                    </CountriesList>
 
-                <Pagination>
-                    {pages.map((pg) => (
-                        <PageNumber key={pg} selectedPage={page === pg} onClick={() => setPageHelper(pg)}>
-                            {pg}
-                        </PageNumber>
-                    ))}
-                </Pagination>
-            </CountriesMap>
-        </Container>
+                    <Pagination>
+                        {pages.map((pg) => (
+                            <PageNumber key={pg} selectedPage={page === pg} onClick={() => setPageHelper(pg)}>
+                                {pg}
+                            </PageNumber>
+                        ))}
+                    </Pagination>
+                </CountriesMap>
+            </Container>
+        )
     ) : (
         <LoadingContainer>
             <img src="/images/loading.gif" width="30" alt="" />

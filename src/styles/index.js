@@ -21,6 +21,7 @@ export const customReactSelectStyles = {
     option: (base, state) => ({
         ...base,
         color: KIERAN_GREY,
+        height: 40,
         fontSize: 13,
         padding: 10,
     }),

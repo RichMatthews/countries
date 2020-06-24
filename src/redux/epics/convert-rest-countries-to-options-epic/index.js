@@ -1,8 +1,11 @@
 import { catchError, mergeMap } from 'rxjs/operators'
 import { ofType } from 'redux-observable'
 import { ajax } from 'rxjs/ajax'
-
 import { REST_COUNTRIES_DROPDOWN_OPTIONS_GENERATED, REST_COUNTRIES_RECEIVED_SUCCESS } from 'redux/types'
+
+import { countryNameConverter } from 'utils/countryNameConverter'
+import { continentHelper } from 'utils/continentHelper'
+import { countryCodes, findCountryCode } from 'utils/findCountryCode'
 
 const restCountriesReceived = (payload) => ({ type: REST_COUNTRIES_RECEIVED_SUCCESS, countries: payload })
 const restCountriesOptionsGenerated = (payload) => ({
@@ -12,11 +15,18 @@ const restCountriesOptionsGenerated = (payload) => ({
 
 const convertCountriesToOptions = (countries) => {
     let newCountries = []
-    countries.map((country) => {
+    countries.forEach((country) => {
+        const ctry = countryNameConverter(country.name)
+        const countryCode = findCountryCode(ctry, countryCodes)
+        const continent = continentHelper(country)
         const optionsObject = {
-            value: country.name,
-            label: country.name,
+            countryCode: countryCode,
+            value: ctry,
+            label: ctry,
             flag: country.flag,
+            trimmed: ctry.toLowerCase().replace(/ /g, ''),
+            smallFlag: `http://catamphetamine.gitlab.io/country-flag-icons/3x2/${countryCode}.svg`,
+            continent,
         }
         newCountries.push(optionsObject)
     })
