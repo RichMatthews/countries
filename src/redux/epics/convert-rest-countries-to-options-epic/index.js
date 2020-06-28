@@ -1,15 +1,15 @@
 import { catchError, mergeMap } from 'rxjs/operators'
 import { ofType } from 'redux-observable'
 import { ajax } from 'rxjs/ajax'
-import { REST_COUNTRIES_DROPDOWN_OPTIONS_GENERATED, REST_COUNTRIES_RECEIVED_SUCCESS } from 'redux/types'
+import { GENERATE_REST_COUNTRIES_DROPDOWN_OPTIONS, GET_REST_API_COUNTRIES_SUCCESS } from 'redux/types'
 
 import { countryNameConverter } from 'utils/countryNameConverter'
 import { continentHelper } from 'utils/continentHelper'
 import { countryCodes, findCountryCode } from 'utils/findCountryCode'
 
-const restCountriesReceived = (payload) => ({ type: REST_COUNTRIES_RECEIVED_SUCCESS, countries: payload })
+const restCountriesReceived = (payload) => ({ type: GET_REST_API_COUNTRIES_SUCCESS, countries: payload })
 const restCountriesOptionsGenerated = (payload) => ({
-    type: REST_COUNTRIES_DROPDOWN_OPTIONS_GENERATED,
+    type: GENERATE_REST_COUNTRIES_DROPDOWN_OPTIONS,
     options: payload,
 })
 
@@ -25,7 +25,7 @@ const convertCountriesToOptions = (countries) => {
             label: ctry,
             flag: country.flag,
             trimmed: ctry.toLowerCase().replace(/ /g, ''),
-            smallFlag: `http://catamphetamine.gitlab.io/country-flag-icons/3x2/${countryCode}.svg`,
+            smallFlag: `http://catamphetamine.gitlab.io/country-flag-icons/3x2/${countryCode.toUpperCase()}.svg`,
             continent,
         }
         newCountries.push(optionsObject)
@@ -35,7 +35,7 @@ const convertCountriesToOptions = (countries) => {
 
 export const convertRESTCountriesToOptionsEpic = (action$, state$) =>
     action$.pipe(
-        ofType('GET_REST_COUNTRIES_DATA'),
+        ofType('GET_REST_API_COUNTRIES'),
         mergeMap(() =>
             ajax.getJSON(`https://restcountries.eu/rest/v2/all`).pipe(
                 mergeMap((response) => {

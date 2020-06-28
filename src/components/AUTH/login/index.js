@@ -1,23 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import { connect } from 'react-redux'
 
-import { setUser } from 'redux/action-creators/user/set-user'
+import { setRawUserFromFirebase } from 'redux/action-creators/user/set-user'
+import { setNewUserInformation } from 'redux/action-creators/user/set-new-user-information'
 import { firebaseApp } from '../../../config.js'
 import { KIERAN_GREY } from 'styles'
-
-const AccountContainer = styled.div`
-    background: #f4f4f4;
-    color: ${KIERAN_GREY};
-    border-radius: 10px;
-    margin-bottom: 25px;
-    margin-left: 200px;
-    min-height: 100px;
-    padding: 10px;
-    width: 250px;
-`
 
 const SignInButton = styled.div`
     align-items: center;
@@ -59,7 +49,15 @@ const SignInSection = styled.div`
     }
 `
 
-export const Login = ({ loaded, newUser, setUser }) => {
+export const Login = ({ currentUser, setNewUserInformation, setRawUserFromFirebase, userPersonalDetails }) => {
+    useEffect(() => {
+        if (currentUser.isLoggedIn) {
+            setTimeout(() => {
+                window.location.href = 'visited'
+            }, 2000)
+        }
+    }, [currentUser])
+
     const selectProvider = (provider) => {
         const googleProvider = new firebase.auth.GoogleAuthProvider()
         const facebookProvider = new firebase.auth.FacebookAuthProvider()
@@ -77,9 +75,16 @@ export const Login = ({ loaded, newUser, setUser }) => {
             .auth()
             .signInWithPopup(provider)
             .then((result) => {
+                if (result.additionalUserInfo.isNewUser) {
+                    setNewUserInformation({
+                        email: result.user.email,
+                        name: result.user.displayName,
+                        photo: result.user.photoURL,
+                        userId: result.user.uid,
+                    })
+                }
                 const { user } = result
-                setUser(user)
-                window.location.href = 'visited'
+                setRawUserFromFirebase(user)
             })
             .catch((error) => {
                 console.log('ERROR:', error)
@@ -88,36 +93,31 @@ export const Login = ({ loaded, newUser, setUser }) => {
 
     return (
         <SignInContainer>
-            {newUser ? (
-                <>
-                    <AccountContainer>Settings</AccountContainer>
-                    <AccountContainer>Request new features</AccountContainer>
-                </>
-            ) : (
-                <SignInSection>
-                    <p>Mappa Mundi requires you to log in to access all features</p>
-                    <SignInButton onClick={() => selectProvider('google')}>
-                        <img src={'/images/google.png'} width="30" />
-                        <div>Sign in with Google</div>
-                    </SignInButton>
+            <SignInSection>
+                <p>Mappa Mundi requires you to log in to access all features</p>
+                <SignInButton onClick={() => selectProvider('google')}>
+                    <img src={'/images/google.png'} width="30" />
+                    <div>Sign in with Google</div>
+                </SignInButton>
 
-                    <SignInButton onClick={() => selectProvider('facebook')}>
-                        <img src={'/images/facebook.png'} width="30" />
-                        <div>Sign in with Facebook</div>
-                    </SignInButton>
-                </SignInSection>
-            )}
+                <SignInButton onClick={() => selectProvider('facebook')}>
+                    <img src={'/images/facebook.png'} width="30" />
+                    <div>Sign in with Facebook</div>
+                </SignInButton>
+            </SignInSection>
         </SignInContainer>
     )
 }
 
-const mapState = ({ countries, user }) => ({
+const mapState = ({ countries, currentUser, userPersonalDetails }) => ({
     countries,
-    user,
+    currentUser,
+    userPersonalDetails,
 })
 
 const mapDispatch = {
-    setUser,
+    setNewUserInformation,
+    setRawUserFromFirebase,
 }
 
 export const CONNECTED_Login = connect(mapState, mapDispatch)(Login)

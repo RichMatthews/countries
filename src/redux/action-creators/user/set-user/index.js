@@ -1,8 +1,8 @@
-import { SET_USER_DATA } from 'redux/types'
+import { SET_RAW_USER_DATA_FROM_FIREBASE } from 'redux/types'
 
-export const setUser = (user) => {
+export const setRawUserFromFirebase = (user) => {
     return {
-        type: SET_USER_DATA,
+        type: SET_RAW_USER_DATA_FROM_FIREBASE,
         user,
     }
 }

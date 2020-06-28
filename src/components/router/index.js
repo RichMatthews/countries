@@ -18,42 +18,50 @@ import { CONNECTED_NEW_TRIP } from 'components/country-visit-information'
 import { Home } from 'components/home'
 
 import {
-    fetchData,
+    fetchUserCountriesAndTripsData,
     fetchRESTCountries,
-    fetchUserInformation,
+    fetchUserPersonalDetails,
+    fetchUserStats,
 } from 'redux/action-creators/countries/get-user-visited-countries'
-import { setUser } from 'redux/action-creators/user/set-user'
+import { setRawUserFromFirebase } from 'redux/action-creators/user/set-user'
 import { logUserOut } from 'redux/action-creators/user/log-out'
 import { firebaseApp } from '../../config.js'
 
 const comparator = (prevProps, nextProps) => {
-    if (nextProps.countries.restAPICountries.length === 250) {
-        return true
-    }
+    // if (nextProps.countries.restAPICountries.length === 250) {
+    //     return true
+    // }
     return false
 }
 
 export const MainRouter = React.memo(
-    ({ fetchData, fetchRESTCountries, fetchUserInformation, logUserOut, setUser, user }) => {
+    ({
+        fetchUserCountriesAndTripsData,
+        fetchRESTCountries,
+        fetchUserPersonalDetails,
+        fetchUserStats,
+        logUserOut,
+        setRawUserFromFirebase,
+    }) => {
         const [loaded, setLoaded] = useState(false)
-        const [newUser, setNewUser] = useState(JSON.parse(localStorage.getItem('authUser')))
+        const authenticatedUser = JSON.parse(localStorage.getItem('authUser'))
 
         useEffect(() => {
-            console.log('callin?')
-            firebaseApp.auth().onAuthStateChanged((user) => {
-                if (user) {
-                    localStorage.setItem('authUser', JSON.stringify(user))
+            firebaseApp.auth().onAuthStateChanged((recognisedFirebaseUser) => {
+                if (recognisedFirebaseUser) {
+                    localStorage.setItem('authUser', JSON.stringify(recognisedFirebaseUser))
                     setLoaded(true)
-                    setUser(user)
-                    fetchData(user.uid)
-                    fetchUserInformation(user.uid)
+                    setRawUserFromFirebase(recognisedFirebaseUser)
+                    fetchUserCountriesAndTripsData(recognisedFirebaseUser.uid)
+                    fetchUserPersonalDetails(recognisedFirebaseUser.uid)
+                    fetchUserStats(recognisedFirebaseUser.uid)
                 } else {
                     localStorage.removeItem('authUser')
                     setLoaded(true)
-                    console.log(user, 'USER NOT LOGGED IN')
+                    console.log(recognisedFirebaseUser, 'USER NOT LOGGED IN')
                 }
             })
-        }, [user])
+        }, [])
 
         useEffect(() => {
             fetchRESTCountries()
@@ -69,8 +77,8 @@ export const MainRouter = React.memo(
             }
         }
 
-        const ProtectedRoute = ({ component: Component, newUser, ...rest }) => {
-            return newUser ? <Component /> : <Redirect from="" to="/login" noThrow />
+        const ProtectedRoute = ({ component: Component, ...rest }) => {
+            return authenticatedUser ? <Component {...rest} /> : <Redirect from="" to="/login" noThrow />
         }
 
         const PublicRoute = ({ component: Component, ...rest }) => <Component {...rest} />
@@ -85,55 +93,20 @@ export const MainRouter = React.memo(
         return (
             <Router>
                 <GlobalStyle location={window.location.pathname} />
-                <PublicRoute
-                    path={notSharedMap}
-                    component={CONNECTED_Nav}
-                    logUserOut={logUserOutFirebaseAndRedux}
-                    newUser={newUser}
-                />
+                <PublicRoute path={notSharedMap} component={CONNECTED_Nav} logUserOut={logUserOutFirebaseAndRedux} />
                 <Switch>
                     <Route exact component={SharedMap} path="/:id/shared-map" />
-                    <ProtectedRoute exact component={AccountContainer} path="/account" newUser={newUser} />
+                    <ProtectedRoute exact component={AccountContainer} path="/account" />
                     <PublicRoute exact component={Home} path="/" />
-                    <PublicRoute exact component={CONNECTED_Login} path="/login" loaded={loaded} newUser={newUser} />
-                    <PublicRoute
-                        exact
-                        component={CONNECTED_NEW_TRIP}
-                        newUser={newUser}
-                        path="/trips/:country"
-                        user={user}
-                    />
-                    <ProtectedRoute
-                        exact
-                        component={CONNECTED_Achievments}
-                        path="/achievements"
-                        newUser={newUser}
-                        user={user}
-                    />
-                    <ProtectedRoute exact component={CONNECTED_Map} newUser={newUser} path="/map" user={user} />
-                    <ProtectedRoute exact component={CONNECTED_Visited} path="/visited" newUser={newUser} user={user} />
-                    <ProtectedRoute exact component={CONNECTED_Stats} newUser={newUser} path="/stats" user={user} />
-                    <ProtectedRoute
-                        exact
-                        component={ConnectedTotalCountries}
-                        newUser={newUser}
-                        path="/stats/total-countries"
-                        user={user}
-                    />
-                    <ProtectedRoute
-                        exact
-                        component={ConnectedTopStats}
-                        newUser={newUser}
-                        path="/stats/top"
-                        user={user}
-                    />
-                    <ProtectedRoute
-                        exact
-                        component={ConnectedRandomStats}
-                        newUser={newUser}
-                        path="/stats/random-stats"
-                        user={user}
-                    />
+                    <PublicRoute exact component={CONNECTED_Login} path="/login" loaded={loaded} />
+                    <PublicRoute exact component={CONNECTED_NEW_TRIP} path="/trips/:country" />
+                    <ProtectedRoute exact component={CONNECTED_Achievments} path="/achievements" />
+                    <ProtectedRoute exact component={CONNECTED_Map} path="/map" />
+                    <ProtectedRoute exact component={CONNECTED_Visited} path="/visited" />
+                    <ProtectedRoute exact component={CONNECTED_Stats} path="/stats" />
+                    <ProtectedRoute exact component={ConnectedTotalCountries} path="/stats/total-countries" />
+                    <ProtectedRoute exact component={ConnectedTopStats} path="/stats/top" />
+                    <ProtectedRoute exact component={ConnectedRandomStats} path="/stats/random-stats" />
                 </Switch>
             </Router>
         )
@@ -141,17 +114,17 @@ export const MainRouter = React.memo(
     comparator,
 )
 
-const mapState = ({ countries, user }) => ({
+const mapState = ({ countries }) => ({
     countries,
-    user,
 })
 
 const mapDispatch = {
-    fetchData,
+    fetchUserCountriesAndTripsData,
     fetchRESTCountries,
-    fetchUserInformation,
+    fetchUserPersonalDetails,
+    fetchUserStats,
     logUserOut,
-    setUser,
+    setRawUserFromFirebase,
 }
 
 export const CONNECTED_ROUTER = connect(mapState, mapDispatch)(MainRouter)

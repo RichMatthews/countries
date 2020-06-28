@@ -60,10 +60,10 @@ const SectionContent = styled.div`
     padding: 10px 0 10px 0;
 `
 
-export const Account = ({ user }) => {
-    const { email, location, name, profilePhoto } = user.information
+export const Account = ({ userPersonalDetails }) => {
+    const { email, location, name, profilePhoto } = userPersonalDetails
 
-    return Object.keys(user.information).length ? (
+    return Object.keys(userPersonalDetails).length ? (
         <Container>
             <Inner>
                 <div>
@@ -93,8 +93,8 @@ export const Account = ({ user }) => {
     )
 }
 
-const mapState = ({ user }) => ({
-    user,
+const mapState = ({ userPersonalDetails }) => ({
+    userPersonalDetails,
 })
 
 export const AccountContainer = connect(mapState)(Account)

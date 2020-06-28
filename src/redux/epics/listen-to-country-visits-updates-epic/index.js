@@ -12,8 +12,8 @@ export const listenToCountryVisitsEpic = (action$, store) => {
         ofType('UPDATE_TRIP_DETAILS'),
         mergeMap((action) => {
             const { country, currentDetails, newDetails } = action
-            const userId = store.value.user.details.uid
-            const findCountry = store.value.user.userVisitedCountries.find((ctry) => ctry.name === country)
+            const userId = store.value.userPersonalDetails.uid
+            const findCountry = store.value.userTrips.visitedCountries.find((ctry) => ctry.name === country)
             let index
             if (findCountry.visits) {
                 index = findCountry.visits.findIndex((x) => x.visitName === currentDetails.visitName)

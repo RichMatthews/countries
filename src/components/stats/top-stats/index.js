@@ -68,10 +68,10 @@ const Visit = styled.div`
     font-size: 10px;
 `
 
-export const TopStats = ({ user }) => {
+export const TopStats = ({ userStats }) => {
     useEffect(() => {
         getMostVisitedCountry()
-    }, [user])
+    }, [userStats])
 
     return (
         <Container>
@@ -80,11 +80,11 @@ export const TopStats = ({ user }) => {
             <Countries>
                 <Country>
                     <NameAndVisits>
-                        <CountryName>{user.stats.mostVisitedCountry.name}</CountryName>
+                        <CountryName>{userStats.mostVisitedCountry.name}</CountryName>
                         <Visits>
-                            {user.stats.mostVisitedCountry.visits ? (
+                            {userStats.mostVisitedCountry.visits ? (
                                 <>
-                                    <div>{user.stats.mostVisitedCountry.visits.length}</div> <Visit>visits</Visit>
+                                    <div>{userStats.mostVisitedCountry.visits.length}</div> <Visit>visits</Visit>
                                 </>
                             ) : (
                                 <>
@@ -94,9 +94,6 @@ export const TopStats = ({ user }) => {
                         </Visits>
                     </NameAndVisits>
                     <H4>Most visited country</H4>
-                    {/* <div>
-                            <img src={user.stats.mostVisitedCountry.flag} width="45" alt="" />
-                        </div> */}
                 </Country>
             </Countries>
 
@@ -110,17 +107,14 @@ export const TopStats = ({ user }) => {
                         </Visits>
                     </NameAndVisits>
                     <H4>Most visited Continent</H4>
-                    {/* <div>
-                            <img src={user.stats.mostVisitedCountry.flag} width="45" alt="" />
-                        </div> */}
                 </Country>
             </Countries>
         </Container>
     )
 }
 
-const mapState = ({ user }) => ({
-    user,
+const mapState = ({ userStats }) => ({
+    userStats,
 })
 
 const mapDispatch = {

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import CountUp from 'react-countup'
@@ -23,30 +23,33 @@ const Section = styled.div`
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    width: 100%;
     font-size: 14px;
+    width: 20vw;
+
+    @media (max-width: 700px) {
+        width: 41vw;
+    }
 `
 
 const MilesTravelled = styled(Section)`
-    background-image: url(/images/stats/old-map.jpg);
+    background-image: url(/images/stats/stats-background.jpg);
     background-size: 100%;
     background-repeat: no-repeat;
     color: #fff;
     font-size: 40px;
     height: 24vh;
+    width: 100%;
+    @media (max-width: 700px) {
+        width: 100%;
+    }
 `
 
-const PercentageOfTheWorld = styled(Section)`
-    width: 41vw;
-`
+const PercentageOfTheWorld = styled(Section)``
 
-const FurthestTrip = styled(Section)`
-    width: 41vw;
-`
+const FurthestTrip = styled(Section)``
 
 const CapitalCities = styled(Section)`
     color: #fff;
-    width: 41vw;
 `
 const GaugeContainer = styled.div`
     display: flex;
@@ -58,14 +61,19 @@ const GaugeContainer = styled.div`
 const Heading = styled.div`
     margin: 10px;
 `
-export const RandomStats = ({ user }) => {
-    useEffect(() => {}, [user])
 
-    return (
+const styles = {
+    pathColor: '#54ADA7',
+    textColor: '#fff',
+    textSize: '20px',
+}
+
+export const RandomStats = ({ userStats, userTrips }) => {
+    return userStats ? (
         <Container>
             <MilesTravelled>
                 <div>
-                    <CountUp end={10240} duration={3} />
+                    <CountUp end={userStats.milesTravelled} duration={3} />
                 </div>
                 <div>miles travelled</div>
             </MilesTravelled>
@@ -73,42 +81,37 @@ export const RandomStats = ({ user }) => {
                 <PercentageOfTheWorld>
                     <Heading>Percentage of the world</Heading>
                     <CircularProgressbar
-                        value={17}
-                        text={'17%'}
-                        styles={buildStyles({ textSize: '20px', textColor: '#fff', pathColor: '#54ADA7' })}
+                        value={(userTrips.visitedCountries.length / 195) * 100}
+                        text={`${((userTrips.visitedCountries.length / 195) * 100).toFixed(1)}%`}
+                        styles={buildStyles(styles)}
                     />
                 </PercentageOfTheWorld>
                 <FurthestTrip>
                     <Heading>Furthest trip</Heading>
-                    <CircularProgressbar
-                        value={17}
-                        text={'17'}
-                        styles={buildStyles({ textSize: '20px', textColor: '#fff', pathColor: '#54ADA7' })}
-                    />
+                    <CircularProgressbar value={17} text={'17'} styles={buildStyles(styles)} />
                 </FurthestTrip>
                 <CapitalCities>
                     <Heading>Capital Cities</Heading>
                     <CircularProgressbar
-                        value={17}
-                        text={'17'}
-                        styles={buildStyles({ textSize: '20px', textColor: '#fff', pathColor: '#54ADA7' })}
+                        value={userStats.capitalCitiesVisited}
+                        text={`${userStats.capitalCitiesVisited}`}
+                        styles={buildStyles(styles)}
                     />
                 </CapitalCities>
                 <CapitalCities>
                     <Heading>Capital Cities</Heading>
-                    <CircularProgressbar
-                        value={17}
-                        text={'17'}
-                        styles={buildStyles({ textSize: '20px', textColor: '#fff', pathColor: '#54ADA7' })}
-                    />
+                    <CircularProgressbar value={17} text={'17'} styles={buildStyles(styles)} />
                 </CapitalCities>
             </GaugeContainer>
         </Container>
+    ) : (
+        <div>Loading Stats...</div>
     )
 }
 
-const mapState = ({ user }) => ({
-    user,
+const mapState = ({ userStats, userTrips }) => ({
+    userStats,
+    userTrips,
 })
 
 const mapDispatch = {

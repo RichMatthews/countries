@@ -5,14 +5,15 @@ import { sortBy } from 'underscore'
 
 import {
     COUNTRIES_CONVERTED_TO_CHART_FORMAT_SUCCESS,
-    GET_USER_DATA,
-    GET_USER_VISITED_COUNTRIES_SUCCESS,
+    GET_USER_VISITED_COUNTRIES_AND_TRIPS,
+    GET_USER_VISITED_COUNTRIES_AND_TRIPS_SUCCESS,
 } from 'redux/types'
 import { firebaseApp } from '../../../config.js'
 
-const fetchCountriesFulfilled = (payload) => ({ type: GET_USER_VISITED_COUNTRIES_SUCCESS, payload })
+const fetchCountriesFulfilled = (payload) => ({ type: GET_USER_VISITED_COUNTRIES_AND_TRIPS_SUCCESS, payload })
 const countriesConverted = (countries) => ({ type: COUNTRIES_CONVERTED_TO_CHART_FORMAT_SUCCESS, countries })
-const fetchUserInformationFulfilled = (payload) => ({ type: 'GET_USER_INFORMATION_SUCCESS', payload })
+const fetchUserPersonalDetailsFulfilled = (payload) => ({ type: 'GET_USER_PERSONAL_DETAILS_SUCCESS', payload })
+const getUserStatsFulfilled = (payload) => ({ type: 'GET_USER_STATS_SUCCESS', payload })
 
 const convertCountriesForMapFormat = (countries) => {
     let newArr = []
@@ -36,8 +37,10 @@ const getUserCountries = (id) =>
 
 export const getUserVisitedCountriesEpic = (action$) =>
     action$.pipe(
-        ofType(GET_USER_DATA),
-        mergeMap((action) => getUserCountries(action.id)),
+        ofType(GET_USER_VISITED_COUNTRIES_AND_TRIPS),
+        mergeMap((action) => {
+            return getUserCountries(action.id)
+        }),
         mergeMap((data) => {
             const sortedCountries = sortBy(data, 'name')
             const convertedMapCountries = convertCountriesForMapFormat(data)
@@ -46,13 +49,13 @@ export const getUserVisitedCountriesEpic = (action$) =>
 
         catchError((e) =>
             of({
-                type: 'FAILED_TO_FETCH_DATA',
+                type: 'FAILED_TO_FETCH_USER_VISITED_COUNTRIES',
                 e,
             }),
         ),
     )
 
-const getUserInformation = (id) =>
+const getUserPersonalDetailsFromFirebase = (id) =>
     from(
         firebaseApp
             .database()
@@ -68,16 +71,49 @@ const getUserInformation = (id) =>
 
 export const getUserInformationEpic = (action$) =>
     action$.pipe(
-        ofType('GET_USER_INFORMATION'),
-        mergeMap((action) => getUserInformation(action.id)),
+        ofType('GET_USER_PERSONAL_DETAILS'),
+        mergeMap((action) => {
+            return getUserPersonalDetailsFromFirebase(action.id)
+        }),
         mergeMap((data) => {
-            console.log('DATA:', data)
-            return of(fetchUserInformationFulfilled(data))
+            return of(fetchUserPersonalDetailsFulfilled(data))
         }),
 
         catchError((e) =>
             of({
-                type: 'FAILED_TO_FETCH_DATA',
+                type: 'FAILED_TO_FETCH_USER_PERSONAL_DETAILS',
+                e,
+            }),
+        ),
+    )
+
+const getUserStatsFromFirebase = (id) =>
+    from(
+        firebaseApp
+            .database()
+            .ref(`users/${id}/userStats`)
+            .once('value')
+            .then((snapshot) => {
+                if (snapshot.val()) {
+                    return Object.keys(snapshot.val().places).map((key) => snapshot.val().places[key])
+                }
+                return []
+            }),
+    )
+
+export const getUserStatsEpic = (action$) =>
+    action$.pipe(
+        ofType('GET_USER_STATS'),
+        mergeMap((action) => {
+            return getUserStatsFromFirebase(action.id)
+        }),
+        mergeMap((data) => {
+            return of(getUserStatsFulfilled(data))
+        }),
+
+        catchError((e) =>
+            of({
+                type: 'FAILED_TO_FETCH_USER_STATS',
                 e,
             }),
         ),

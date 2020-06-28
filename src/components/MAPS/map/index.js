@@ -87,7 +87,7 @@ const InnerModal = styled.div`
     }
 `
 
-export const Map = ({ user }) => {
+export const Map = ({ userMapDetails }) => {
     const [showModal, setShowModal] = useState(false)
     const [generatedId, setGeneratedId] = useState(Date.now())
 
@@ -97,8 +97,7 @@ export const Map = ({ user }) => {
     }
 
     const createShareLink = () => {
-        const data = user.mapDetails
-        const stringifiedData = JSON.stringify({ data, generatedId })
+        const stringifiedData = JSON.stringify({ userMapDetails, generatedId })
         fetch(`${process.env.REACT_APP_API_GATEWAY_URL}/countries/create-shared-map`, {
             method: 'POST',
             headers: {
@@ -118,13 +117,13 @@ export const Map = ({ user }) => {
 
     const clicker = (e) => {}
 
-    return user.mapDetails.length > 1 ? (
+    return userMapDetails.length > 1 ? (
         <Container>
             <Chart
                 width={calculateMapHeight()}
                 height={'250px'}
                 chartType="GeoChart"
-                data={user.mapDetails}
+                data={userMapDetails}
                 dataMode="regions"
                 enableRegionInteractivity={true}
                 mapsApiKey="YAIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"
@@ -159,8 +158,8 @@ export const Map = ({ user }) => {
     )
 }
 
-const mapState = ({ user }) => ({
-    user,
+const mapState = ({ userMapDetails }) => ({
+    userMapDetails,
 })
 
 export const CONNECTED_Map = connect(mapState)(Map)

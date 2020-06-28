@@ -174,48 +174,24 @@ const customStyles = {
     }),
 }
 
-export const Stats = ({ user }) => {
+export const Stats = ({ userTrips, userStats }) => {
     const [continent, setContinent] = useState('Africa')
 
-    const { countriesByContinent, continentVisits, firstTrip, lastTrip, mostVisitedCountry, tripsByYear } = user.stats
+    const { countriesByContinent, continentVisits, mostVisitedCountry } = userStats
 
-    return user.userVisitedCountries.length > 0 ? (
+    return userTrips.visitedCountries.length > 0 ? (
         <Container>
             <InnerContainer>
                 <MainHeading>Your trips in numbers</MainHeading>
                 <Top>
                     <TotalCountries>
                         <StyledLink to="/stats/total-countries">
-                            <div>{user.userVisitedCountries.length}</div>
+                            <div>{userTrips.visitedCountries.length}</div>
                             <div>countries</div>
                         </StyledLink>
                     </TotalCountries>
                     <FirstAndLast>
                         <StyledLink to="/stats/random-stats">Other fun stats</StyledLink>
-                        {/* {firstTrip && (
-                            <>
-                                <div>
-                                    {firstTrip.visitName}
-                                    <img src={firstTrip.flag} width="50" alt="" />
-                                </div>
-                                <TripNameAndDate>
-                                    <p>First Trip</p>
-                                    <div>{moment.unix(firstTrip.startDate).format('MMM YYYY')}</div>
-                                </TripNameAndDate>
-                            </>
-                        )}
-                        {lastTrip && (
-                            <>
-                                <div>
-                                    {lastTrip.visitName}
-                                    <img src={lastTrip.flag} width="50" alt="" />
-                                </div>
-                                <TripNameAndDate>
-                                    <p>Latest Trip</p>
-                                    <div>{moment.unix(lastTrip.startDate).format('MMM YYYY')}</div>
-                                </TripNameAndDate>
-                            </>
-                        )} */}
                     </FirstAndLast>
 
                     <TopStats>
@@ -226,23 +202,6 @@ export const Stats = ({ user }) => {
                         {countriesByContinent ? (
                             <StyledLink to="/stats/random-stats">Other fun stats</StyledLink>
                         ) : (
-                            /* <CircularProgressbar
-                                    value={
-                                        (countriesByContinent[continent].visited /
-                                            countriesByContinent[continent].total) *
-                                        100
-                                    }
-                                    text={`${countriesByContinent[continent].visited}/${countriesByContinent[continent].total}`}
-                                    styles={buildStyles({ textColor: KIERAN_GREY, pathColor: KIERAN_GREY })}
-                                />
-
-                                <Select
-                                    onChange={(continent) => setContinent(continent.value)}
-                                    options={continent$}
-                                    defaultValue={{ label: continent, value: continent }}
-                                    styles={customStyles}
-                                /> */
-
                             <SpinnerContainer>
                                 <Spinner src={'/images/loading.gif'} />
                             </SpinnerContainer>
@@ -250,28 +209,8 @@ export const Stats = ({ user }) => {
                     </Gauge>
                     <AWorldWithFriends>
                         <div>A world with friends</div>
-                        {/* {continentVisits.length > 1 && (
-                            <Chart
-                                width={'150px'}
-                                height={'150px'}
-                                chartType="BarChart"
-                                mapsApiKey="YAIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"
-                                data={continentVisits}
-                                options={CHART_OPTIONS}
-                            />
-                        )} */}
                     </AWorldWithFriends>
-                    <StatComponent>
-                        {/* {tripsByYear.length > 1 && (
-                            <Chart
-                                width={'150px'}
-                                height={'150px'}
-                                chartType="ColumnChart"
-                                data={tripsByYear}
-                                options={{ ...CHART_OPTIONS, title: 'Trips By Year' }}
-                            />
-                        )} */}
-                    </StatComponent>
+                    <StatComponent></StatComponent>
                 </Top>
             </InnerContainer>
         </Container>
@@ -280,8 +219,9 @@ export const Stats = ({ user }) => {
     )
 }
 
-const mapState = ({ user }) => ({
-    user,
+const mapState = ({ userStats, userTrips }) => ({
+    userStats,
+    userTrips,
 })
 
 export const CONNECTED_Stats = connect(mapState)(Stats)

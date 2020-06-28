@@ -93,13 +93,19 @@ const formatOptionLabel = ({ value, label, flag }) => (
     </Option>
 )
 
-export const QuickAddCountry = ({ addMultiNewCountries, countries, setShowAddCountryForm, user }) => {
+export const QuickAddCountry = ({
+    addMultiNewCountries,
+    countries,
+    setShowAddCountryForm,
+    userPersonalDetails,
+    userTrips,
+}) => {
     const [selectedCountries, setSelectedCountries] = useState([])
     const [optionCountries, setOptionCountries] = useState([])
 
     useEffect(() => {
         let dropdownOptions = countries.selectOptions
-        let visitedCountries = user.userVisitedCountries
+        let visitedCountries = userTrips.visitedCountries
 
         for (let i = dropdownOptions.length - 1; i >= 0; i--) {
             for (let j = 0; j < visitedCountries.length; j++) {
@@ -121,7 +127,7 @@ export const QuickAddCountry = ({ addMultiNewCountries, countries, setShowAddCou
                     ...country,
                     name: country.value,
                 }
-                updates[`/users/${user.details.uid}/countries/${country.value}/`] = countryDetails
+                updates[`/users/${userPersonalDetails.uid}/countries/${country.value}/`] = countryDetails
             })
 
             firebaseApp
@@ -188,9 +194,10 @@ export const QuickAddCountry = ({ addMultiNewCountries, countries, setShowAddCou
     )
 }
 
-const mapState = ({ countries, user }) => ({
+const mapState = ({ countries, userPersonalDetails, userTrips }) => ({
     countries,
-    user,
+    userPersonalDetails,
+    userTrips,
 })
 
 const mapDispatch = {

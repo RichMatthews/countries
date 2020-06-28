@@ -24,11 +24,11 @@ const FlagContainer = styled.div`
         width: 100%;
     }
 `
-export const TotalCountries = ({ user }) => (
+export const TotalCountries = ({ userTrips }) => (
     <Container>
         <h3>Your Flag collection</h3>
         <Inner>
-            {user.userVisitedCountries.map((country) => (
+            {userTrips.visitedCountries.map((country) => (
                 <FlagContainer key={country.name}>
                     <img src={country.smallFlag} alt="" />
                     {/* <span>{country.visits ? `${country.visits.length} visits` : `1 visit`}</span> */}
@@ -38,8 +38,8 @@ export const TotalCountries = ({ user }) => (
     </Container>
 )
 
-const mapState = ({ user }) => ({
-    user,
+const mapState = ({ userTrips }) => ({
+    userTrips,
 })
 
 export const ConnectedTotalCountries = connect(mapState)(TotalCountries)

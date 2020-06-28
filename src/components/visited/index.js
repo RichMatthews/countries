@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { Subject } from 'rxjs'
 import { connect } from 'react-redux'
-import { getRESTAPICountries } from 'redux/action-creators/countries/get-rest-api-countries'
 
 import { Input } from 'components/shared/input'
 import { Country } from 'components/country'
@@ -279,15 +278,15 @@ const MainHeading = styled.div`
 `
 // check this
 const comparator = (previous, next) => {
-    if (previous.user.userVisitedCountries.length > 0) {
-        if (previous.user.userVisitedCountries === next.user.userVisitedCountries) {
+    if (previous.userTrips.visitedCountries.length > 0) {
+        if (previous.userTrips.visitedCountries === next.userTrips.visitedCountries) {
             return true
         }
     }
     return false
 }
 
-const Visited = React.memo(({ ui, user }) => {
+const Visited = React.memo(({ ui, userTrips }) => {
     const [filteredCountries, setFilteredCountries] = useState([])
     const [showAddCountryForm, setShowAddCountryForm] = useState(false)
     const [selectedContinent, setSelectedContinent] = useState(null)
@@ -296,25 +295,27 @@ const Visited = React.memo(({ ui, user }) => {
     const [pageMapping, setPageMapping] = useState({ start: 0, end: 30 })
 
     useEffect(() => {
-        setFilteredCountries(user.userVisitedCountries)
-        workoutRequiredPages(user.userVisitedCountries)
-    }, [user.userVisitedCountries])
+        setFilteredCountries(userTrips.visitedCountries)
+        workoutRequiredPages(userTrips.visitedCountries)
+    }, [userTrips.visitedCountries])
 
     const filterCountriesByValue = (value) => {
         if (!value) {
-            return setFilteredCountries(user.userVisitedCountries)
+            return setFilteredCountries(userTrips.visitedCountries)
         }
-        setFilteredCountries(user.userVisitedCountries.filter((country) => country.name.toLowerCase().includes(value)))
+        setFilteredCountries(userTrips.visitedCountries.filter((country) => country.name.toLowerCase().includes(value)))
     }
 
     const filterCountriesByContinent = (continent) => {
         setSelectedContinent(continent)
         setPageHelper(1)
         if (!continent) {
-            return setFilteredCountries(user.userVisitedCountries)
+            return setFilteredCountries(userTrips.visitedCountries)
         }
 
-        return setFilteredCountries(user.userVisitedCountries.filter((country) => country.continent === continent.name))
+        return setFilteredCountries(
+            userTrips.visitedCountries.filter((country) => country.continent === continent.name),
+        )
     }
 
     inputStream.subscribe((val) => filterCountriesByValue(val))
@@ -337,7 +338,7 @@ const Visited = React.memo(({ ui, user }) => {
     ]
 
     const workoutRequiredPages = () => {
-        const pages = Math.ceil(user.userVisitedCountries.length / 10)
+        const pages = Math.ceil(userTrips.visitedCountries.length / 10)
         let newPages = []
         for (let i = 0; i < pages; i++) {
             newPages.push(i + 1)
@@ -397,10 +398,9 @@ const Visited = React.memo(({ ui, user }) => {
                             <MainHeading>Your trips</MainHeading>
                         </div>
                         <AddVisit onClick={() => setShowAddCountryForm(true)}>Add visit</AddVisit>
-                        {/* <Total>{user.userVisitedCountries.length} / 195 countries visited</Total> */}
                     </VisitedTotal>
                     <CountriesList>
-                        {user && filteredCountries.length ? (
+                        {userTrips && filteredCountries.length ? (
                             filteredCountries
                                 .slice(pageMapping.start, pageMapping.end)
                                 .map((country) => (
@@ -433,14 +433,10 @@ const Visited = React.memo(({ ui, user }) => {
     )
 }, comparator)
 
-const mapState = ({ countries, ui, user }) => ({
+const mapState = ({ countries, ui, userTrips }) => ({
     countries,
     ui,
-    user,
+    userTrips,
 })
 
-const mapDispatch = {
-    getRESTAPICountries,
-}
-
-export const CONNECTED_Visited = connect(mapState, mapDispatch)(Visited)
+export const CONNECTED_Visited = connect(mapState, null)(Visited)

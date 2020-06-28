@@ -99,12 +99,14 @@ const Title = styled.div`
     }
 `
 
-const AchievementsContainer = ({ user }) => {
+const AchievementsContainer = ({ userAchievements }) => {
     const [achievements, setAchievements] = useState(ACHIEVEMENTS_LIST)
 
     useEffect(() => {
-        setAchievements(achievements.map((obj) => user.achievements.find((o) => o.title === obj.title) || obj))
-    }, [user.achievements])
+        setAchievements(
+            achievements.map((obj) => userAchievements.achievements.find((o) => o.title === obj.title) || obj),
+        )
+    }, [userAchievements.achievements])
 
     return (
         <Container>
@@ -139,8 +141,8 @@ const AchievementsContainer = ({ user }) => {
     )
 }
 
-const mapState = ({ user }) => ({
-    user,
+const mapState = ({ userAchievements }) => ({
+    userAchievements,
 })
 
 export const CONNECTED_Achievments = connect(mapState)(AchievementsContainer)

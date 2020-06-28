@@ -1,7 +1,7 @@
 import {
     GET_REST_API_COUNTRIES,
-    REST_COUNTRIES_DROPDOWN_OPTIONS_GENERATED,
-    REST_COUNTRIES_RECEIVED_SUCCESS,
+    GENERATE_REST_COUNTRIES_DROPDOWN_OPTIONS,
+    GET_REST_API_COUNTRIES_SUCCESS,
     USER_LOGGED_OUT_SUCCESS,
 } from 'redux/types'
 
@@ -14,9 +14,9 @@ export function countries(state = initialState, action) {
     switch (action.type) {
         case GET_REST_API_COUNTRIES:
             return { ...state, restAPICountries: action.restAPICountries }
-        case REST_COUNTRIES_DROPDOWN_OPTIONS_GENERATED:
+        case GENERATE_REST_COUNTRIES_DROPDOWN_OPTIONS:
             return { ...state, selectOptions: action.options }
-        case REST_COUNTRIES_RECEIVED_SUCCESS:
+        case GET_REST_API_COUNTRIES_SUCCESS:
             return { ...state, restAPICountries: action.countries }
         case USER_LOGGED_OUT_SUCCESS:
         default:

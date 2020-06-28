@@ -1,3 +1,4 @@
+import { getDistance } from 'geolib'
 import moment from 'moment'
 import GoogleMapReact from 'google-map-react'
 import React, { useEffect, useState } from 'react'
@@ -10,8 +11,8 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import AutosizeInput from 'react-input-autosize'
 import TextareaAutosize from 'react-autosize-textarea'
-import Pica from 'pica'
 
+import { updateCapitalCitiesInFirebase } from 'redux/action-creators/user/update-capital-cities-in-firebase'
 import { updateTripDetails } from 'redux/action-creators/user/update-trip-details'
 import { KIERAN_GREY } from 'styles'
 
@@ -341,21 +342,28 @@ const AddByButton = styled.div`
     margin: 5px;
 `
 
-export const NewTrip = ({ updateTripDetails, user }) => {
+export const NewTrip = ({
+    countries,
+    updateTripDetails,
+    updateCapitalCitiesInFirebase,
+    userPersonalDetails,
+    userTrips,
+}) => {
     const location = useLocation()
     const history = useHistory()
-    const [country, setCountry] = useState(null)
-    const [photos, setPhotos] = useState([])
-    const [uploadingPhotos, setUploadingPhotos] = useState(false)
-    const [inEditMode, setEditMode] = useState(false)
-    const [visitDetails, setVisitDetails] = useState(null)
-    const [originalVisitDetails, setOriginalVisitDetails] = useState(null)
-    const [mapMarkers, setMapMarkers] = useState([])
-    const [newPlace, setNewPlace] = useState(null)
-    const [newPerson, setNewPerson] = useState('')
-    const [travellers, setTraveller] = useState([])
-    const [newTraveller, setNewTraveller] = useState(null)
+
     const [addBy, setAddBy] = useState('instagram')
+    const [country, setCountry] = useState(null)
+    const [inEditMode, setEditMode] = useState(false)
+    const [mapMarkers, setMapMarkers] = useState([])
+    const [newPerson, setNewPerson] = useState('')
+    const [newPlace, setNewPlace] = useState(null)
+    const [newTraveller, setNewTraveller] = useState(null)
+    const [originalVisitDetails, setOriginalVisitDetails] = useState(null)
+    const [photos, setPhotos] = useState([])
+    const [travellers, setTraveller] = useState([])
+    const [uploadingPhotos, setUploadingPhotos] = useState(false)
+    const [visitDetails, setVisitDetails] = useState(null)
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -363,9 +371,9 @@ export const NewTrip = ({ updateTripDetails, user }) => {
 
     useEffect(() => {
         const urlCountry = location.pathname.split('/')[2]
-        const foundCountry = user.userVisitedCountries.find((ctry) => ctry.countryCode === urlCountry)
+        const foundCountry = userTrips.visitedCountries.find((ctry) => ctry.countryCode === urlCountry)
         setCountry(foundCountry)
-    }, [user.userVisitedCountries])
+    }, [userTrips.visitedCountries])
 
     useEffect(() => {
         if (country) {
@@ -401,7 +409,7 @@ export const NewTrip = ({ updateTripDetails, user }) => {
         } else {
             gsReference = storage.refFromURL('gs://countries-5e1e5.appspot.com/')
         }
-        gsReference = gsReference.child(`${user.details.uid}/${country.countryCode}`)
+        gsReference = gsReference.child(`${userPersonalDetails.uid}/${country.countryCode}`)
 
         const { items: references } = await gsReference.listAll()
         const result = references.map(async (reference) => {
@@ -432,8 +440,6 @@ export const NewTrip = ({ updateTripDetails, user }) => {
     const onDrop = (e, index) => {
         uploadPhotos(e.target.files)
     }
-
-    const onEditDrop = (e) => {}
 
     const deletePhoto = (photo) => {
         const storage = firebaseApp.storage()
@@ -474,7 +480,7 @@ export const NewTrip = ({ updateTripDetails, user }) => {
             return new Promise((resolve, reject) => {
                 const storage = firebaseApp
                     .storage()
-                    .ref(`${user.details.uid}/${country.countryCode}/${imageFile.name}`)
+                    .ref(`${userPersonalDetails.uid}/${country.countryCode}/${imageFile.name}`)
                 var task = storage.put(imageFile)
 
                 task.on(
@@ -531,6 +537,24 @@ export const NewTrip = ({ updateTripDetails, user }) => {
         }
 
         updateTripDetails(country.name, originalVisitDetails, convertDataBackForFirebase)
+        mapMarkers.forEach((mrkr) => {
+            console.log(mrkr)
+            updateCapitalCitiesInFirebase(mrkr)
+        })
+    }
+
+    const isItACapital = (place) => {
+        const foundCountry = countries.restAPICountries.find(
+            (ctry) => ctry.name.toLowerCase() === country.name.toLowerCase(),
+        )
+
+        if (foundCountry) {
+            if (foundCountry.capital.toLowerCase() === place.toLowerCase()) {
+                return true
+            }
+            return false
+        }
+        return false
     }
 
     const getLatLngForSpecificPlace = (place) => {
@@ -538,16 +562,25 @@ export const NewTrip = ({ updateTripDetails, user }) => {
 
         geocoder.geocode({ address: place }, function (results, status) {
             if (status == window.google.maps.GeocoderStatus.OK) {
-                const lat = results[0].geometry.location.lat()
-                const lng = results[0].geometry.location.lng()
+                const cityLat = results[0].geometry.location.lat()
+                const cityLng = results[0].geometry.location.lng()
+                const { lat, lng } = userPersonalDetails.location
+                const isCapitalCity = isItACapital(place)
+                const distanceFromHome = getDistance(
+                    { latitude: lat, longitude: lng },
+                    { latitude: cityLat, longitude: cityLng },
+                )
+                const distanceInMiles = Number(distanceFromHome / 1609).toFixed(0)
 
-                const object = {
+                const cityInformation = {
                     name: place,
-                    lng,
-                    lat,
+                    lng: cityLng,
+                    lat: cityLat,
+                    isCapitalCity,
+                    distanceFromHome: distanceInMiles,
                 }
-                setMapMarkers([...mapMarkers, object])
-                // initGeocoderFromNewPlace(object)
+
+                setMapMarkers([...mapMarkers, cityInformation])
             } else {
                 alert('Place not recognized, please try searching again')
             }
@@ -665,7 +698,7 @@ export const NewTrip = ({ updateTripDetails, user }) => {
                     <VisitName>{visitDetails.visitName}</VisitName>
                     <VisitDate>{moment.unix(visitDetails.startDate).format('MMM YYYY')}</VisitDate>
                     <Author>
-                        <div>By Rich Matthews</div> <img src={user.details.photoURL} alt="" />
+                        <div>By Rich Matthews</div> <img src={userPersonalDetails.photoURL} alt="" />
                     </Author>
                 </>
             )
@@ -898,11 +931,14 @@ export const NewTrip = ({ updateTripDetails, user }) => {
 
 const Marker = ({ text }) => <StyledMarker></StyledMarker>
 
-const mapState = ({ user }) => ({
-    user,
+const mapState = ({ countries, userPersonalDetails, userTrips }) => ({
+    countries,
+    userPersonalDetails,
+    userTrips,
 })
 
 const mapDispatch = {
+    updateCapitalCitiesInFirebase,
     updateTripDetails,
 }
 

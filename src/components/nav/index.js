@@ -246,9 +246,11 @@ const MobileUserDetails = styled.div`
     }
 `
 
-export const Nav = ({ clearNotifications, location, logUserOut, newUser, user }) => {
-    const [showMobileMenu, setShowMobileMenu] = useState(false)
+export const Nav = ({ clearNotifications, location, logUserOut, userNotifications, userPersonalDetails }) => {
     const history = useHistory()
+
+    const [showMobileMenu, setShowMobileMenu] = useState(false)
+
     const isSelected = (path) => {
         if (location.pathname.includes(path)) {
             return 'true'
@@ -262,29 +264,29 @@ export const Nav = ({ clearNotifications, location, logUserOut, newUser, user })
     }
 
     return location.pathname.includes('trips') ? null : (
-        <Container location={location} user={newUser}>
+        <Container location={location} user={userPersonalDetails}>
             <Title>
                 <img src={'/images/globe.svg'} width="30" alt="" />
                 <MAPPALink to="/">MAPPA MUNDI</MAPPALink>
             </Title>
-            <RightHandSide loggedIn={newUser} user={newUser}>
+            <RightHandSide loggedIn={userPersonalDetails} user={userPersonalDetails}>
                 <div>
                     <div onClick={() => setShowMobileMenu(!showMobileMenu)}>
                         <img src="/images/menu.svg" width="30px" />
                     </div>
                     {showMobileMenu ? (
                         <MobileMenu>
-                            {newUser ? (
+                            {userPersonalDetails ? (
                                 <MobileProfile>
                                     <MobileImageContainer>
                                         <img
-                                            src={newUser.photoURL}
+                                            src={userPersonalDetails.profilePhoto}
                                             onError={(e) => (e.target.src = '/images/account.svg')}
                                             alt=""
                                         />
                                     </MobileImageContainer>
                                     <MobileUserDetails>
-                                        <div>{newUser.displayName}</div>
+                                        <div>{userPersonalDetails.displayName}</div>
                                         <div>Standard user</div>
                                     </MobileUserDetails>
                                     {/* <div onClick={() => setShowMobileMenu(false)}>Close</div> */}
@@ -350,18 +352,18 @@ export const Nav = ({ clearNotifications, location, logUserOut, newUser, user })
                     Achievements
                 </StyledLink>
 
-                {newUser ? (
+                {userPersonalDetails ? (
                     <AccountAndWelcomeLink>
                         <ProfilePhoto>
                             <ImageContainer>
                                 <img
-                                    src={newUser.photoURL}
+                                    src={userPersonalDetails.profilePhoto}
                                     onError={(e) => (e.target.src = '/images/account.svg')}
                                     alt=""
                                 />
                             </ImageContainer>
                             <Welcome>
-                                <div>Welcome, {newUser.displayName.split(' ')[0]}</div>
+                                <div>Welcome, {userPersonalDetails.displayName.split(' ')[0]}</div>
                                 <div>Account & settings</div>
                             </Welcome>
                         </ProfilePhoto>
@@ -376,11 +378,11 @@ export const Nav = ({ clearNotifications, location, logUserOut, newUser, user })
                     </StyledLoginLink>
                 )}
             </RightHandSide>
-            {user.notifications.length > 0 ? (
+            {userNotifications.length > 0 ? (
                 <NotificationHandler onClick={clearNotificationsAndRedirectToAchievementsPage}>
-                    <div>{user.notifications[0].message}</div>
+                    <div>{userNotifications[0].message}</div>
                     <div>
-                        {user.notifications[0].title}
+                        {userNotifications[0].title}
                         <img src="/images/trophy.png" width="20" alt="" />
                     </div>
                 </NotificationHandler>
@@ -389,8 +391,9 @@ export const Nav = ({ clearNotifications, location, logUserOut, newUser, user })
     )
 }
 
-const mapState = ({ user }) => ({
-    user,
+const mapState = ({ userNotifications, userPersonalDetails }) => ({
+    userPersonalDetails,
+    userNotifications,
 })
 
 const mapDispatch = {
