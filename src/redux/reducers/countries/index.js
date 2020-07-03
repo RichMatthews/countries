@@ -18,7 +18,6 @@ export function countries(state = initialState, action) {
             return { ...state, selectOptions: action.options }
         case GET_REST_API_COUNTRIES_SUCCESS:
             return { ...state, restAPICountries: action.countries }
-        case USER_LOGGED_OUT_SUCCESS:
         default:
             return state
     }

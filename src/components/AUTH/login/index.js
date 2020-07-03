@@ -16,7 +16,9 @@ const SignInButton = styled.div`
     color: ${KIERAN_GREY};
     cursor: pointer;
     border-radius: 30px;
+    box-shadow: 0 1px 4px rgba(41, 51, 57, 0.5);
     display: flex;
+    font-size: 14px;
     justify-content: flex-start;
     margin: auto;
     margin-bottom: 10px;
@@ -32,10 +34,6 @@ const SignInContainer = styled.div`
     align-items: center;
     display: flex;
     justify-content: center;
-
-    @media (max-width: 700px) {
-        padding-top: 100px;
-    }
 `
 
 const SignInSection = styled.div`

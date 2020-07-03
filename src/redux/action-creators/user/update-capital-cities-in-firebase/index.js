@@ -1,6 +1,6 @@
-export const updateCapitalCitiesInFirebase = (place) => {
+export const updateCapitalCitiesInFirebase = (places) => {
     return {
         type: 'UPDATE_PLACES_VISITED_AND_MILES_TRAVELLED',
-        place,
+        places,
     }
 }

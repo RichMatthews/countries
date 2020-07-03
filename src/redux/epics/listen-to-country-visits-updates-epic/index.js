@@ -21,22 +21,34 @@ export const listenToCountryVisitsEpic = (action$, store) => {
                 index = 0
             }
 
-            const { description, startDate, visitName, places, people } = newDetails
+            const { description, startDate, visitName, places, people, distanceInMiles, hasVisitedCapital } = newDetails
 
-            return from(
-                firebaseApp.database().ref(`users/${userId}/countries/${country}/visits/${index}`).update({
+            const updates = {
+                [`users/${userId}/countries/${country}/visits/${index}`]: {
                     description,
                     startDate,
                     visitName,
                     places,
                     people,
-                }),
-            ).pipe(
+                    totalDistanceTravelledForTrip: distanceInMiles,
+                },
+                [`users/${userId}/countries/${country}/hasVisitedCapital`]: hasVisitedCapital,
+            }
+
+            let capitalCitiesTotal = store.value.userTrips.visitedCountries.filter((ctry) => ctry.hasVisitedCapital)
+                .length
+            if (hasVisitedCapital) {
+                capitalCitiesTotal = capitalCitiesTotal + 1
+            }
+
+            return from(firebaseApp.database().ref().update(updates)).pipe(
                 mergeMap((response) => {
                     const payload = {
                         country,
                         current: findCountry.visits ? findCountry.visits[index].visitName : '',
                         newVisitDetails: newDetails,
+                        distanceInMiles,
+                        capitalCitiesTotal,
                     }
                     return [updatedCountrySuccess(payload)]
                 }),

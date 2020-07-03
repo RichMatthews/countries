@@ -9,7 +9,6 @@ import {
 } from './get-user-visited-countries-epic'
 import {
     convertDataReadyForStatsEpic,
-    getCapitalsVisitedAndMilesTravelledEpic,
     getMostVisitedCountryEpic,
     updateStatsEpic,
 } from './convert-data-ready-for-stats-epic'
@@ -22,7 +21,6 @@ export default combineEpics(
     // getUserAchievementsEpic,
     convertDataReadyForStatsEpic,
     convertRESTCountriesToOptionsEpic,
-    getCapitalsVisitedAndMilesTravelledEpic,
     getMostVisitedCountryEpic,
     getUserVisitedCountriesEpic,
     getUserInformationEpic,
@@ -31,5 +29,5 @@ export default combineEpics(
     listenToCountryVisitsEpic,
     setNewUserInformationEpic,
     updateStatsEpic,
-    updateCapitalCitiesAndMilesTravelledEpic,
+    // updateCapitalCitiesAndMilesTravelledEpic,
 )

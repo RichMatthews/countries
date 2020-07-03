@@ -1,6 +1,10 @@
-import React, { useEffect } from 'react'
+import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
+
+import { updateProfilePhoto } from 'redux/action-creators/user/update-profile-photo'
+
+import { firebaseApp } from '../../config.js'
 
 const Container = styled.div`
     background-image: url(/images/wavy-bg.jpg);
@@ -8,6 +12,8 @@ const Container = styled.div`
     background-repeat: no-repeat;
     height: 15vh;
     padding-top: 100px;
+    position: fixed;
+    width: 100%;
 `
 
 const Inner = styled.div`
@@ -61,16 +67,84 @@ const SectionContent = styled.div`
 `
 
 export const Account = ({ userPersonalDetails }) => {
-    const { email, location, name, profilePhoto } = userPersonalDetails
+    const { email, homeLocation, name, profilePhoto } = userPersonalDetails
+    const [photo, setPhoto] = useState(null)
+    console.log(photo, 'oh')
+    const onDrop = (e) => {
+        uploadPhotos(e.target.files)
+    }
+
+    const uploadPhotos = (uploadedPhotos) => {
+        const uploadImageAsPromise = (imageFile) => {
+            return new Promise((resolve, reject) => {
+                const storage = firebaseApp.storage().ref(`${userPersonalDetails.uid}/personalDetails/profilePhoto`)
+                var task = storage.put(imageFile)
+                setPhoto(imageFile)
+                task.on(
+                    'state_changed',
+                    function progress(snapshot) {
+                        // var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                        // uploader.value = percentage
+                    },
+                    function error(err) {
+                        console.log('photo error:', err)
+                    },
+                    function complete() {
+                        var downloadURL = task.snapshot.downloadURL
+                        console.log('=+++', downloadURL)
+                    },
+                )
+            })
+        }
+        var imageFile = uploadedPhotos[0]
+        uploadImageAsPromise(imageFile)
+    }
+
+    const getPhotos = async () => {
+        const storage = firebaseApp.storage()
+        let gsReference
+        if (process.env.NODE_ENV === 'development') {
+            gsReference = storage.refFromURL('gs://countries-development.appspot.com/')
+        } else {
+            gsReference = storage.refFromURL('gs://countries-5e1e5.appspot.com/')
+        }
+        gsReference = gsReference.child(`${userPersonalDetails.uid}/personalDetails`)
+
+        const { items: references } = await gsReference.listAll()
+        const result = references.map(async (reference) => {
+            const url = await reference.getDownloadURL()
+            let response = null
+            try {
+                response = await fetch(url)
+            } catch (error) {
+                console.log('ERROR GETTING PHOTOS:', error)
+                response = error
+            }
+
+            return {
+                response,
+                url,
+                reference: reference.fullPath,
+            }
+        })
+
+        let referencesWithUrls = await Promise.all(result)
+        referencesWithUrls = referencesWithUrls.filter((result) => !(result.response instanceof Error))
+        const updatedPhotos = referencesWithUrls.map((pr) => {
+            return pr
+        })
+        // setPhotos(updatedPhotos)
+    }
 
     return Object.keys(userPersonalDetails).length ? (
         <Container>
             <Inner>
                 <div>
-                    <ProfilePhoto src={profilePhoto} width="100" />
+                    <ProfilePhoto src={photo ? photo : profilePhoto} width="100" onClick={() => updateProfilePhoto} />
+                    <input type="file" onChange={(e) => onDrop(e)} />
                 </div>
                 <UserName>{name}</UserName>
-                <Location>{location.city}</Location>
+                <Location>{homeLocation.city}</Location>
             </Inner>
             <Bottom>
                 <Section>
@@ -97,4 +171,8 @@ const mapState = ({ userPersonalDetails }) => ({
     userPersonalDetails,
 })
 
-export const AccountContainer = connect(mapState)(Account)
+const mapDispatch = {
+    updateProfilePhoto,
+}
+
+export const AccountContainer = connect(mapState, mapDispatch)(Account)

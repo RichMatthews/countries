@@ -88,12 +88,22 @@ export const MainRouter = React.memo(
         html {
             overflow: ${({ location }) => (location.includes('visited') ? 'hidden' : 'auto')};
         }
+        body {
+            background: ${({ location }) => (location.includes('random-stats') ? '#041a24' : '#fff')};
+        }
     `
 
         return (
             <Router>
                 <GlobalStyle location={window.location.pathname} />
-                <PublicRoute path={notSharedMap} component={CONNECTED_Nav} logUserOut={logUserOutFirebaseAndRedux} />
+
+                <PublicRoute
+                    path={notSharedMap}
+                    component={CONNECTED_Nav}
+                    logUserOut={logUserOutFirebaseAndRedux}
+                    location={window.location.pathname}
+                />
+
                 <Switch>
                     <Route exact component={SharedMap} path="/:id/shared-map" />
                     <ProtectedRoute exact component={AccountContainer} path="/account" />

@@ -18,11 +18,12 @@ const Container = styled.div`
     justify-content: flex-start;
     position: absolute;
     overflow: auto;
+    padding-top: 100px;
     width: 100%;
 
     @media (max-width: 700px) {
         flex-direction: column;
-        margin-top: 70px;
+        padding-top: 80px;
     }
 `
 
@@ -83,16 +84,6 @@ const VisitedTotal = styled.div`
     @media (max-width: 700px) {
         flex-direction: column;
     }
-`
-
-const Total = styled.div`
-    align-items: center;
-    color: #b0b0b0;
-    display: flex;
-    font-size: 18px;
-    font-weight: 900;
-    justify-content: center;
-    padding: 0 5px 0 0;
 `
 
 // animation: ${fadeIn} 2s;
@@ -210,11 +201,6 @@ const LoadingContainer = styled.div`
     color: ${KIERAN_GREY};
     display: flex;
     flex-direction: column;
-    padding-top: 50px;
-
-    @media (max-width: 700px) {
-        padding-top: 100px;
-    }
 `
 
 const ResetButton = styled.div`
@@ -278,6 +264,7 @@ const MainHeading = styled.div`
 `
 // check this
 const comparator = (previous, next) => {
+    console.log(previous, next, 'PROPS IN MEMO')
     if (previous.userTrips.visitedCountries.length > 0) {
         if (previous.userTrips.visitedCountries === next.userTrips.visitedCountries) {
             return true
@@ -354,6 +341,8 @@ const Visited = React.memo(({ ui, userTrips }) => {
             setPageMapping({ start: page * 10 - 10, end: page * 10 })
         }
     }
+
+    console.log('RENDERING!')
 
     return !ui.loading ? (
         showAddCountryForm ? (

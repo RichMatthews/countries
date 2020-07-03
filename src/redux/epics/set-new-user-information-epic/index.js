@@ -17,6 +17,7 @@ export const setNewUserInformationEpic = (action$, store) => {
             const { email, name, photo, userId } = action.userDetails
 
             const userInformation = {
+                displayName: name,
                 name,
                 email,
                 profilePhoto: photo,
@@ -28,7 +29,7 @@ export const setNewUserInformationEpic = (action$, store) => {
             }
             return from(firebaseApp.database().ref(`users/${userId}/userInformation`).update(userInformation)).pipe(
                 mergeMap(() => {
-                    return [updatedUserInformationFailure(userInformation)]
+                    return [updatedUserInformationSuccess(userInformation)]
                 }),
                 catchError((error) => of(updatedUserInformationFailure(error))),
             )

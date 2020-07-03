@@ -24,16 +24,16 @@ export const updateCapitalCitiesAndMilesTravelledEpic = (action$, store) => {
         ofType(UPDATE_PLACES_VISITED_AND_MILES_TRAVELLED),
         mergeMap((action) => {
             const { uid } = store.value.userPersonalDetails
-            const places = `users/${uid}/userStats/places/${action.place.name}`
 
-            const updates = {
-                [places]: action.place,
-            }
+            let updates = {}
+
+            action.places.forEach((place) => {
+                updates[`users/${uid}/userStats/places/${place.name}`] = place
+            })
 
             return from(firebaseApp.database().ref().update(updates)).pipe(
-                mergeMap((response) => {
-                    console.log(response, 'RESPONSO:')
-                    return [updatedCountrySuccess(response)]
+                mergeMap(() => {
+                    return [updatedCountrySuccess(action.places)]
                 }),
                 catchError((error) => of(updatedCountryFailure(error))),
             )

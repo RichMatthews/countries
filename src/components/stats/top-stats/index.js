@@ -6,17 +6,19 @@ import { getMostVisitedCountry } from 'redux/action-creators/user/get-most-visit
 import { KIERAN_GREY } from 'styles'
 
 const Container = styled.div`
-    padding-top: 70px;
+    @media (max-width: 700px) {
+        padding-top: 90px;
+    }
 `
 
 const H3 = styled.h3`
     font-size: 32px;
-    margin: 0;
+    margin: 31px;
 `
 
 const H4 = styled.h4`
     color: #ccc;
-    margin: 10px;
+    margin: 10px 0;
 `
 
 const Countries = styled.div`
@@ -84,7 +86,10 @@ export const TopStats = ({ userStats }) => {
                         <Visits>
                             {userStats.mostVisitedCountry.visits ? (
                                 <>
-                                    <div>{userStats.mostVisitedCountry.visits.length}</div> <Visit>visits</Visit>
+                                    <div>{userStats.mostVisitedCountry.visits.length}</div>{' '}
+                                    <Visit>
+                                        {userStats.mostVisitedCountry.visits.length === 1 ? 'visit' : 'Visits'}
+                                    </Visit>
                                 </>
                             ) : (
                                 <>

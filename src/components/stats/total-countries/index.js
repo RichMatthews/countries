@@ -4,7 +4,10 @@ import styled from 'styled-components'
 
 const Container = styled.div`
     margin: 0 10px 10px 10px;
-    padding-top: 70px;
+
+    @media (max-width: 700px) {
+        padding-top: 90px;
+    }
 `
 
 const Inner = styled.div`
@@ -24,9 +27,14 @@ const FlagContainer = styled.div`
         width: 100%;
     }
 `
+
+const H3 = styled.h3`
+    margin: 0;
+`
+
 export const TotalCountries = ({ userTrips }) => (
     <Container>
-        <h3>Your Flag collection</h3>
+        <H3>Your Flag collection</H3>
         <Inner>
             {userTrips.visitedCountries.map((country) => (
                 <FlagContainer key={country.name}>

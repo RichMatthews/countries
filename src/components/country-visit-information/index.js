@@ -11,6 +11,8 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import AutosizeInput from 'react-input-autosize'
 import TextareaAutosize from 'react-autosize-textarea'
+import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
+import 'react-google-places-autocomplete/dist/index.min.css'
 
 import { updateCapitalCitiesInFirebase } from 'redux/action-creators/user/update-capital-cities-in-firebase'
 import { updateTripDetails } from 'redux/action-creators/user/update-trip-details'
@@ -32,23 +34,27 @@ const StyledAutoSizeInput = styled(AutosizeInput)`
 const Container = styled.div`
     opacity: ${({ uploadingPhotos }) => (uploadingPhotos ? 0.2 : 1)};
     padding-bottom: 25px;
-    @media (min-width: 700px) {
-        margin: auto;
-        width: 50%;
+    margin: auto;
+    width: 700px;
+    @media (max-width: 700px) {
+        width: auto;
     }
 `
 
 const CountryBackground = styled.div`
     background-image: ${({ country }) =>
-        `url(https://dl6ghv8ryvhmk.cloudfront.net/countries/portrait/${country}.jpg),  url(https://dl6ghv8ryvhmk.cloudfront.net/countries/portrait/generic.jpg)`};
-    background-size: 1200px;
+        `url(https://dl6ghv8ryvhmk.cloudfront.net/countries/landscape/${country}.jpg),  url(https://dl6ghv8ryvhmk.cloudfront.net/countries/landscape/generic.jpg)`};
+    background-size: 700px;
     background-repeat: no-repeat;
     display: flex;
     flex-direction: row;
 
     @media (max-width: 700px) {
-        background-size: 600px;
-        height: 730px;
+        background-image: ${({ country }) =>
+            `url(https://dl6ghv8ryvhmk.cloudfront.net/countries/portrait/${country}.jpg),  url(https://dl6ghv8ryvhmk.cloudfront.net/countries/portrait/generic.jpg)`};
+        background-size: cover;
+        background-position: center;
+        height: 90vh;
         flex-direction: column;
     }
 `
@@ -65,7 +71,7 @@ export const moveArrowDown = keyframes`
 const CountryDetailsSection = styled.div`
     color: #fff;
     font-weight: 900;
-    padding-top: 450px;
+    padding-top: 375px;
     padding-left: 50px;
     position: relative;
 
@@ -77,6 +83,7 @@ const CountryDetailsSection = styled.div`
     }
 
     @media (max-width: 700px) {
+        padding-top: 450px;
         & div:first-child {
             font-size: 20px;
             text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.5);
@@ -107,7 +114,7 @@ const TopBar = styled.div`
     flex-direction: row;
     justify-content: space-between;
     font-size: 23px;
-    opacity: 0.5;
+    opacity: 0.75;
     position: fixed;
     width: 100%;
     z-index: 999;
@@ -226,12 +233,11 @@ const StyledMarker = styled.div`
     width: 30px;
     height: 30px;
     border-radius: 50% 50% 50% 0;
-    background: #89849b;
+    background: #ff385c;
     position: absolute;
     transform: rotate(-45deg);
-    left: 50%;
-    top: 50%;
-    margin: -20px 0 0 -20px;
+    left: -15px;
+    top: -35px;
     &:after {
         content: '';
         width: 14px;
@@ -281,12 +287,14 @@ const SearchContainer = styled.div`
 
 const Search = styled.input`
     border: 1px solid #ccc;
-    font-size: 15px;
-    margin-bottom: 10px;
+    font-size: 13px;
+    margin: 10px;
+    padding: 5px;
+    width: 200px;
 
     ::placeholder {
         color: #9393a8;
-        font-size: 14px;
+        font-size: 13px;
     }
 `
 
@@ -336,10 +344,42 @@ const AddByButton = styled.div`
     border: 1px solid ${KIERAN_GREY};
     border-radius: 3px;
     color: ${({ selected }) => (selected ? '#fff' : KIERAN_GREY)};
-    font-size: 10px;
+    font-size: 13px;
     padding: 5px;
-    max-width: 100px;
     margin: 5px;
+    text-align: center;
+    width: 140px;
+`
+
+const MarkerName = styled.div`
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(41, 51, 57, 0.5);
+    display: inline-block;
+    font-size: 13px;
+    padding: 5px;
+    position: relative;
+    min-width: 50px;
+    left: 0;
+    right: -14px;
+    top: 10px;
+    text-align: center;
+    transform: translateX(-50%);
+    -webkit-transform: translateX(-50%);
+`
+
+const EditModeWarning = styled.div`
+    color: red;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    width: 250px;
+`
+
+const AddTravellersAndDestinations = styled.div`
+    font-size: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
 `
 
 export const NewTrip = ({
@@ -357,10 +397,10 @@ export const NewTrip = ({
     const [inEditMode, setEditMode] = useState(false)
     const [mapMarkers, setMapMarkers] = useState([])
     const [newPerson, setNewPerson] = useState('')
-    const [newPlace, setNewPlace] = useState(null)
     const [newTraveller, setNewTraveller] = useState(null)
     const [originalVisitDetails, setOriginalVisitDetails] = useState(null)
     const [photos, setPhotos] = useState([])
+    const [hasVisitedCapital, setHasVisitedCapital] = useState(false)
     const [travellers, setTraveller] = useState([])
     const [uploadingPhotos, setUploadingPhotos] = useState(false)
     const [visitDetails, setVisitDetails] = useState(null)
@@ -513,11 +553,34 @@ export const NewTrip = ({
 
     const updateTripDetailsHelper = () => {
         if (visitDetails.visitName === '' || visitDetails.startDate === '') {
-            alert('Error: You need to fill in Visit Name AND Trip Date')
+            alert('Error: You need to enter a Visit Name AND Trip Date')
             return
         }
 
         setEditMode(false)
+
+        const { lat, lng } = userPersonalDetails.homeLocation
+        let copyMarkers = [...mapMarkers]
+        let distance = 0
+        if (copyMarkers.length === 1) {
+            const distanceFromHome = getDistance(
+                { latitude: mapMarkers[0].lat, longitude: mapMarkers[0].lng },
+                { latitude: lat, longitude: lng },
+            )
+            distance = distanceFromHome
+        } else {
+            copyMarkers.reverse().push({ lat, lng })
+            while (copyMarkers.length > 1) {
+                const distanceFromPreviousLocation = getDistance(
+                    { latitude: copyMarkers[0].lat, longitude: copyMarkers[0].lng },
+                    { latitude: copyMarkers[1].lat, longitude: copyMarkers[1].lng },
+                )
+                distance = distance + distanceFromPreviousLocation
+                copyMarkers.shift()
+            }
+        }
+
+        const distanceInMiles = Number((distance / 1609).toFixed(0))
 
         const convertedCountriesBackToFirebaseFormat = (markers, name) => {
             return Object.assign(...markers.map((marker) => ({ [marker[name]]: marker })))
@@ -527,6 +590,8 @@ export const NewTrip = ({
             ...visitDetails,
             people: travellers.length ? convertedCountriesBackToFirebaseFormat(travellers, 'username') : [],
             places: mapMarkers.length ? convertedCountriesBackToFirebaseFormat(mapMarkers, 'name') : [],
+            distanceInMiles,
+            hasVisitedCapital,
         }
 
         if (!visitDetails.description) {
@@ -537,19 +602,16 @@ export const NewTrip = ({
         }
 
         updateTripDetails(country.name, originalVisitDetails, convertDataBackForFirebase)
-        mapMarkers.forEach((mrkr) => {
-            console.log(mrkr)
-            updateCapitalCitiesInFirebase(mrkr)
-        })
+        updateCapitalCitiesInFirebase(mapMarkers)
     }
 
     const isItACapital = (place) => {
         const foundCountry = countries.restAPICountries.find(
             (ctry) => ctry.name.toLowerCase() === country.name.toLowerCase(),
         )
-
         if (foundCountry) {
             if (foundCountry.capital.toLowerCase() === place.toLowerCase()) {
+                setHasVisitedCapital(true)
                 return true
             }
             return false
@@ -564,23 +626,16 @@ export const NewTrip = ({
             if (status == window.google.maps.GeocoderStatus.OK) {
                 const cityLat = results[0].geometry.location.lat()
                 const cityLng = results[0].geometry.location.lng()
-                const { lat, lng } = userPersonalDetails.location
-                const isCapitalCity = isItACapital(place)
-                const distanceFromHome = getDistance(
-                    { latitude: lat, longitude: lng },
-                    { latitude: cityLat, longitude: cityLng },
-                )
-                const distanceInMiles = Number(distanceFromHome / 1609).toFixed(0)
+                isItACapital(place)
 
                 const cityInformation = {
                     name: place,
                     lng: cityLng,
                     lat: cityLat,
-                    isCapitalCity,
-                    distanceFromHome: distanceInMiles,
                 }
 
                 setMapMarkers([...mapMarkers, cityInformation])
+                window.scrollTo(0, document.body.scrollHeight)
             } else {
                 alert('Place not recognized, please try searching again')
             }
@@ -698,13 +753,19 @@ export const NewTrip = ({
                     <VisitName>{visitDetails.visitName}</VisitName>
                     <VisitDate>{moment.unix(visitDetails.startDate).format('MMM YYYY')}</VisitDate>
                     <Author>
-                        <div>By Rich Matthews</div> <img src={userPersonalDetails.photoURL} alt="" />
+                        <div>By {userPersonalDetails.displayName}</div>{' '}
+                        <img src={userPersonalDetails.profilePhoto} alt="" />
                     </Author>
                 </>
             )
         } else {
             return <AddNewButton onClick={() => setEditMode(true)}>Tap here to create a trip</AddNewButton>
         }
+    }
+
+    const markerClicked = (marker) => {
+        console.log('clicked...')
+        console.log('The marker that was clicked is', marker)
     }
 
     return country ? (
@@ -718,9 +779,7 @@ export const NewTrip = ({
                     alt=""
                 />
                 {inEditMode ? (
-                    <div style={{ fontSize: '13px', color: 'red', textAlign: 'center', width: '250px' }}>
-                        You are in edit mode, remember to click SAVE once you've made changes!
-                    </div>
+                    <EditModeWarning>You are in edit mode. Click SAVE once you've made changes.</EditModeWarning>
                 ) : null}
 
                 <div>
@@ -737,11 +796,15 @@ export const NewTrip = ({
                 <CountryBackground country={country.countryCode}>
                     <CountryDetailsSection>
                         <div>
-                            {country.visits
-                                ? country.visits.length === 1
-                                    ? `${country.visits.length} trip`
-                                    : `${country.visits.length} trips`
-                                : null}
+                            {country.visits ? (
+                                country.visits.length === 1 ? (
+                                    `${country.visits.length} trip`
+                                ) : (
+                                    `${country.visits.length} trips`
+                                )
+                            ) : (
+                                <div>1 trip</div>
+                            )}
                         </div>
                         <CountryHeading>{country.name}</CountryHeading>
                         <img src="/images/down-arrow.svg" height="60" width="60" onClick={scrollTo} alt="" />
@@ -800,6 +863,9 @@ export const NewTrip = ({
                                         <div>
                                             {inEditMode && (
                                                 <SearchContainer>
+                                                    <AddTravellersAndDestinations>
+                                                        Add travellers
+                                                    </AddTravellersAndDestinations>
                                                     <AddByButtons>
                                                         <AddByButton
                                                             onClick={() => setAddBy('manual')}
@@ -814,9 +880,12 @@ export const NewTrip = ({
                                                             Add via instagram
                                                         </AddByButton>
                                                     </AddByButtons>
-                                                    <div>Add travellers</div>
                                                     <Search
                                                         onChange={(e) => setNewPerson(e.target.value)}
+                                                        autoComplete="off"
+                                                        autoCorrect="off"
+                                                        autoCapitalize="off"
+                                                        spellCheck="false"
                                                         placeholder={
                                                             addBy === 'instagram'
                                                                 ? 'Search for instagram user'
@@ -887,9 +956,21 @@ export const NewTrip = ({
                 </div>
                 {inEditMode && (
                     <SearchContainer>
-                        <div>Add specific destinations</div>
-                        <Search onChange={(e) => setNewPlace(e.target.value)} placeholder="Search for destination" />
-                        <Add onClick={() => getLatLngForSpecificPlace(newPlace)}>Add destination to map</Add>
+                        <AddTravellersAndDestinations>Add specific destinations</AddTravellersAndDestinations>
+                        <div>
+                            <GooglePlacesAutocomplete
+                                onSelect={(e) => getLatLngForSpecificPlace(e.structured_formatting.main_text)}
+                                placeholder="Search for a place you visited..."
+                                inputStyle={{
+                                    border: `1px solid #ccc`,
+                                    boxShadow: 'none',
+                                    fontSize: '13px',
+                                    margin: '10px',
+                                    padding: '5px',
+                                    width: '200px',
+                                }}
+                            />
+                        </div>
                     </SearchContainer>
                 )}
                 {mapMarkers.length > 0 && (
@@ -897,10 +978,11 @@ export const NewTrip = ({
                         <GoogleMapReact
                             key={mapMarkers}
                             onGoogleApiLoaded={initGeocoder}
+                            onChildClick={(e) => console.log('eeeeeee', e)}
                             options={{
                                 disableDefaultUI: true,
                                 disableDoubleClickZoon: true,
-                                draggable: true,
+                                draggable: false,
                                 scrollwheel: false,
                                 zoomControl: false,
                             }}
@@ -914,7 +996,12 @@ export const NewTrip = ({
                             yesIWantToUseGoogleMapApiInternals
                         >
                             {mapMarkers.map((marker) => (
-                                <Marker lat={marker.lat} lng={marker.lng} text={marker.name} />
+                                <Marker
+                                    lat={marker.lat}
+                                    lng={marker.lng}
+                                    name={marker.name}
+                                    onChildClick={() => markerClicked(marker)}
+                                />
                             ))}
                         </GoogleMapReact>
                     </div>
@@ -929,7 +1016,11 @@ export const NewTrip = ({
     )
 }
 
-const Marker = ({ text }) => <StyledMarker></StyledMarker>
+const Marker = (props) => (
+    <div>
+        <StyledMarker onClick={() => props.onChildClick()}></StyledMarker> <MarkerName>{props.name}</MarkerName>
+    </div>
+)
 
 const mapState = ({ countries, userPersonalDetails, userTrips }) => ({
     countries,

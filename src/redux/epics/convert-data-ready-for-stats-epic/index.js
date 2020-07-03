@@ -19,8 +19,6 @@ const setCountriesAggregatedByContinent = (payload) => ({
     data: payload,
 })
 const countriesConverted = (countries) => ({ type: COUNTRIES_CONVERTED_TO_CHART_FORMAT_SUCCESS, countries })
-const setCapitalsVisited = (capitalCitiesVisited) => ({ type: 'SET_CAPITALS_VISITED', capitalCitiesVisited })
-const setMilesTravelled = (milesTravelled) => ({ type: 'SET_MILES_TRAVELLED', milesTravelled })
 const setCalculatedContinents = (payload) => ({ type: SET_CALCULATED_CONTINENTS_STAT, continentVisits: payload })
 const setMostVisitedCountry = (payload) => ({ type: SET_MOST_VISITED_COUNTRY, country: payload })
 
@@ -90,19 +88,6 @@ const convertCountriesForMapFormat = (countries) => {
     return newArr
 }
 
-const calculateCapitalCitiesVisited = (places) => {
-    return places.filter((place) => place.isCapitalCity).length
-}
-
-const calculateMilesTravelled = (places) => {
-    let totalMiles = 0
-    places.forEach((place) => {
-        console.log(place, 'pl')
-        totalMiles = totalMiles += place.distanceFromHome
-    })
-    return totalMiles
-}
-
 export const convertDataReadyForStatsEpic = (action$, state$) =>
     action$.pipe(
         ofType(GET_USER_VISITED_COUNTRIES_AND_TRIPS_SUCCESS),
@@ -122,20 +107,6 @@ export const convertDataReadyForStatsEpic = (action$, state$) =>
         }),
     )
 // catchError((err) => Promise.resolve({ type: 'CHANGE_THIS_AT_SOME_POINT', message: err.message }))
-
-export const getCapitalsVisitedAndMilesTravelledEpic = (action$, state$) =>
-    action$.pipe(
-        ofType('GET_USER_STATS_SUCCESS'),
-        mergeMap((action) => {
-            if (action.payload.length === 0) {
-                return EMPTY
-            }
-            const milesTravelled = calculateMilesTravelled(action.payload)
-            const capitalsVisited = calculateCapitalCitiesVisited(action.payload)
-
-            return [setCapitalsVisited(capitalsVisited), setMilesTravelled(milesTravelled)]
-        }),
-    )
 
 export const updateStatsEpic = (action$, store) =>
     action$.pipe(

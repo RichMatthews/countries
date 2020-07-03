@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Chart } from 'react-google-charts'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
@@ -15,13 +15,15 @@ const Container = styled.div`
     flex-direction: column;
     justify-content: flex-start;
     height: 100%;
-    padding-top: 100px;
+
+    @media (max-width: 700px) {
+        padding-top: 100px;
+    }
 `
 
 const NoMap = styled.div`
     display: flex;
     justify-content: center;
-    padding-top: 100px;
 `
 
 const ShareMap = styled.div`
@@ -90,6 +92,10 @@ const InnerModal = styled.div`
 export const Map = ({ userMapDetails }) => {
     const [showModal, setShowModal] = useState(false)
     const [generatedId, setGeneratedId] = useState(Date.now())
+
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
 
     const showModalAndGenerateId = () => {
         setShowModal(true)

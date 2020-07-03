@@ -8,6 +8,7 @@ const initialState = {
     displayName: '',
     email: '',
     name: '',
+    homeLocation: {},
     profilePhoto: '',
     uid: '',
 }
@@ -15,7 +16,6 @@ const initialState = {
 export const userPersonalDetails = (state = initialState, action) => {
     switch (action.type) {
         case GET_USER_PERSONAL_DETAILS_SUCCESS:
-            console.log(action, 'act')
             return { ...state, ...action.payload }
         case SET_NEW_USER_INFORMATION_SUCCESS:
             return { ...state, ...action.userInformation }

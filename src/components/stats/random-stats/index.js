@@ -8,14 +8,16 @@ import { getMostVisitedCountry } from 'redux/action-creators/user/get-most-visit
 
 const Container = styled.div`
     align-items: center;
-    background: #041a24;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     height: 100%;
-    padding-top: 70px;
     text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.5);
     width: 100%;
+
+    @media (max-width: 700px) {
+        padding-top: 90px;
+    }
 `
 const Section = styled.div`
     display: flex;
@@ -36,9 +38,14 @@ const MilesTravelled = styled(Section)`
     background-size: 100%;
     background-repeat: no-repeat;
     color: #fff;
-    font-size: 40px;
+    font-size: 20px;
     height: 24vh;
     width: 100%;
+
+    & div:first-child {
+        font-size: 60px;
+    }
+
     @media (max-width: 700px) {
         width: 100%;
     }

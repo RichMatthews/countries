@@ -17,6 +17,9 @@ const Container = styled.div`
     background: #fff;
     height: 100%;
     width: 100%;
+    @media (max-width: 700px) {
+        padding-top: 80px;
+    }
 `
 
 // animation: ${fadeIn} 1s;
@@ -29,7 +32,6 @@ const InnerContainer = styled.div`
     align-items: center;
 
     @media (max-width: 700px) {
-        padding-top: 70px;
         width: 100%;
     }
 `
@@ -133,7 +135,6 @@ const TotalCountries = styled(StatComponent)`
 const NoStats = styled.div`
     display: flex;
     justify-content: center;
-    padding-top: 100px;
 `
 
 const TripNameAndDate = styled.div`

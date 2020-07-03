@@ -34,7 +34,7 @@ const Container = styled.div`
     justify-content: center;
 
     @media (max-width: 700px) {
-        padding-top: 100px;
+        padding-top: 70px;
     }
 `
 

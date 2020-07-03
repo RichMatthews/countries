@@ -8,12 +8,14 @@ import { KIERAN_GREY } from 'styles'
 
 const Container = styled.div`
     align-items: center;
-    background: #e1e3e3;
     color: ${KIERAN_GREY};
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding-top: 10px;
+
+    @media (max-width: 700px) {
+        padding-top: 90px;
+    }
 `
 
 const Achievement = styled.div`
@@ -76,7 +78,6 @@ const AchievementsList = styled.div`
     height: 100%;
 
     @media (max-width: 700px) {
-        margin-top: 100px;
         width: 100%;
     }
 `

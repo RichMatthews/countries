@@ -3,9 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://fonts.googleapis.com/css?family=Lato:400,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
     <script type="text/javascript" src="https://maps.google.com/maps/api/js?key=AIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M"></script>
-    
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M&libraries=places"></script>
+
     <meta
       name="description"
       content="Countries Visited App"
@@ -19,18 +20,18 @@
     <link rel="icon"href="%PUBLIC_URL%/images/globe.svg">
     <title>Mappa Mundi</title>
   </head>
-  <body style="margin: 0; background-color: #fff; color: #000; font-family: 'Lato', sans-serif;";>
+  <body style="margin: 0; color: #000; font-family: 'Montserrat', sans-serif;";>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>
   <style>
-      html { height: 100%; overflow: auto; }
+      html { height: 100%; overflow: scroll; }
       body { height: 100%; }
       #root { height: 100%; }
 
     @media (max-width: 700px) {
-      html { height: 100%; overflow: auto; }
-      body { height: 100%; touch-action: manipulation; }
+      html { overflow-y: scroll; width: 100%; bottom: 0; top: 0; }
+      body { touch-action: manipulation;  width: 100%;}
     }
   </style>
 </html>

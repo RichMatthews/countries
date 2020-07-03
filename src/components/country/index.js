@@ -86,7 +86,8 @@ const InnerContainer = styled.div`
 
     @media (max-width: 700px) {
         border-radius: 10px;
-        background-size: 270px;
+        background-position: center;
+        background-size: 305px;
     }
 `
 
