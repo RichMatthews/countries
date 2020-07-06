@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { compose } from 'redux'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import { Link, useHistory, withRouter } from 'react-router-dom'
 
 import { fadeInNout } from 'components/react-modal-adapter'
@@ -138,9 +138,10 @@ const MobileMenu = styled.div`
     flex-direction: column;
     position: absolute;
     flex-direction: column;
-    height: 1000px;
+    height: 100vh;
+    left: ${({ showMenu }) => (showMenu ? 0 : '-2500px')};
     top: 0;
-    left: 0;
+    transition: 0.5s;
     width: 80%;
 
     & > a {
@@ -200,62 +201,60 @@ export const Mobile = ({
                     <div onClick={() => setShowMobileMenu(!showMobileMenu)}>
                         <img src="/images/menu.svg" width="30px" />
                     </div>
-                    {showMobileMenu ? (
-                        <MobileMenu>
-                            {userPersonalDetails ? (
-                                <MobileProfile user={currentUser.isLoggedIn}>
-                                    {currentUser.isLoggedIn ? (
-                                        <div>
-                                            <MobileImageContainer>
-                                                <img
-                                                    src={userPersonalDetails.profilePhoto}
-                                                    onError={(e) => (e.target.src = '/images/account.svg')}
-                                                    alt=""
-                                                />
-                                            </MobileImageContainer>
-                                            <MobileUserDetails>
-                                                <div>{userPersonalDetails.displayName}</div>
-                                                <div>Standard user</div>
-                                            </MobileUserDetails>
-                                        </div>
-                                    ) : (
-                                        <MenuHeading>Menu</MenuHeading>
-                                    )}
-                                </MobileProfile>
-                            ) : null}
-                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/visited">
-                                <Image src="/images/visited.png" alt="" />
-                                <div>Visited</div>
+                    <MobileMenu showMenu={showMobileMenu}>
+                        {userPersonalDetails ? (
+                            <MobileProfile user={currentUser.isLoggedIn}>
+                                {currentUser.isLoggedIn ? (
+                                    <>
+                                        <MobileImageContainer>
+                                            <img
+                                                src={userPersonalDetails.profilePhoto}
+                                                onError={(e) => (e.target.src = '/images/account.svg')}
+                                                alt=""
+                                            />
+                                        </MobileImageContainer>
+                                        <MobileUserDetails>
+                                            <div>{userPersonalDetails.displayName}</div>
+                                            <div>Standard user</div>
+                                        </MobileUserDetails>
+                                    </>
+                                ) : (
+                                    <MenuHeading>Menu</MenuHeading>
+                                )}
+                            </MobileProfile>
+                        ) : null}
+                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/visited">
+                            <Image src="/images/visited.png" alt="" />
+                            <div>Visited</div>
+                        </StyledLink>
+                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/map">
+                            <Image src="/images/map.png" alt="" />
+                            <div>Your Map</div>
+                        </StyledLink>
+                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/stats">
+                            <Image src="/images/stats.png" alt="" />
+                            <div>Stats</div>
+                        </StyledLink>
+                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/achievements">
+                            <Image src="/images/achievement.png" alt="" />
+                            <div>Achievements</div>
+                        </StyledLink>
+                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/account">
+                            <Image src="/images/settings.png" alt="" />
+                            <div>Account & Settings</div>
+                        </StyledLink>
+                        {currentUser.isLoggedIn ? (
+                            <StyledLink onClick={logUserOut} to="/">
+                                <Image src="/images/logout.png" alt="" />
+                                <div>Logout</div>
                             </StyledLink>
-                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/map">
-                                <Image src="/images/map.png" alt="" />
-                                <div>Your Map</div>
+                        ) : (
+                            <StyledLink to="/login" onClick={() => setShowMobileMenu(false)}>
+                                <Image src="/images/logout.png" alt="" />
+                                <div>Login</div>
                             </StyledLink>
-                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/stats">
-                                <Image src="/images/stats.png" alt="" />
-                                <div>Stats</div>
-                            </StyledLink>
-                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/achievements">
-                                <Image src="/images/achievement.png" alt="" />
-                                <div>Achievements</div>
-                            </StyledLink>
-                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/account">
-                                <Image src="/images/settings.png" alt="" />
-                                <div>Account & Settings</div>
-                            </StyledLink>
-                            {currentUser.isLoggedIn ? (
-                                <StyledLink onClick={logUserOut} to="/">
-                                    <Image src="/images/logout.png" alt="" />
-                                    <div>Logout</div>
-                                </StyledLink>
-                            ) : (
-                                <StyledLink to="/login" onClick={() => setShowMobileMenu(false)}>
-                                    <Image src="/images/logout.png" alt="" />
-                                    <div>Login</div>
-                                </StyledLink>
-                            )}
-                        </MobileMenu>
-                    ) : null}
+                        )}
+                    </MobileMenu>
                 </div>
             </RightHandSide>
             {userNotifications.length > 0 ? (

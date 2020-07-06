@@ -20,7 +20,6 @@
         "react-datepicker": "^3.0.0",
         "react-dates": "^21.8.0",
         "react-dom": "^16.13.1",
-        "react-globe": "^4.0.0",
         "react-google-charts": "^3.0.15",
         "react-google-places-autocomplete": "^2.0.7",
         "react-input-autosize": "^2.2.2",

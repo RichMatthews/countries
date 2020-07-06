@@ -1,17 +1,13 @@
 import { getDistance } from 'geolib'
 import moment from 'moment'
-import GoogleMapReact from 'google-map-react'
 import React, { useEffect, useState } from 'react'
 import { compose } from 'redux'
 import { connect } from 'react-redux'
 import { useHistory, useLocation, withRouter } from 'react-router-dom'
 import { animateScroll as scroll } from 'react-scroll'
 import styled, { keyframes } from 'styled-components'
-import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import AutosizeInput from 'react-input-autosize'
 import TextareaAutosize from 'react-autosize-textarea'
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
 import 'react-google-places-autocomplete/dist/index.min.css'
 
 import { updateCapitalCitiesInFirebase } from 'redux/action-creators/user/update-capital-cities-in-firebase'
@@ -20,16 +16,12 @@ import { KIERAN_GREY } from 'styles'
 
 import { firebaseApp } from '../../config.js'
 
-const StyledAutoSizeInput = styled(AutosizeInput)`
-    & > input {
-        border: 1px solid #ff5a5f !important;
-        border-radius: 5px !important;
-        font-size: ${({ fontSize }) => fontSize} !important;
-        margin: 15px; !important;
-        padding: 10px !important;
-        outline: none !important;
-    }
-`
+import { PlacesSearch } from './places-search'
+import { TopBar } from './top-bar'
+import { TravellersSearch } from './travellers-search'
+import { VisitTravellers } from './visit-travellers'
+import { VisitMap } from './visit-map'
+import { VisitNameAndDate } from './visit-name-and-date'
 
 const Container = styled.div`
     opacity: ${({ uploadingPhotos }) => (uploadingPhotos ? 0.2 : 1)};
@@ -108,35 +100,6 @@ const TripsSection = styled.div`
     text-align: center;
 `
 
-const TopBar = styled.div`
-    background: #fff;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    font-size: 23px;
-    opacity: 0.75;
-    position: fixed;
-    width: 100%;
-    z-index: 999;
-
-    @media (min-width: 700px) {
-        left: 25%;
-        margin: auto;
-        width: 50%;
-    }
-
-    & > div {
-        align-items: center;
-        display: flex;
-        height: 30px;
-        padding: 15px;
-    }
-
-    & > img {
-        padding: 15px;
-    }
-`
-
 const UploadingState = styled.div`
     color: #000;
     right: 50%;
@@ -154,19 +117,6 @@ const DeleteSection = styled.div`
         top: 30px;
         position: absolute;
     }
-`
-
-const VisitName = styled.div`
-    color: ${KIERAN_GREY};
-    font-size: 32px;
-    font-style: italic;
-    font-weight: bold;
-`
-
-const VisitDate = styled.div`
-    color: #ccc;
-    margin-top: 10px;
-    margin-bottom: 5px;
 `
 
 const LoadingContainer = styled.div`
@@ -215,171 +165,6 @@ const PhotoPlaceholder = styled.div`
     & > img {
         margin-bottom: 20px;
     }
-`
-
-const AddNewButton = styled.div`
-    background: ${KIERAN_GREY};
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    color: #fff;
-    cursor: pointer;
-    display: inline-block;
-    padding: 12px;
-    margin: auto;
-    width: 100px;
-`
-
-const StyledMarker = styled.div`
-    width: 30px;
-    height: 30px;
-    border-radius: 50% 50% 50% 0;
-    background: #ff385c;
-    position: absolute;
-    transform: rotate(-45deg);
-    left: -15px;
-    top: -35px;
-    &:after {
-        content: '';
-        width: 14px;
-        height: 14px;
-        margin: 8px 0 0 8px;
-        background: #2f2f2f;
-        position: absolute;
-        border-radius: 50%;
-    }
-`
-
-const Traveller = styled.div`
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    min-width: 80px;
-    & > img {
-        border-radius: 60px;
-        height: 60px;
-        margin-bottom: 10px;
-        width: 60px;
-    }
-`
-
-const RemoveTraveller = styled.div`
-    background: #eb4d42;
-    border-radius: 3px;
-    color: #fff;
-    font-size: 12px;
-    padding: 5px;
-    margin-top: 5px;
-`
-
-const Travellers = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    overflow-x: scroll;
-`
-
-const SearchContainer = styled.div`
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-`
-
-const Search = styled.input`
-    border: 1px solid #ccc;
-    font-size: 13px;
-    margin: 10px;
-    padding: 5px;
-    width: 200px;
-
-    ::placeholder {
-        color: #9393a8;
-        font-size: 13px;
-    }
-`
-
-const Add = styled.div`
-    background: ${KIERAN_GREY};
-    border-radius: 3px;
-    color: #fff;
-    display: inline-block;
-    font-size: 12px;
-    padding: 5px;
-`
-
-const Author = styled.div`
-    align-items: center;
-    display: flex;
-    font-style: italic;
-    justify-content: center;
-
-    & > img {
-        border-radius: 15px;
-        height: 20px;
-        margin-left: 5px;
-        width: 20px;
-    }
-`
-
-const InstagramPlaceholder = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 10px;
-
-    & > img {
-        border-radius: 75px;
-        height: 75px;
-        width: 75px;
-    }
-`
-
-const AddByButtons = styled.div`
-    display: flex;
-    flex-direction: row;
-`
-
-const AddByButton = styled.div`
-    background: ${({ selected }) => (selected ? KIERAN_GREY : '#fff')};
-    border: 1px solid ${KIERAN_GREY};
-    border-radius: 3px;
-    color: ${({ selected }) => (selected ? '#fff' : KIERAN_GREY)};
-    font-size: 13px;
-    padding: 5px;
-    margin: 5px;
-    text-align: center;
-    width: 140px;
-`
-
-const MarkerName = styled.div`
-    background: white;
-    border-radius: 6px;
-    box-shadow: 0 1px 4px rgba(41, 51, 57, 0.5);
-    display: inline-block;
-    font-size: 13px;
-    padding: 5px;
-    position: relative;
-    min-width: 50px;
-    left: 0;
-    right: -14px;
-    top: 10px;
-    text-align: center;
-    transform: translateX(-50%);
-    -webkit-transform: translateX(-50%);
-`
-
-const EditModeWarning = styled.div`
-    color: red;
-    font-size: 15px;
-    font-weight: bold;
-    text-align: center;
-    width: 250px;
-`
-
-const AddTravellersAndDestinations = styled.div`
-    font-size: 20px;
-    font-weight: bold;
-    text-transform: uppercase;
 `
 
 export const NewTrip = ({
@@ -605,111 +390,6 @@ export const NewTrip = ({
         updateCapitalCitiesInFirebase(mapMarkers)
     }
 
-    const isItACapital = (place) => {
-        const foundCountry = countries.restAPICountries.find(
-            (ctry) => ctry.name.toLowerCase() === country.name.toLowerCase(),
-        )
-        if (foundCountry) {
-            if (foundCountry.capital.toLowerCase() === place.toLowerCase()) {
-                setHasVisitedCapital(true)
-                return true
-            }
-            return false
-        }
-        return false
-    }
-
-    const getLatLngForSpecificPlace = (place) => {
-        var geocoder = new window.google.maps.Geocoder()
-
-        geocoder.geocode({ address: place }, function (results, status) {
-            if (status == window.google.maps.GeocoderStatus.OK) {
-                const cityLat = results[0].geometry.location.lat()
-                const cityLng = results[0].geometry.location.lng()
-                isItACapital(place)
-
-                const cityInformation = {
-                    name: place,
-                    lng: cityLng,
-                    lat: cityLat,
-                }
-
-                setMapMarkers([...mapMarkers, cityInformation])
-                window.scrollTo(0, document.body.scrollHeight)
-            } else {
-                alert('Place not recognized, please try searching again')
-            }
-        })
-    }
-
-    const initGeocoderFromNewPlace = (newMarker) => {
-        const newMarkers = [...mapMarkers, newMarker]
-
-        const latlngbounds = new window.google.maps.LatLngBounds()
-
-        for (var i = 0; i < newMarkers.length; i++) {
-            latlngbounds.extend(newMarkers[i])
-        }
-        window.google.map.fitBounds(latlngbounds)
-        setMapMarkers([...mapMarkers, newMarker])
-    }
-
-    const initGeocoder = ({ map, maps }) => {
-        var latlng = mapMarkers
-        var latlngbounds = new maps.LatLngBounds()
-        if (latlng.length) {
-            for (var i = 0; i < latlng.length; i++) {
-                latlngbounds.extend(latlng[i])
-            }
-            map.fitBounds(latlngbounds)
-            map.setCenter(country.name)
-            map.setZoom(map.getZoom() - 1)
-            if (map.getZoom() > 15) {
-                map.setZoom(5)
-            }
-        } else {
-            const Geocoder = new maps.Geocoder()
-            Geocoder.geocode({ address: country.name }, (results, status) => {
-                if (status == maps.GeocoderStatus.OK) {
-                    map.setCenter(results[0].geometry.location)
-                    map.fitBounds(results[0].geometry.bounds)
-                } else {
-                    console.log('we could not find that address')
-                }
-            })
-        }
-    }
-
-    const addPersonViaInstagramOrManually = () => {
-        if (addBy === 'instagram') {
-            fetch(`https://www.instagram.com/${newPerson}/?__a=1`)
-                .then((res) => res.json())
-                .then((res) => {
-                    if (Object.keys(res).length) {
-                        setNewTraveller({
-                            username: res.graphql.user.username,
-                            photo: res.graphql.user.profile_pic_url_hd,
-                            name: res.graphql.user.full_name,
-                        })
-                    } else {
-                        alert(
-                            `User does exist OR you aren't authorized correctly with Instagram on this device. Please try another user or add manually`,
-                        )
-                    }
-                })
-        } else {
-            setTraveller([
-                ...travellers,
-                {
-                    username: newPerson,
-                    photo: null,
-                    name: newPerson,
-                },
-            ])
-            setNewTraveller(null)
-        }
-    }
-
     const addTraveller = () => {
         setTraveller([
             ...travellers,
@@ -727,71 +407,14 @@ export const NewTrip = ({
         setTraveller(newTravellers)
     }
 
-    const renderVisitNameAndDate = () => {
-        const isVisitNameAndDate = visitDetails && visitDetails.visitName && visitDetails.startDate
-        if (inEditMode) {
-            return (
-                <>
-                    <StyledAutoSizeInput
-                        fontSize="20px"
-                        placeholder={'Give the trip a memorable name'}
-                        value={visitDetails.visitName}
-                        onChange={(e) => updateVisitDetailsStateHelper(e, 0, 'visitName')}
-                    />
-                    <DatePicker
-                        selected={visitDetails.startDate ? new Date(visitDetails.startDate * 1000) : new Date()}
-                        onChange={(date) => handleDate(date)}
-                        dateFormat="MMMM yyyy"
-                        showMonthYearPicker
-                        showFullMonthYearPicker
-                    />
-                </>
-            )
-        } else if (isVisitNameAndDate && !inEditMode) {
-            return (
-                <>
-                    <VisitName>{visitDetails.visitName}</VisitName>
-                    <VisitDate>{moment.unix(visitDetails.startDate).format('MMM YYYY')}</VisitDate>
-                    <Author>
-                        <div>By {userPersonalDetails.displayName}</div>{' '}
-                        <img src={userPersonalDetails.profilePhoto} alt="" />
-                    </Author>
-                </>
-            )
-        } else {
-            return <AddNewButton onClick={() => setEditMode(true)}>Tap here to create a trip</AddNewButton>
-        }
-    }
-
-    const markerClicked = (marker) => {
-        console.log('clicked...')
-        console.log('The marker that was clicked is', marker)
-    }
-
     return country ? (
         <div>
-            <TopBar>
-                <img
-                    onClick={() => history.push('/visited')}
-                    src="/images/back-arrow.svg"
-                    height="30"
-                    width="30"
-                    alt=""
-                />
-                {inEditMode ? (
-                    <EditModeWarning>You are in edit mode. Click SAVE once you've made changes.</EditModeWarning>
-                ) : null}
-
-                <div>
-                    {inEditMode ? (
-                        <span onClick={updateTripDetailsHelper}>Save</span>
-                    ) : (
-                        <span onClick={() => setEditMode(true)}>
-                            <img src="/images/edit.svg" height="30" width="30" alt="" />
-                        </span>
-                    )}
-                </div>
-            </TopBar>
+            <TopBar
+                history={history}
+                inEditMode={inEditMode}
+                setEditMode={setEditMode}
+                updateTripDetailsHelper={updateTripDetailsHelper}
+            />
             <Container uploadingPhotos={uploadingPhotos}>
                 <CountryBackground country={country.countryCode}>
                     <CountryDetailsSection>
@@ -810,7 +433,16 @@ export const NewTrip = ({
                         <img src="/images/down-arrow.svg" height="60" width="60" onClick={scrollTo} alt="" />
                     </CountryDetailsSection>
                 </CountryBackground>
-                <TripsSection>{renderVisitNameAndDate()}</TripsSection>
+                <TripsSection>
+                    <VisitNameAndDate
+                        handleDate={handleDate}
+                        inEditMode={inEditMode}
+                        setEditMode={setEditMode}
+                        updateVisitDetailsStateHelper={updateVisitDetailsStateHelper}
+                        userPersonalDetails={userPersonalDetails}
+                        visitDetails={visitDetails}
+                    />
+                </TripsSection>
                 <div>
                     {[1, 2, 3].map((photo, index) => {
                         return (
@@ -862,89 +494,24 @@ export const NewTrip = ({
                                     {index === 1 && (
                                         <div>
                                             {inEditMode && (
-                                                <SearchContainer>
-                                                    <AddTravellersAndDestinations>
-                                                        Add travellers
-                                                    </AddTravellersAndDestinations>
-                                                    <AddByButtons>
-                                                        <AddByButton
-                                                            onClick={() => setAddBy('manual')}
-                                                            selected={addBy === 'manual'}
-                                                        >
-                                                            Manually add person
-                                                        </AddByButton>
-                                                        <AddByButton
-                                                            onClick={() => setAddBy('instagram')}
-                                                            selected={addBy === 'instagram'}
-                                                        >
-                                                            Add via instagram
-                                                        </AddByButton>
-                                                    </AddByButtons>
-                                                    <Search
-                                                        onChange={(e) => setNewPerson(e.target.value)}
-                                                        autoComplete="off"
-                                                        autoCorrect="off"
-                                                        autoCapitalize="off"
-                                                        spellCheck="false"
-                                                        placeholder={
-                                                            addBy === 'instagram'
-                                                                ? 'Search for instagram user'
-                                                                : "Add traveller's name"
-                                                        }
-                                                    />
-
-                                                    <Add onClick={addPersonViaInstagramOrManually}>
-                                                        {addBy === 'instagram' ? 'Search' : 'Add traveller'}
-                                                    </Add>
-
-                                                    {newTraveller ? (
-                                                        <InstagramPlaceholder>
-                                                            <img
-                                                                src={newTraveller.photo}
-                                                                width="75"
-                                                                height="75"
-                                                                alt=""
-                                                            />
-                                                            <div>{newTraveller.username}</div>
-                                                            <div
-                                                                onClick={addTraveller}
-                                                                style={{
-                                                                    background: KIERAN_GREY,
-                                                                    borderRadius: '10px',
-                                                                    color: '#fff',
-                                                                    padding: '10px',
-                                                                }}
-                                                            >
-                                                                Add person to trip
-                                                            </div>
-                                                        </InstagramPlaceholder>
-                                                    ) : null}
-                                                </SearchContainer>
+                                                <TravellersSearch
+                                                    addBy={addBy}
+                                                    addTraveller={addTraveller}
+                                                    newTraveller={newTraveller}
+                                                    newPerson={newPerson}
+                                                    setAddBy={setAddBy}
+                                                    setNewPerson={setNewPerson}
+                                                    setNewTraveller={setNewTraveller}
+                                                    setTraveller={setTraveller}
+                                                    travellers={travellers}
+                                                />
                                             )}
                                             <div>
-                                                <Travellers>
-                                                    {travellers.map((traveller) => (
-                                                        <Traveller>
-                                                            {traveller.photo ? (
-                                                                <img src={traveller.photo} alt="" />
-                                                            ) : (
-                                                                <img src={'/images/person-placeholder.svg'} alt="" />
-                                                            )}
-                                                            <div>
-                                                                {traveller.name
-                                                                    ? traveller.name.split(' ')[0]
-                                                                    : traveller}
-                                                            </div>
-                                                            {inEditMode && (
-                                                                <RemoveTraveller
-                                                                    onClick={() => removeTraveller(traveller.name)}
-                                                                >
-                                                                    Remove
-                                                                </RemoveTraveller>
-                                                            )}
-                                                        </Traveller>
-                                                    ))}
-                                                </Travellers>
+                                                <VisitTravellers
+                                                    inEditMode={inEditMode}
+                                                    removeTraveller={removeTraveller}
+                                                    travellers={travellers}
+                                                />
                                             </div>
                                         </div>
                                     )}
@@ -955,57 +522,15 @@ export const NewTrip = ({
                     })}
                 </div>
                 {inEditMode && (
-                    <SearchContainer>
-                        <AddTravellersAndDestinations>Add specific destinations</AddTravellersAndDestinations>
-                        <div>
-                            <GooglePlacesAutocomplete
-                                onSelect={(e) => getLatLngForSpecificPlace(e.structured_formatting.main_text)}
-                                placeholder="Search for a place you visited..."
-                                inputStyle={{
-                                    border: `1px solid #ccc`,
-                                    boxShadow: 'none',
-                                    fontSize: '13px',
-                                    margin: '10px',
-                                    padding: '5px',
-                                    width: '200px',
-                                }}
-                            />
-                        </div>
-                    </SearchContainer>
+                    <PlacesSearch
+                        country={country}
+                        countries={countries}
+                        mapMarkers={mapMarkers}
+                        setHasVisitedCapital={setHasVisitedCapital}
+                        setMapMarkers={setMapMarkers}
+                    />
                 )}
-                {mapMarkers.length > 0 && (
-                    <div style={{ width: '90%', height: '400px', margin: 'auto', paddingBottom: '50px' }}>
-                        <GoogleMapReact
-                            key={mapMarkers}
-                            onGoogleApiLoaded={initGeocoder}
-                            onChildClick={(e) => console.log('eeeeeee', e)}
-                            options={{
-                                disableDefaultUI: true,
-                                disableDoubleClickZoon: true,
-                                draggable: false,
-                                scrollwheel: false,
-                                zoomControl: false,
-                            }}
-                            distanceToMouse={() => {}}
-                            bootstrapURLKeys={{ key: 'AIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M' }}
-                            defaultZoom={5}
-                            defaultCenter={{
-                                lat: -27,
-                                lng: 133,
-                            }}
-                            yesIWantToUseGoogleMapApiInternals
-                        >
-                            {mapMarkers.map((marker) => (
-                                <Marker
-                                    lat={marker.lat}
-                                    lng={marker.lng}
-                                    name={marker.name}
-                                    onChildClick={() => markerClicked(marker)}
-                                />
-                            ))}
-                        </GoogleMapReact>
-                    </div>
-                )}
+                <VisitMap country={country} mapMarkers={mapMarkers} />
             </Container>
         </div>
     ) : (
@@ -1015,12 +540,6 @@ export const NewTrip = ({
         </LoadingContainer>
     )
 }
-
-const Marker = (props) => (
-    <div>
-        <StyledMarker onClick={() => props.onChildClick()}></StyledMarker> <MarkerName>{props.name}</MarkerName>
-    </div>
-)
 
 const mapState = ({ countries, userPersonalDetails, userTrips }) => ({
     countries,

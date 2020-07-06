@@ -15,6 +15,7 @@ import { ConnectedTotalCountries } from 'components/stats/total-countries'
 import { ConnectedTopStats } from 'components/stats/top-stats'
 import { ConnectedRandomStats } from 'components/stats/random-stats'
 import { CONNECTED_NEW_TRIP } from 'components/country-visit-information'
+import { SharedTrip } from 'components/shared-trip'
 import { Home } from 'components/home'
 
 import {
@@ -28,6 +29,7 @@ import { logUserOut } from 'redux/action-creators/user/log-out'
 import { firebaseApp } from '../../config.js'
 
 const comparator = (prevProps, nextProps) => {
+    console.log(prevProps, nextProps, 'ppnp....1')
     // if (nextProps.countries.restAPICountries.length === 250) {
     //     return true
     // }
@@ -85,13 +87,14 @@ export const MainRouter = React.memo(
 
         const notSharedMap = /^(?!.*(\/shared-map)).*$/
         const GlobalStyle = createGlobalStyle`
-        html {
-            overflow: ${({ location }) => (location.includes('visited') ? 'hidden' : 'auto')};
-        }
-        body {
-            background: ${({ location }) => (location.includes('random-stats') ? '#041a24' : '#fff')};
-        }
-    `
+            html {
+                overflow: ${({ location }) => (location.includes('visited') ? 'hidden' : 'auto')};
+            }
+            body {
+                background: ${({ location }) => (location.includes('random-stats') ? '#041a24' : '#fff')};
+            }
+        `
+        console.log('re render')
 
         return (
             <Router>
@@ -109,7 +112,8 @@ export const MainRouter = React.memo(
                     <ProtectedRoute exact component={AccountContainer} path="/account" />
                     <PublicRoute exact component={Home} path="/" />
                     <PublicRoute exact component={CONNECTED_Login} path="/login" loaded={loaded} />
-                    <PublicRoute exact component={CONNECTED_NEW_TRIP} path="/trips/:country" />
+                    <PublicRoute exact component={SharedTrip} path="/trips/:country" />
+                    <PublicRoute exact component={CONNECTED_NEW_TRIP} path="/:uid/:country/trips/:tripName" />
                     <ProtectedRoute exact component={CONNECTED_Achievments} path="/achievements" />
                     <ProtectedRoute exact component={CONNECTED_Map} path="/map" />
                     <ProtectedRoute exact component={CONNECTED_Visited} path="/visited" />

@@ -71,7 +71,7 @@ export const Login = ({ currentUser, setNewUserInformation, setRawUserFromFireba
     const loginToApp = (provider) => {
         firebaseApp
             .auth()
-            .signInWithPopup(provider)
+            .signInWithRedirect(provider)
             .then((result) => {
                 if (result.additionalUserInfo.isNewUser) {
                     setNewUserInformation({

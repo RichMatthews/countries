@@ -201,6 +201,7 @@ const LoadingContainer = styled.div`
     color: ${KIERAN_GREY};
     display: flex;
     flex-direction: column;
+    padding-top: 100px;
 `
 
 const ResetButton = styled.div`
@@ -264,7 +265,6 @@ const MainHeading = styled.div`
 `
 // check this
 const comparator = (previous, next) => {
-    console.log(previous, next, 'PROPS IN MEMO')
     if (previous.userTrips.visitedCountries.length > 0) {
         if (previous.userTrips.visitedCountries === next.userTrips.visitedCountries) {
             return true
@@ -272,6 +272,23 @@ const comparator = (previous, next) => {
     }
     return false
 }
+
+const continents = [
+    { name: 'Africa', svg: '/images/continents/africa', 'svg-light': '/images/continents/africa-light' },
+    { name: 'Oceania', svg: '/images/continents/oceania', 'svg-light': '/images/continents/oceania-light' },
+    { name: 'Asia', svg: '/images/continents/asia', 'svg-light': '/images/continents/asia-light' },
+    { name: 'Europe', svg: '/images/continents/europe', 'svg-light': '/images/continents/europe-light' },
+    {
+        name: 'North America',
+        svg: '/images/continents/north-america',
+        'svg-light': '/images/continents/north-america-light',
+    },
+    {
+        name: 'South America',
+        svg: '/images/continents/south-america',
+        'svg-light': '/images/continents/south-america-light',
+    },
+]
 
 const Visited = React.memo(({ ui, userTrips }) => {
     const [filteredCountries, setFilteredCountries] = useState([])
@@ -282,8 +299,10 @@ const Visited = React.memo(({ ui, userTrips }) => {
     const [pageMapping, setPageMapping] = useState({ start: 0, end: 30 })
 
     useEffect(() => {
-        setFilteredCountries(userTrips.visitedCountries)
-        workoutRequiredPages(userTrips.visitedCountries)
+        if (userTrips.visitedCountries.length > 0) {
+            setFilteredCountries(userTrips.visitedCountries)
+            workoutRequiredPages(userTrips.visitedCountries)
+        }
     }, [userTrips.visitedCountries])
 
     const filterCountriesByValue = (value) => {
@@ -307,23 +326,6 @@ const Visited = React.memo(({ ui, userTrips }) => {
 
     inputStream.subscribe((val) => filterCountriesByValue(val))
 
-    const continents = [
-        { name: 'Africa', svg: '/images/continents/africa', 'svg-light': '/images/continents/africa-light' },
-        { name: 'Oceania', svg: '/images/continents/oceania', 'svg-light': '/images/continents/oceania-light' },
-        { name: 'Asia', svg: '/images/continents/asia', 'svg-light': '/images/continents/asia-light' },
-        { name: 'Europe', svg: '/images/continents/europe', 'svg-light': '/images/continents/europe-light' },
-        {
-            name: 'North America',
-            svg: '/images/continents/north-america',
-            'svg-light': '/images/continents/north-america-light',
-        },
-        {
-            name: 'South America',
-            svg: '/images/continents/south-america',
-            'svg-light': '/images/continents/south-america-light',
-        },
-    ]
-
     const workoutRequiredPages = () => {
         const pages = Math.ceil(userTrips.visitedCountries.length / 10)
         let newPages = []
@@ -341,8 +343,6 @@ const Visited = React.memo(({ ui, userTrips }) => {
             setPageMapping({ start: page * 10 - 10, end: page * 10 })
         }
     }
-
-    console.log('RENDERING!')
 
     return !ui.loading ? (
         showAddCountryForm ? (
