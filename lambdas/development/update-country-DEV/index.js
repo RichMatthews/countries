@@ -16,11 +16,9 @@ const firebaseApp = firebase.initializeApp(firebaseConfig)
 
 exports.handler = (event, context, callback) => {
     let body = JSON.parse(event.body)
-    console.log(body, 'body.....')
     context.callbackWaitsForEmptyEventLoop = false
     const { country, userId } = body
-    console.log(body.country)
-    console.log(body.newDetails)
+
     const setSchema = body.newDetails
     const URL = `users/${userId}/countries/${country}/visits`
     const DOES_NODE_EXIST = firebaseApp.database().ref(URL)

@@ -20,11 +20,11 @@ export const userTrips = (state = initialState, action) => {
                         return country.name === action.details.country
                             ? {
                                   ...country,
-                                  visits: country.visits.map((visit) =>
-                                      visit.visitName === action.details.current
+                                  visits: Object.values(country.visits).map((visit) => {
+                                      return visit.visitId === action.details.newVisitDetails.visitId
                                           ? (visit = action.details.newVisitDetails)
-                                          : visit,
-                                  ),
+                                          : visit
+                                  }),
                               }
                             : country
                     } else {

@@ -18,7 +18,7 @@ exports.handler = (event, context, callback) => {
     let body = JSON.parse(event.body)
     context.callbackWaitsForEmptyEventLoop = false
     const { generatedId, data } = body
-    console.log(body, 'bod')
+
     const DOES_NODE_EXIST = firebaseApp.database().ref('sharedMaps/' + generatedId)
 
     DOES_NODE_EXIST.once('value', (snapshot) => {

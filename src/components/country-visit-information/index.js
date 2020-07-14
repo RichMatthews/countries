@@ -9,6 +9,7 @@ import styled, { keyframes } from 'styled-components'
 import 'react-datepicker/dist/react-datepicker.css'
 import TextareaAutosize from 'react-autosize-textarea'
 import 'react-google-places-autocomplete/dist/index.min.css'
+import uid from 'uid'
 
 import { updateCapitalCitiesInFirebase } from 'redux/action-creators/user/update-capital-cities-in-firebase'
 import { updateTripDetails } from 'redux/action-creators/user/update-trip-details'
@@ -22,21 +23,21 @@ import { TravellersSearch } from './travellers-search'
 import { VisitTravellers } from './visit-travellers'
 import { VisitMap } from './visit-map'
 import { VisitNameAndDate } from './visit-name-and-date'
+import { VisitPhotos } from './visit-photos'
 
-const Container = styled.div`
+export const Container = styled.div`
     opacity: ${({ uploadingPhotos }) => (uploadingPhotos ? 0.2 : 1)};
     padding-bottom: 25px;
-    margin: auto;
-    width: 700px;
     @media (max-width: 700px) {
         width: auto;
     }
 `
 
-const CountryBackground = styled.div`
+export const CountryBackground = styled.div`
     background-image: ${({ country }) =>
         `url(https://dl6ghv8ryvhmk.cloudfront.net/countries/landscape/${country}.jpg),  url(https://dl6ghv8ryvhmk.cloudfront.net/countries/landscape/generic.jpg)`};
-    background-size: 700px;
+    background-position: center;
+    background-size: cover;
     background-repeat: no-repeat;
     display: flex;
     flex-direction: row;
@@ -44,8 +45,6 @@ const CountryBackground = styled.div`
     @media (max-width: 700px) {
         background-image: ${({ country }) =>
             `url(https://dl6ghv8ryvhmk.cloudfront.net/countries/portrait/${country}.jpg),  url(https://dl6ghv8ryvhmk.cloudfront.net/countries/portrait/generic.jpg)`};
-        background-size: cover;
-        background-position: center;
         height: 90vh;
         flex-direction: column;
     }
@@ -60,9 +59,9 @@ export const moveArrowDown = keyframes`
     }
 `
 
-const CountryDetailsSection = styled.div`
+export const CountryDetailsSection = styled.div`
     color: #fff;
-    font-weight: 900;
+    font-weight: 500;
     padding-top: 375px;
     padding-left: 50px;
     position: relative;
@@ -75,16 +74,13 @@ const CountryDetailsSection = styled.div`
     }
 
     @media (max-width: 700px) {
-        padding-top: 450px;
-        & div:first-child {
-            font-size: 20px;
-            text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.5);
-        }
+        padding-top: 550px;
     }
 `
 
-const CountryHeading = styled.h3`
-    font-size: 60px;
+export const CountryHeading = styled.div`
+    font-size: 42px;
+    font-weight: 500;
     margin: 0;
     overflow: hidden;
     text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.5);
@@ -92,31 +88,12 @@ const CountryHeading = styled.h3`
     width: 330px;
 `
 
-const TripsSection = styled.div`
+export const TripsSection = styled.div`
     color: #757474;
     display: flex;
     flex-direction: column;
     margin: 55px 0 55px 0;
     text-align: center;
-`
-
-const UploadingState = styled.div`
-    color: #000;
-    right: 50%;
-    bottom: 50%;
-    font-size: 40px;
-    font-style: italic;
-    transform: translate(50%, 50%);
-    position: absolute;
-`
-
-const DeleteSection = styled.div`
-    position: relative;
-    & > img {
-        right: 15px;
-        top: 30px;
-        position: absolute;
-    }
 `
 
 const LoadingContainer = styled.div`
@@ -133,38 +110,35 @@ const LoadingContainer = styled.div`
     }
 `
 
-const Description = styled.div`
+export const Description = styled.div`
     color: #979eb0;
     font-size: 20px;
     margin: 10px 0 10px 0;
-    padding: 10px;
+    padding: 0 0 20px 0;
+    border-bottom: 1px solid #ccc;
 `
 
-const Label = styled.label`
-    border: 1px solid ${KIERAN_GREY};
-    border-radius: 5px;
-    color: ${KIERAN_GREY};
-    cursor: pointer;
-    display: inline-block;
-    height: 23px;
-    padding: 6px 12px;
-    & > input {
-        display: none;
-    }
+const EditModeInstructions = styled.div`
+    height: 250px;
+    margin: 0 20px 20px;
 `
 
-const PhotoPlaceholder = styled.div`
-    align-items: center;
-    background: #f2f5f5;
-    display: flex;
-    flex-direction: column;
-    height: 300px;
-    justify-content: center;
-    width: 100%;
+const EditModeWarning = styled.div`
+    font-size: 20px;
+    padding-top: 70px;
+`
 
-    & > img {
-        margin-bottom: 20px;
-    }
+const EditModeListOfInstructions = styled.ul``
+
+const SectionDivider = styled.div`
+    border-top: 1px solid #ccc;
+    margin: 30px 0;
+    padding: 30px 0;
+`
+
+const StyledTextareaAutosize = styled(TextareaAutosize)`
+    border: none !important;
+    outline: none !important;
 `
 
 export const NewTrip = ({
@@ -188,45 +162,59 @@ export const NewTrip = ({
     const [hasVisitedCapital, setHasVisitedCapital] = useState(false)
     const [travellers, setTraveller] = useState([])
     const [uploadingPhotos, setUploadingPhotos] = useState(false)
-    const [visitDetails, setVisitDetails] = useState(null)
+    const [visitDetails, setVisitDetails] = useState({})
 
     useEffect(() => {
         window.scrollTo(0, 0)
     }, [])
 
     useEffect(() => {
-        const urlCountry = location.pathname.split('/')[2]
+        const urlCountry = location.pathname.split('/')[1]
+        const visitId = location.pathname.split('/')[3]
         const foundCountry = userTrips.visitedCountries.find((ctry) => ctry.countryCode === urlCountry)
+
+        if (foundCountry && foundCountry.visits) {
+            const foundVisit = Object.values(foundCountry.visits).find((visit) => visit.visitId === visitId)
+            setVisitDetails(foundVisit)
+            setEditMode(false)
+        } else {
+            setVisitDetails({ ...visitDetails, visitId })
+            setEditMode(true)
+        }
         setCountry(foundCountry)
     }, [userTrips.visitedCountries])
 
     useEffect(() => {
-        if (country) {
-            getPhotos()
-            if (country.visits) {
-                if (country.visits[0].places) {
-                    setMapMarkers(Object.values(country.visits[0].places))
+        if (visitDetails && Object.keys(visitDetails).length) {
+            if (visitDetails) {
+                if (visitDetails.places) {
+                    setMapMarkers(Object.values(visitDetails.places))
                 }
-                if (country.visits[0].people) {
-                    if (typeof country.visits[0].people === 'string') {
-                        setTraveller(country.visits[0].people.split(','))
+                if (visitDetails.people) {
+                    if (typeof visitDetails.people === 'string') {
+                        setTraveller(visitDetails.people.split(','))
                     } else {
-                        setTraveller(Object.values(country.visits[0].people))
+                        setTraveller(Object.values(visitDetails.people))
                     }
                 }
-                setVisitDetails({
-                    ...country.visits[0],
-                    // people: country.visits[0].people.split(','),
-                })
-                setOriginalVisitDetails(country.visits[0])
+                setOriginalVisitDetails(visitDetails)
             } else {
                 setVisitDetails({ endDate: '', startDate: '', people: [], visitName: '', description: '' })
                 setOriginalVisitDetails({ endDate: '', startDate: '', people: [], visitName: '', description: '' })
             }
         }
-    }, [country])
+    }, [visitDetails])
 
-    const getPhotos = async () => {
+    useEffect(() => {
+        const countryCode = location.pathname.split('/')[1]
+        const foundCountry = userTrips.visitedCountries.find((ctry) => ctry.countryCode === countryCode)
+
+        if (foundCountry) {
+            getPhotos(countryCode)
+        }
+    }, [])
+
+    const getPhotos = async (countryCode) => {
         const storage = firebaseApp.storage()
         let gsReference
         if (process.env.NODE_ENV === 'development') {
@@ -234,7 +222,7 @@ export const NewTrip = ({
         } else {
             gsReference = storage.refFromURL('gs://countries-5e1e5.appspot.com/')
         }
-        gsReference = gsReference.child(`${userPersonalDetails.uid}/${country.countryCode}`)
+        gsReference = gsReference.child(`${userPersonalDetails.uid}/${countryCode}`)
 
         const { items: references } = await gsReference.listAll()
         const result = references.map(async (reference) => {
@@ -260,10 +248,6 @@ export const NewTrip = ({
             return pr
         })
         setPhotos(updatedPhotos)
-    }
-
-    const onDrop = (e, index) => {
-        uploadPhotos(e.target.files)
     }
 
     const deletePhoto = (photo) => {
@@ -299,45 +283,12 @@ export const NewTrip = ({
         setVisitDetails({ ...visitDetails, [option]: newVisitDetails[option] })
     }
 
-    const uploadPhotos = (uploadedPhotos) => {
-        setUploadingPhotos(true)
-        const uploadImageAsPromise = (imageFile) => {
-            return new Promise((resolve, reject) => {
-                const storage = firebaseApp
-                    .storage()
-                    .ref(`${userPersonalDetails.uid}/${country.countryCode}/${imageFile.name}`)
-                var task = storage.put(imageFile)
-
-                task.on(
-                    'state_changed',
-                    function progress(snapshot) {
-                        // var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-                        // uploader.value = percentage
-                    },
-                    function error(err) {
-                        setUploadingPhotos(false)
-                        console.log('photo error:', err)
-                    },
-                    function complete() {
-                        setUploadingPhotos(false)
-                        var downloadURL = task.snapshot.downloadURL
-                        getPhotos()
-                    },
-                )
-            })
-        }
-        for (var i = 0; i < uploadedPhotos.length; i++) {
-            var imageFile = uploadedPhotos[i]
-            uploadImageAsPromise(imageFile)
-        }
-    }
-
     const scrollTo = () => {
         scroll.scrollTo(670)
     }
 
     const updateTripDetailsHelper = () => {
-        if (visitDetails.visitName === '' || visitDetails.startDate === '') {
+        if (!visitDetails.visitName || !visitDetails.startDate) {
             alert('Error: You need to enter a Visit Name AND Trip Date')
             return
         }
@@ -347,6 +298,7 @@ export const NewTrip = ({
         const { lat, lng } = userPersonalDetails.homeLocation
         let copyMarkers = [...mapMarkers]
         let distance = 0
+
         if (copyMarkers.length === 1) {
             const distanceFromHome = getDistance(
                 { latitude: mapMarkers[0].lat, longitude: mapMarkers[0].lng },
@@ -416,121 +368,119 @@ export const NewTrip = ({
                 updateTripDetailsHelper={updateTripDetailsHelper}
             />
             <Container uploadingPhotos={uploadingPhotos}>
+                {inEditMode ? (
+                    <EditModeInstructions>
+                        <EditModeWarning>Welcome to Trip Tracker!</EditModeWarning>
+                        <EditModeListOfInstructions>
+                            <li>On this page you can add more detailed information to your trips</li>
+                            <li>Add your favourite photos, memorable destinations & fellow travellers </li>
+                            <li>Click save to see how others will view your trip</li>
+                            <li>Oh and don't forget to click share so your friends can relive your trip too!</li>
+                        </EditModeListOfInstructions>
+                    </EditModeInstructions>
+                ) : null}
                 <CountryBackground country={country.countryCode}>
                     <CountryDetailsSection>
-                        <div>
-                            {country.visits ? (
-                                country.visits.length === 1 ? (
-                                    `${country.visits.length} trip`
-                                ) : (
-                                    `${country.visits.length} trips`
-                                )
-                            ) : (
-                                <div>1 trip</div>
-                            )}
-                        </div>
-                        <CountryHeading>{country.name}</CountryHeading>
+                        <VisitNameAndDate
+                            handleDate={handleDate}
+                            inEditMode={inEditMode}
+                            setEditMode={setEditMode}
+                            updateVisitDetailsStateHelper={updateVisitDetailsStateHelper}
+                            userPersonalDetails={userPersonalDetails}
+                            visitDetails={visitDetails}
+                        />
                         <img src="/images/down-arrow.svg" height="60" width="60" onClick={scrollTo} alt="" />
                     </CountryDetailsSection>
                 </CountryBackground>
-                <TripsSection>
-                    <VisitNameAndDate
-                        handleDate={handleDate}
-                        inEditMode={inEditMode}
-                        setEditMode={setEditMode}
-                        updateVisitDetailsStateHelper={updateVisitDetailsStateHelper}
-                        userPersonalDetails={userPersonalDetails}
-                        visitDetails={visitDetails}
-                    />
-                </TripsSection>
-                <div>
-                    {[1, 2, 3].map((photo, index) => {
-                        return (
-                            <>
-                                {photos[index] ? (
+                {inEditMode ? (
+                    <div style={{ margin: '20px' }}>
+                        <VisitPhotos
+                            country={country}
+                            deletePhoto={deletePhoto}
+                            getPhotos={getPhotos}
+                            inEditMode={inEditMode}
+                            index={0}
+                            photos={photos}
+                            setUploadingPhotos={setUploadingPhotos}
+                            uploadingPhotos={uploadingPhotos}
+                            userPersonalDetails={userPersonalDetails}
+                        />
+                        <SectionDivider>
+                            <StyledTextareaAutosize
+                                onChange={(e) => updateVisitDetailsStateHelper(e, 0, 'description')}
+                                placeholder="Say a few words to describe the trip"
+                                rows={3}
+                                style={{ border: '1px solid #ccc', fontSize: '20px', width: '94%' }}
+                                value={visitDetails.description}
+                            />
+                        </SectionDivider>
+                        <SectionDivider>
+                            <TravellersSearch
+                                addBy={addBy}
+                                addTraveller={addTraveller}
+                                newTraveller={newTraveller}
+                                newPerson={newPerson}
+                                setAddBy={setAddBy}
+                                setNewPerson={setNewPerson}
+                                setNewTraveller={setNewTraveller}
+                                setTraveller={setTraveller}
+                                travellers={travellers}
+                            />
+                            <VisitTravellers
+                                inEditMode={inEditMode}
+                                removeTraveller={removeTraveller}
+                                travellers={travellers}
+                            />
+                        </SectionDivider>
+                        <SectionDivider>
+                            <PlacesSearch
+                                country={country}
+                                countries={countries}
+                                mapMarkers={mapMarkers}
+                                setHasVisitedCapital={setHasVisitedCapital}
+                                setMapMarkers={setMapMarkers}
+                            />
+                            <VisitMap country={country} mapMarkers={mapMarkers} />
+                        </SectionDivider>
+                    </div>
+                ) : (
+                    <div style={{ margin: '20px' }}>
+                        {[1, 2, 3].map((photo, index) => {
+                            return (
+                                <>
+                                    <VisitPhotos
+                                        country={country}
+                                        deletePhoto={deletePhoto}
+                                        getPhotos={getPhotos}
+                                        inEditMode={inEditMode}
+                                        index={index}
+                                        photos={photos}
+                                        setUploadingPhotos={setUploadingPhotos}
+                                        uploadingPhotos={uploadingPhotos}
+                                        userPersonalDetails={userPersonalDetails}
+                                    />
+
                                     <div>
-                                        {inEditMode ? (
-                                            <DeleteSection onClick={() => deletePhoto(photos[index])}>
-                                                <img src="/images/delete.svg" width="30" height="30" alt="" />
-                                            </DeleteSection>
-                                        ) : null}
+                                        {index === 0 && visitDetails && (
+                                            <Description>{visitDetails.description}</Description>
+                                        )}
 
-                                        <img src={photos[index].url} width="100%" alt="" />
-                                    </div>
-                                ) : (
-                                    inEditMode && (
-                                        <PhotoPlaceholder>
-                                            <img src="/images/uploadPhoto.svg" height="50" width="50" alt="" />
-                                            <div>
-                                                {uploadingPhotos && <UploadingState>Uploading...</UploadingState>}
-                                                <Label class="custom-file-upload">
-                                                    <input type="file" onChange={(e) => onDrop(e, index)} />
-                                                    Upload Photo
-                                                </Label>
-                                            </div>
-                                        </PhotoPlaceholder>
-                                    )
-                                )}
-
-                                <div style={{ margin: '20px' }}>
-                                    {index === 0 ? (
-                                        inEditMode ? (
-                                            <TextareaAutosize
-                                                onChange={(e) => updateVisitDetailsStateHelper(e, 0, 'description')}
-                                                placeholder="Say a few words to describe the trip"
-                                                rows={3}
-                                                style={{ border: '1px solid #ccc', fontSize: '20px', width: '94%' }}
-                                                value={visitDetails.description}
-                                            />
-                                        ) : (
-                                            country &&
-                                            country.visits &&
-                                            country.visits[0].description && (
-                                                <Description>{country.visits[0].description}</Description>
-                                            )
-                                        )
-                                    ) : null}
-
-                                    {index === 1 && (
-                                        <div>
-                                            {inEditMode && (
-                                                <TravellersSearch
-                                                    addBy={addBy}
-                                                    addTraveller={addTraveller}
-                                                    newTraveller={newTraveller}
-                                                    newPerson={newPerson}
-                                                    setAddBy={setAddBy}
-                                                    setNewPerson={setNewPerson}
-                                                    setNewTraveller={setNewTraveller}
-                                                    setTraveller={setTraveller}
-                                                    travellers={travellers}
-                                                />
-                                            )}
+                                        {index === 1 && (
                                             <div>
                                                 <VisitTravellers
                                                     inEditMode={inEditMode}
                                                     removeTraveller={removeTraveller}
                                                     travellers={travellers}
                                                 />
+                                                <VisitMap country={country} mapMarkers={mapMarkers} />
                                             </div>
-                                        </div>
-                                    )}
-                                    {index === 2 && null}
-                                </div>
-                            </>
-                        )
-                    })}
-                </div>
-                {inEditMode && (
-                    <PlacesSearch
-                        country={country}
-                        countries={countries}
-                        mapMarkers={mapMarkers}
-                        setHasVisitedCapital={setHasVisitedCapital}
-                        setMapMarkers={setMapMarkers}
-                    />
+                                        )}
+                                    </div>
+                                </>
+                            )
+                        })}
+                    </div>
                 )}
-                <VisitMap country={country} mapMarkers={mapMarkers} />
             </Container>
         </div>
     ) : (

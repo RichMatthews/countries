@@ -22,7 +22,8 @@ const Author = styled.div`
     align-items: center;
     display: flex;
     font-style: italic;
-    justify-content: center;
+    justify-content: flex-start;
+    margin-top: 50px;
 
     & > img {
         border-radius: 15px;
@@ -32,22 +33,18 @@ const Author = styled.div`
     }
 `
 
-const StyledAutoSizeInput = styled(AutosizeInput)`
-    & > input {
-        border: 1px solid #ff5a5f !important;
-        border-radius: 5px !important;
-        font-size: ${({ fontSize }) => fontSize} !important;
-        margin: 15px; !important;
-        padding: 10px !important;
-        outline: none !important;
-    }
+const TripName = styled.input`
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 30px;
+    outline: none;
+    padding: 0;
 `
 
 const VisitName = styled.div`
-    color: ${KIERAN_GREY};
-    font-size: 32px;
-    font-style: italic;
-    font-weight: bold;
+    color: #fff;
+    font-size: 30px;
 `
 
 const VisitDate = styled.div`
@@ -68,11 +65,11 @@ export const VisitNameAndDate = ({
     if (inEditMode) {
         return (
             <>
-                <StyledAutoSizeInput
-                    fontSize="20px"
+                <TripName
                     placeholder={'Give the trip a memorable name'}
-                    value={visitDetails.visitName}
                     onChange={(e) => updateVisitDetailsStateHelper(e, 0, 'visitName')}
+                    placeholder="Trip title goes here"
+                    value={visitDetails.visitName}
                 />
                 <DatePicker
                     selected={visitDetails.startDate ? new Date(visitDetails.startDate * 1000) : new Date()}

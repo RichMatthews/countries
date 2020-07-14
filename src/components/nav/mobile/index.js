@@ -21,16 +21,21 @@ const Container = styled.div`
     width: 100%;
 }
 `
+
+const StyledLinks = styled.div`
+    margin-top: 150px;
+    z-index: 999;
+`
+
 const StyledLink = styled(Link)`
-    border-bottom: 2px solid ${BRAND_COLOR};
+    align-items: center;
     color: #fff;
     cursor: pointer;
-    font-size: 15px;
-    text-decoration: none;
-
     display: flex;
     flex-direction: row;
-    align-items: center;
+    font-size: 22px;
+    text-decoration: none;
+    padding: 20px;
 
     & > img {
         margin-right: 15px;
@@ -48,15 +53,15 @@ const RightHandSide = styled.div`
     justify-content: space-between;
     min-width: 500px;
 
-    & > :first-child {
-        display: flex;
-    }
-
     align-items: center;
     color: #fff;
     justify-content: center;
     height: 100%;
     min-width: 0;
+
+    & > :first-child {
+        display: flex;
+    }
     & > :not(:first-child) {
         display: none;
     }
@@ -88,7 +93,6 @@ const NotificationHandler = styled.div`
     top: 100px;
 
     & div:first-child {
-        border-bottom: 1px solid #ccc;
         padding-top: 10px;
         margin-bottom: 10px;
     }
@@ -101,14 +105,14 @@ const NotificationHandler = styled.div`
 `
 
 const MobileProfile = styled.div`
-    align-items: center;
-    background: #ff5a60;
+    background-image: url(/images/nav-bg.jpg);
     box-sizing: border-box;
-    color: #ccc;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    padding: 24px;
+    color: #fff;
+    font-size: 20px;
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    opacity: 0.4;
 `
 
 const ImageContainer = styled.div`
@@ -133,22 +137,22 @@ const MobileImageContainer = styled(ImageContainer)`
 `
 
 const MobileMenu = styled.div`
-    background: #282d31;
+    background: #000;
     display: flex;
     flex-direction: column;
     position: absolute;
     flex-direction: column;
     height: 100vh;
     left: ${({ showMenu }) => (showMenu ? 0 : '-2500px')};
+
     top: 0;
     transition: 0.5s;
-    width: 80%;
+    width: 100%;
 
     & > a {
-        color: #ccc;
+        color: #fff;
         font-size: 20px;
-        padding: 30px;
-        border-bottom: 1px solid #5e666b;
+        padding: 20px;
     }
 `
 
@@ -156,6 +160,7 @@ const MobileUserDetails = styled.div`
     color: #ccc;
     margin-left: 10px;
     font-size: 13px;
+    text-align: center;
     & > div:first-child {
         font-size: 20px;
         color: #fff;
@@ -171,6 +176,24 @@ const MenuHeading = styled.div`
     text-transform: uppercase;
 `
 
+const UserName = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50px;
+    z-index: 999;
+`
+
+const Close = styled.div`
+    color: #fff;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+`
+
 export const Mobile = ({
     currentUser,
     clearNotifications,
@@ -181,7 +204,7 @@ export const Mobile = ({
 }) => {
     const history = useHistory()
     const [showMobileMenu, setShowMobileMenu] = useState(false)
-    if (location.pathname.includes('trips')) {
+    if (location.pathname.includes('trips/')) {
         return null
     }
 
@@ -193,8 +216,8 @@ export const Mobile = ({
     return (
         <Container location={location} user={userPersonalDetails}>
             <Title>
-                <img src={'/images/globe.svg'} width="30" alt="" />
-                <MAPPALink to="/">MAPPA MUNDI</MAPPALink>
+                {/* <img src={'/images/globe.svg'} width="30" alt="" /> */}
+                <MAPPALink to="/">Travel Toucan</MAPPALink>
             </Title>
             <RightHandSide loggedIn={userPersonalDetails} user={userPersonalDetails}>
                 <div>
@@ -204,56 +227,62 @@ export const Mobile = ({
                     <MobileMenu showMenu={showMobileMenu}>
                         {userPersonalDetails ? (
                             <MobileProfile user={currentUser.isLoggedIn}>
-                                {currentUser.isLoggedIn ? (
-                                    <>
-                                        <MobileImageContainer>
-                                            <img
-                                                src={userPersonalDetails.profilePhoto}
-                                                onError={(e) => (e.target.src = '/images/account.svg')}
-                                                alt=""
-                                            />
-                                        </MobileImageContainer>
-                                        <MobileUserDetails>
-                                            <div>{userPersonalDetails.displayName}</div>
-                                            <div>Standard user</div>
-                                        </MobileUserDetails>
-                                    </>
-                                ) : (
-                                    <MenuHeading>Menu</MenuHeading>
-                                )}
+                                <Close onClick={() => setShowMobileMenu(false)}>close</Close>
                             </MobileProfile>
                         ) : null}
-                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/visited">
-                            <Image src="/images/visited.png" alt="" />
-                            <div>Visited</div>
-                        </StyledLink>
-                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/map">
-                            <Image src="/images/map.png" alt="" />
-                            <div>Your Map</div>
-                        </StyledLink>
-                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/stats">
-                            <Image src="/images/stats.png" alt="" />
-                            <div>Stats</div>
-                        </StyledLink>
-                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/achievements">
-                            <Image src="/images/achievement.png" alt="" />
-                            <div>Achievements</div>
-                        </StyledLink>
-                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/account">
-                            <Image src="/images/settings.png" alt="" />
-                            <div>Account & Settings</div>
-                        </StyledLink>
-                        {currentUser.isLoggedIn ? (
-                            <StyledLink onClick={logUserOut} to="/">
-                                <Image src="/images/logout.png" alt="" />
-                                <div>Logout</div>
+
+                        <UserName>
+                            {currentUser.isLoggedIn ? (
+                                <>
+                                    <MobileImageContainer>
+                                        <img
+                                            src={userPersonalDetails.profilePhoto}
+                                            onError={(e) => (e.target.src = '/images/account.svg')}
+                                            alt=""
+                                        />
+                                    </MobileImageContainer>
+                                    <MobileUserDetails>
+                                        <div>{userPersonalDetails.displayName}</div>
+                                        <div>Standard user</div>
+                                    </MobileUserDetails>
+                                </>
+                            ) : (
+                                <MenuHeading>Menu</MenuHeading>
+                            )}
+                        </UserName>
+                        <StyledLinks>
+                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/visited">
+                                {/* <Image src="/images/broke.png" alt="" /> */}
+                                <div>Visited</div>
                             </StyledLink>
-                        ) : (
-                            <StyledLink to="/login" onClick={() => setShowMobileMenu(false)}>
-                                <Image src="/images/logout.png" alt="" />
-                                <div>Login</div>
+                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/map">
+                                {/* <Image src="/images/broke.png" alt="" /> */}
+                                <div>Your Map</div>
                             </StyledLink>
-                        )}
+                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/stats">
+                                {/* <Image src="/images/broke.png" alt="" /> */}
+                                <div>Stats</div>
+                            </StyledLink>
+                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/achievements">
+                                {/* <Image src="/images/broke.png" alt="" /> */}
+                                <div>Achievements</div>
+                            </StyledLink>
+                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/account">
+                                {/* <Image src="/images/broke.png" alt="" /> */}
+                                <div>Account & Settings</div>
+                            </StyledLink>
+                            {currentUser.isLoggedIn ? (
+                                <StyledLink onClick={logUserOut} to="/">
+                                    {/* <Image src="/images/logout.png" alt="" /> */}
+                                    <div>Logout</div>
+                                </StyledLink>
+                            ) : (
+                                <StyledLink to="/login" onClick={() => setShowMobileMenu(false)}>
+                                    <Image src="/images/logout.png" alt="" />
+                                    <div>Login</div>
+                                </StyledLink>
+                            )}
+                        </StyledLinks>
                     </MobileMenu>
                 </div>
             </RightHandSide>

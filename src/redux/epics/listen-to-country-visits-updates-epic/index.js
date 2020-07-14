@@ -1,6 +1,7 @@
 import { of, from } from 'rxjs'
 import { ofType } from 'redux-observable'
 import { catchError, mergeMap } from 'rxjs/operators'
+import uid from 'uid'
 
 import { firebaseApp } from '../../../config.js'
 
@@ -14,22 +15,17 @@ export const listenToCountryVisitsEpic = (action$, store) => {
             const { country, currentDetails, newDetails } = action
             const userId = store.value.userPersonalDetails.uid
             const findCountry = store.value.userTrips.visitedCountries.find((ctry) => ctry.name === country)
-            let index
-            if (findCountry.visits) {
-                index = findCountry.visits.findIndex((x) => x.visitName === currentDetails.visitName)
-            } else {
-                index = 0
-            }
-
+            const { visitId } = currentDetails
             const { description, startDate, visitName, places, people, distanceInMiles, hasVisitedCapital } = newDetails
 
             const updates = {
-                [`users/${userId}/countries/${country}/visits/${index}`]: {
+                [`users/${userId}/countries/${country}/visits/${visitId}`]: {
                     description,
                     startDate,
                     visitName,
                     places,
                     people,
+                    visitId,
                     totalDistanceTravelledForTrip: distanceInMiles,
                 },
                 [`users/${userId}/countries/${country}/hasVisitedCapital`]: hasVisitedCapital,
@@ -45,7 +41,7 @@ export const listenToCountryVisitsEpic = (action$, store) => {
                 mergeMap((response) => {
                     const payload = {
                         country,
-                        current: findCountry.visits ? findCountry.visits[index].visitName : '',
+                        current: findCountry.visits ? visitId : '',
                         newVisitDetails: newDetails,
                         distanceInMiles,
                         capitalCitiesTotal,

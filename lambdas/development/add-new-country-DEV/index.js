@@ -16,7 +16,7 @@ const firebaseApp = firebase.initializeApp(firebaseConfig)
 
 exports.handler = (event, context, callback) => {
     let body = JSON.parse(event.body)
-    console.log(body, 'body.....')
+
     context.callbackWaitsForEmptyEventLoop = false
     const { country, userId } = body
     const setSchema = body.country

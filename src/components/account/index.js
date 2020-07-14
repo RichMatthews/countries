@@ -69,7 +69,7 @@ const SectionContent = styled.div`
 export const Account = ({ userPersonalDetails }) => {
     const { email, homeLocation, name, profilePhoto } = userPersonalDetails
     const [photo, setPhoto] = useState(null)
-    console.log(photo, 'oh')
+
     const onDrop = (e) => {
         uploadPhotos(e.target.files)
     }

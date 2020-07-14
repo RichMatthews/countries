@@ -31,7 +31,6 @@ const AddByButton = styled.div`
 
 const AddTravellersHeading = styled.div`
     font-size: 20px;
-    font-weight: bold;
     text-transform: uppercase;
 `
 

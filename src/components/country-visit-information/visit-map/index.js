@@ -87,38 +87,36 @@ export const VisitMap = ({ country, mapMarkers }) => {
         }
     }
 
-    return (
-        mapMarkers.length > 0 && (
-            <div style={{ width: '90%', height: '400px', margin: 'auto', paddingBottom: '50px' }}>
-                <GoogleMapReact
-                    key={mapMarkers}
-                    onGoogleApiLoaded={initGeocoder}
-                    options={{
-                        disableDefaultUI: true,
-                        disableDoubleClickZoon: true,
-                        draggable: false,
-                        scrollwheel: false,
-                        zoomControl: false,
-                    }}
-                    distanceToMouse={() => {}}
-                    bootstrapURLKeys={{ key: 'AIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M' }}
-                    defaultZoom={5}
-                    defaultCenter={{
-                        lat: -27,
-                        lng: 133,
-                    }}
-                    yesIWantToUseGoogleMapApiInternals
-                >
-                    {mapMarkers.map((marker) => (
-                        <Marker
-                            lat={marker.lat}
-                            lng={marker.lng}
-                            name={marker.name}
-                            onChildClick={() => markerClicked(marker)}
-                        />
-                    ))}
-                </GoogleMapReact>
-            </div>
-        )
-    )
+    return mapMarkers && mapMarkers.length > 0 ? (
+        <div style={{ height: '400px', margin: 'auto', paddingBottom: '50px' }}>
+            <GoogleMapReact
+                key={mapMarkers}
+                onGoogleApiLoaded={initGeocoder}
+                options={{
+                    disableDefaultUI: true,
+                    disableDoubleClickZoon: true,
+                    draggable: false,
+                    scrollwheel: false,
+                    zoomControl: false,
+                }}
+                distanceToMouse={() => {}}
+                bootstrapURLKeys={{ key: 'AIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M' }}
+                defaultZoom={5}
+                defaultCenter={{
+                    lat: -27,
+                    lng: 133,
+                }}
+                yesIWantToUseGoogleMapApiInternals
+            >
+                {mapMarkers.map((marker) => (
+                    <Marker
+                        lat={marker.lat}
+                        lng={marker.lng}
+                        name={marker.name}
+                        onChildClick={() => markerClicked(marker)}
+                    />
+                ))}
+            </GoogleMapReact>
+        </div>
+    ) : null
 }

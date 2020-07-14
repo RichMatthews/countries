@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import firebase from 'firebase/app'
 import 'firebase/auth'
@@ -47,13 +47,50 @@ const SignInSection = styled.div`
     }
 `
 
+const LoadingContainer = styled.div`
+    align-items: center;
+    color: ${KIERAN_GREY};
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    padding-top: 100px;
+    width: 300px;
+`
+
 export const Login = ({ currentUser, setNewUserInformation, setRawUserFromFirebase, userPersonalDetails }) => {
+    const [loading, setLoading] = useState(false)
+
     useEffect(() => {
-        if (currentUser.isLoggedIn) {
-            setTimeout(() => {
-                window.location.href = 'visited'
-            }, 2000)
+        const isLoggingIn = JSON.parse(localStorage.getItem('isLoggingIn'))
+        if (isLoggingIn) {
+            setLoading(true)
         }
+    }, [])
+
+    useEffect(() => {
+        firebaseApp
+            .auth()
+            .getRedirectResult()
+            .then((result) => {
+                if (result && result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
+                    setNewUserInformation({
+                        email: result.user.email,
+                        name: result.user.displayName,
+                        photo: result.user.photoURL,
+                        userId: result.user.uid,
+                    })
+                    const { user } = result
+                    setRawUserFromFirebase(user)
+                }
+                return result
+            })
+            .then((result) => {
+                if (result.user) {
+                    setTimeout(() => {
+                        window.location.href = 'visited'
+                    }, 1500)
+                }
+            })
     }, [currentUser])
 
     const selectProvider = (provider) => {
@@ -69,27 +106,16 @@ export const Login = ({ currentUser, setNewUserInformation, setRawUserFromFireba
     }
 
     const loginToApp = (provider) => {
-        firebaseApp
-            .auth()
-            .signInWithRedirect(provider)
-            .then((result) => {
-                if (result.additionalUserInfo.isNewUser) {
-                    setNewUserInformation({
-                        email: result.user.email,
-                        name: result.user.displayName,
-                        photo: result.user.photoURL,
-                        userId: result.user.uid,
-                    })
-                }
-                const { user } = result
-                setRawUserFromFirebase(user)
-            })
-            .catch((error) => {
-                console.log('ERROR:', error)
-            })
+        firebase.auth().signInWithRedirect(provider)
+        localStorage.setItem('isLoggingIn', true)
     }
 
-    return (
+    return loading ? (
+        <LoadingContainer>
+            <img src="/images/loading.gif" width="30" alt="" />
+            Logging you in...
+        </LoadingContainer>
+    ) : (
         <SignInContainer>
             <SignInSection>
                 <p>Mappa Mundi requires you to log in to access all features</p>

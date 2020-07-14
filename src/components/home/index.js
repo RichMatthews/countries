@@ -20,7 +20,7 @@ const Container = styled.div`
     }
 
     @media (max-width: 700px) {
-        background-image: url(https://dl6ghv8ryvhmk.cloudfront.net/mobile-back.jpg);
+        background-image: url(/images/mobile-bg.jpg);
     }
 `
 
@@ -33,12 +33,9 @@ const Inner = styled.div`
 
 const Heading = styled.div`
     font-size: 48px;
-    margin-bottom: 30px;
-    opacity: 0.9;
     color: #fff;
     position: absolute;
-    width: 450px;
-    text-align: center;
+    text-align: left;
     top: 180px;
 
     @media (max-width: 700px) {
@@ -47,10 +44,24 @@ const Heading = styled.div`
     }
 `
 
+const Add = styled.div`
+    background: #fff;
+    border-radius: 20px;
+    bottom: 50px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    font-size: 22px;
+    font-weight: bold;
+    padding: 15px;
+    position: absolute;
+    text-align: center;
+    width: 80vw;
+`
+
 export const Home = () => (
     <Container>
         <Inner>
-            <Heading>Remember every trip to every country</Heading>
+            <Heading>REMEMBER EVERY TRIP</Heading>
+            <Add>ADD TRIP</Add>
         </Inner>
     </Container>
 )

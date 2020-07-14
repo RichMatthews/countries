@@ -8,6 +8,8 @@ import { Country } from 'components/country'
 import { fadeIn } from 'components/react-modal-adapter'
 import { KIERAN_GREY } from 'styles'
 import { QuickAddCountryContainer } from 'components/select-countries'
+import { setNewUserInformation } from 'redux/action-creators/user/set-new-user-information'
+import { firebaseApp } from '../../config.js'
 
 let inputStream = new Subject()
 
@@ -299,6 +301,10 @@ const Visited = React.memo(({ ui, userTrips }) => {
     const [pageMapping, setPageMapping] = useState({ start: 0, end: 30 })
 
     useEffect(() => {
+        localStorage.removeItem('isLoggingIn')
+    }, [])
+
+    useEffect(() => {
         if (userTrips.visitedCountries.length > 0) {
             setFilteredCountries(userTrips.visitedCountries)
             workoutRequiredPages(userTrips.visitedCountries)
@@ -428,4 +434,8 @@ const mapState = ({ countries, ui, userTrips }) => ({
     userTrips,
 })
 
-export const CONNECTED_Visited = connect(mapState, null)(Visited)
+const mapDispatch = {
+    setNewUserInformation,
+}
+
+export const CONNECTED_Visited = connect(mapState, mapDispatch)(Visited)

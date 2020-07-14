@@ -11,7 +11,6 @@ const SearchContainer = styled.div`
 
 const AddDestinations = styled.div`
     font-size: 20px;
-    font-weight: bold;
     text-transform: uppercase;
 `
 
@@ -33,24 +32,28 @@ export const PlacesSearch = ({ country, countries, mapMarkers, setHasVisitedCapi
     const getLatLngForSpecificPlace = (place) => {
         var geocoder = new window.google.maps.Geocoder()
 
-        geocoder.geocode({ address: place }, function (results, status) {
-            if (status == window.google.maps.GeocoderStatus.OK) {
-                const cityLat = results[0].geometry.location.lat()
-                const cityLng = results[0].geometry.location.lng()
-                isItACapital(place)
+        try {
+            geocoder.geocode({ address: place }, function (results, status) {
+                if (status == window.google.maps.GeocoderStatus.OK) {
+                    const cityLat = results[0].geometry.location.lat()
+                    const cityLng = results[0].geometry.location.lng()
+                    isItACapital(place)
 
-                const cityInformation = {
-                    name: place,
-                    lng: cityLng,
-                    lat: cityLat,
+                    const cityInformation = {
+                        name: place,
+                        lng: cityLng,
+                        lat: cityLat,
+                    }
+
+                    setMapMarkers([...mapMarkers, cityInformation])
+                    window.scrollTo(0, document.body.scrollHeight)
+                } else {
+                    alert('Place not recognized, please try searching again')
                 }
-
-                setMapMarkers([...mapMarkers, cityInformation])
-                window.scrollTo(0, document.body.scrollHeight)
-            } else {
-                alert('Place not recognized, please try searching again')
-            }
-        })
+            })
+        } catch (e) {
+            console.log('ERR:', e)
+        }
     }
 
     return (

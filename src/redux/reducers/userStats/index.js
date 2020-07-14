@@ -18,7 +18,7 @@ const calculateMilesTravelled = (countries) => {
     let totalMiles = 0
     countries.forEach((country) => {
         if (country.visits) {
-            country.visits.forEach((visit) => {
+            Object.values(country.visits).forEach((visit) => {
                 return (totalMiles = totalMiles + visit.totalDistanceTravelledForTrip)
             })
         }

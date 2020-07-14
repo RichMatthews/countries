@@ -75,8 +75,9 @@ const CountryVisitsAndFlag = styled.div`
 const InnerContainer = styled.div`
     background-image: ${({ country }) =>
         `url(https://dl6ghv8ryvhmk.cloudfront.net/countries/landscape/${country}.jpg), url(https://dl6ghv8ryvhmk.cloudfront.net/countries/landscape/generic.jpg)`};
-    background-size: 450px;
+    background-size: cover;
     background-repeat: no-repeat;
+    background-position: center;
     border-radius: 10px;
     align-items: center;
     display: flex;
@@ -97,7 +98,7 @@ const StyledLink = styled(Link)`
 
 export const Country = ({ country }) => {
     return country ? (
-        <StyledLink to={`/trips/${country.countryCode}`}>
+        <StyledLink to={`/${country.countryCode}/trips`}>
             <Container>
                 <InnerContainer country={country.countryCode}>
                     <CountryNameAndFlag>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
 import Select, { createFilter } from 'react-select'
 import styled from 'styled-components'
@@ -102,6 +102,7 @@ export const QuickAddCountry = ({
 }) => {
     const [selectedCountries, setSelectedCountries] = useState([])
     const [optionCountries, setOptionCountries] = useState([])
+    const inputEl = useRef(null)
 
     useEffect(() => {
         let dropdownOptions = countries.selectOptions
@@ -124,8 +125,13 @@ export const QuickAddCountry = ({
 
             selectedCountries.map((country) => {
                 const countryDetails = {
-                    ...country,
+                    continent: country.continent,
+                    countryCode: country.countryCode,
+                    flag: country.flag,
+                    hasVisitedCapital: false,
                     name: country.value,
+                    smallFlag: country.smallFlag,
+                    trimmed: country.trimmed,
                 }
                 updates[`/users/${userPersonalDetails.uid}/countries/${country.value}/`] = countryDetails
             })
@@ -148,6 +154,7 @@ export const QuickAddCountry = ({
     const handleSelect = (country) => {
         setSelectedCountries([...selectedCountries, country])
         setOptionCountries(optionCountries.filter((ctry) => ctry.value !== country.value))
+        inputEl.current.focus()
     }
 
     const handleDelete = (country) => {
@@ -160,8 +167,8 @@ export const QuickAddCountry = ({
             <Inner>
                 <h3>Quick Add mode</h3>
                 <Mode>
-                    In quick add mode you can quickly add up to 15 countries at once. You can always add more detailed
-                    stuff like specific visits and photos later!
+                    In Quick Add Mode you can add up to 15 countries at once. You can always add more detailed stuff
+                    like specific visits and photos later!
                 </Mode>
                 <Select
                     filterOption={createFilter({ ignoreAccents: false })}
@@ -170,6 +177,7 @@ export const QuickAddCountry = ({
                     onChange={(country) => handleSelect(country)}
                     options={optionCountries}
                     placeholder="Select a country to add to the list"
+                    ref={inputEl}
                     styles={customReactSelectStyles}
                     value={null}
                 />
@@ -187,7 +195,7 @@ export const QuickAddCountry = ({
                             <div>{country.value}</div>
                         </Country>
                     ))}
-                    {selectedCountries.length === 0 ? null : <Save onClick={saveCountries}>Save Countries</Save>}
+                    {selectedCountries.length === 0 ? null : <Save onClick={saveCountries}>Add Countries</Save>}
                 </CountriesContainer>
             </Inner>
         </Container>
