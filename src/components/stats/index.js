@@ -1,12 +1,8 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import { Chart } from 'react-google-charts'
-import moment from 'moment'
 import { fadeIn } from 'components/react-modal-adapter'
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
-import Select from 'react-select'
 import { Link } from 'react-router-dom'
 
 import { CHART_OPTIONS } from 'components/stats/charts/options'
@@ -67,10 +63,10 @@ const StatComponent = styled.div`
 `
 
 const TopStats = styled(StatComponent)`
-    background-image: url(/images/stats/volcano.jpg);
-    background-size: 500px;
+    background-image: url(/images/stats/savana.png);
+    background-size: cover;
     background-repeat: no-repeat;
-    background-position: right;
+    background-position: center;
 `
 
 const Top = styled.div`
@@ -94,12 +90,14 @@ const Top = styled.div`
 const Continents = styled(StatComponent)``
 
 const FirstAndLast = styled(StatComponent)`
-    background-image: url(/images/stats/sunset.jpg);
-    background-size: 300px;
+    background-image: url(/images/stats/plane-over-city.png);
+    background-size: cover;
     background-repeat: no-repeat;
+    background-position: left;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    text-align: center;
 `
 
 const MainHeading = styled.div`
@@ -119,15 +117,17 @@ const SpinnerContainer = styled.div`
 `
 
 const Gauge = styled(StatComponent)`
-    background-image: url(/images/stats/earth.jpg);
-    background-size: 100%;
+    background-image: url(/images/stats/sunset.png);
+    background-size: cover;
     background-repeat: no-repeat;
+    background-position: center;
     color: #fff;
+    text-align: center;
 `
 
 const TotalCountries = styled(StatComponent)`
-    background-image: url(/images/stats/beach.jpg);
-    background-size: 280px;
+    background-image: url(/images/stats/explorer.png);
+    background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
 `
@@ -135,17 +135,6 @@ const TotalCountries = styled(StatComponent)`
 const NoStats = styled.div`
     display: flex;
     justify-content: center;
-`
-
-const TripNameAndDate = styled.div`
-    align-items: flex-end;
-    display: flex;
-    font-size: 13px;
-    justify-content: space-between;
-
-    & > p {
-        margin: 0;
-    }
 `
 
 const AWorldWithFriends = styled(StatComponent)`
@@ -192,7 +181,7 @@ export const Stats = ({ userTrips, userStats }) => {
                         </StyledLink>
                     </TotalCountries>
                     <FirstAndLast>
-                        <StyledLink to="/stats/random-stats">Other fun stats</StyledLink>
+                        <StyledLink to="/stats/random-stats">Miles and More</StyledLink>
                     </FirstAndLast>
 
                     <TopStats>

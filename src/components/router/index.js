@@ -91,9 +91,6 @@ export const MainRouter = React.memo(
             html {
                 overflow: ${({ location }) => (location.includes('visited') ? 'hidden' : 'auto')};
             }
-            body {
-                background: ${({ location }) => (location.includes('random-stats') ? '#041a24' : '#fff')};
-            }
         `
 
         return (
