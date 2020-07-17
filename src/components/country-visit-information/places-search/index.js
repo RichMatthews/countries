@@ -58,11 +58,11 @@ export const PlacesSearch = ({ country, countries, mapMarkers, setHasVisitedCapi
 
     return (
         <SearchContainer>
-            <AddDestinations>Add specific destinations</AddDestinations>
+            <AddDestinations>Add the places you visited</AddDestinations>
             <div>
                 <GooglePlacesAutocomplete
                     onSelect={(e) => getLatLngForSpecificPlace(e.structured_formatting.main_text)}
-                    placeholder="Search for a place you visited..."
+                    placeholder={`e.g. Barcelona`}
                     inputStyle={{
                         border: `1px solid #ccc`,
                         boxShadow: 'none',

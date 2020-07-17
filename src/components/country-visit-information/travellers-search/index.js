@@ -110,7 +110,7 @@ export const TravellersSearch = ({
 
     return (
         <SearchContainer>
-            <AddTravellersHeading>Add travellers</AddTravellersHeading>
+            <AddTravellersHeading>Say who travelled</AddTravellersHeading>
             <AddByButtons>
                 <AddByButton onClick={() => setAddBy('manual')} selected={addBy === 'manual'}>
                     Manually add person

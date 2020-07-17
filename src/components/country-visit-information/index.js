@@ -9,11 +9,12 @@ import styled, { keyframes } from 'styled-components'
 import 'react-datepicker/dist/react-datepicker.css'
 import TextareaAutosize from 'react-autosize-textarea'
 import 'react-google-places-autocomplete/dist/index.min.css'
-import uid from 'uid'
 
 import { updateCapitalCitiesInFirebase } from 'redux/action-creators/user/update-capital-cities-in-firebase'
 import { updateTripDetails } from 'redux/action-creators/user/update-trip-details'
 import { KIERAN_GREY } from 'styles'
+import { getPhotos } from 'utils/getPhotos'
+import { uploadPhotos } from 'utils/uploadPhotos'
 
 import { firebaseApp } from '../../config.js'
 
@@ -24,9 +25,9 @@ import { VisitTravellers } from './visit-travellers'
 import { VisitMap } from './visit-map'
 import { VisitNameAndDate } from './visit-name-and-date'
 import { VisitPhotos } from './visit-photos'
+import { CountryVisitInformationDesktopView } from './desktop'
 
 export const Container = styled.div`
-    opacity: ${({ uploadingPhotos }) => (uploadingPhotos ? 0.2 : 1)};
     padding-bottom: 25px;
     @media (max-width: 700px) {
         width: auto;
@@ -111,11 +112,11 @@ const LoadingContainer = styled.div`
 `
 
 export const Description = styled.div`
-    color: #979eb0;
+    border-bottom: 1px solid #ccc;
+    color: ${KIERAN_GREY};
     font-size: 20px;
     margin: 10px 0 10px 0;
     padding: 0 0 20px 0;
-    border-bottom: 1px solid #ccc;
 `
 
 const EditModeInstructions = styled.div`
@@ -132,8 +133,8 @@ const EditModeListOfInstructions = styled.ul``
 
 const SectionDivider = styled.div`
     border-top: 1px solid #ccc;
-    margin: 30px 0;
-    padding: 30px 0;
+    margin: 15px 0;
+    padding: 15px 0;
 `
 
 const StyledTextareaAutosize = styled(TextareaAutosize)`
@@ -158,30 +159,39 @@ export const NewTrip = ({
     const [newPerson, setNewPerson] = useState('')
     const [newTraveller, setNewTraveller] = useState(null)
     const [originalVisitDetails, setOriginalVisitDetails] = useState(null)
-    const [photos, setPhotos] = useState([])
+    const [photosToSendToServer, setPhotosToSendToServer] = useState([])
+    const [displayPhotos, setDisplayPhotos] = useState([])
     const [hasVisitedCapital, setHasVisitedCapital] = useState(false)
     const [travellers, setTraveller] = useState([])
     const [uploadingPhotos, setUploadingPhotos] = useState(false)
-    const [visitDetails, setVisitDetails] = useState({})
+    const [visitDetails, setVisitDetails] = useState({ description: '', visitName: '' })
+    const [percentageDone, setPercentageDone] = useState(0)
 
     useEffect(() => {
         window.scrollTo(0, 0)
     }, [])
 
-    useEffect(() => {
-        const urlCountry = location.pathname.split('/')[1]
-        const visitId = location.pathname.split('/')[3]
-        const foundCountry = userTrips.visitedCountries.find((ctry) => ctry.countryCode === urlCountry)
+    const PATHNAME = {
+        COUNTRY_CODE: location.pathname.split('/')[1],
+        VISIT_ID: location.pathname.split('/')[3],
+    }
+    const FOUND_COUNTRY_FROM_COUNTRY_CODE = userTrips.visitedCountries.find(
+        (ctry) => ctry.countryCode === PATHNAME.COUNTRY_CODE,
+    )
 
-        if (foundCountry && foundCountry.visits) {
-            const foundVisit = Object.values(foundCountry.visits).find((visit) => visit.visitId === visitId)
+    useEffect(() => {
+        if (FOUND_COUNTRY_FROM_COUNTRY_CODE && FOUND_COUNTRY_FROM_COUNTRY_CODE.visits) {
+            const foundVisit = Object.values(FOUND_COUNTRY_FROM_COUNTRY_CODE.visits).find(
+                (visit) => visit.visitId === PATHNAME.VISIT_ID,
+            )
+
             setVisitDetails(foundVisit)
             setEditMode(false)
         } else {
-            setVisitDetails({ ...visitDetails, visitId })
+            setVisitDetails({ ...visitDetails, visitId: PATHNAME.VISIT_ID })
             setEditMode(true)
         }
-        setCountry(foundCountry)
+        setCountry(FOUND_COUNTRY_FROM_COUNTRY_CODE)
     }, [userTrips.visitedCountries])
 
     useEffect(() => {
@@ -206,63 +216,42 @@ export const NewTrip = ({
     }, [visitDetails])
 
     useEffect(() => {
-        const countryCode = location.pathname.split('/')[1]
-        const foundCountry = userTrips.visitedCountries.find((ctry) => ctry.countryCode === countryCode)
-
-        if (foundCountry) {
-            getPhotos(countryCode)
+        if (FOUND_COUNTRY_FROM_COUNTRY_CODE && visitDetails.visitId && userPersonalDetails) {
+            getAndSetPhotos()
         }
-    }, [])
+    }, [userTrips.visitedCountries])
 
-    const getPhotos = async (countryCode) => {
-        const storage = firebaseApp.storage()
-        let gsReference
-        if (process.env.NODE_ENV === 'development') {
-            gsReference = storage.refFromURL('gs://countries-development.appspot.com/')
-        } else {
-            gsReference = storage.refFromURL('gs://countries-5e1e5.appspot.com/')
-        }
-        gsReference = gsReference.child(`${userPersonalDetails.uid}/${countryCode}`)
-
-        const { items: references } = await gsReference.listAll()
-        const result = references.map(async (reference) => {
-            const url = await reference.getDownloadURL()
-            let response = null
-            try {
-                response = await fetch(url)
-            } catch (error) {
-                console.log('ERROR GETTING PHOTOS:', error)
-                response = error
-            }
-
-            return {
-                response,
-                url,
-                reference: reference.fullPath,
-            }
-        })
-
-        let referencesWithUrls = await Promise.all(result)
-        referencesWithUrls = referencesWithUrls.filter((result) => !(result.response instanceof Error))
-        const updatedPhotos = referencesWithUrls.map((pr) => {
-            return pr
-        })
-        setPhotos(updatedPhotos)
+    const getAndSetPhotos = async () => {
+        const photos = await getPhotos(PATHNAME.COUNTRY_CODE, PATHNAME.VISIT_ID, userPersonalDetails)
+        console.log('UP DATED now', photos)
+        setDisplayPhotos(photos)
     }
 
-    const deletePhoto = (photo) => {
+    const deletePhoto = (photo, index, uid) => {
         const storage = firebaseApp.storage()
-        var photoRef = storage.ref(photo.reference)
-        const newPhotos = photos.filter((phto) => phto.reference !== photo.reference)
+        let photoRef = storage.ref(photo.reference)
+        const newPhotos = [...displayPhotos]
+        const photosToSendToServerCopy = [...photosToSendToServer]
         if (window.confirm('Are you sure you want to delete this photo?')) {
+            if (uid) {
+                const filterByIndex = photosToSendToServerCopy.findIndex((photo) => photo.uid === uid)
+                photosToSendToServerCopy.splice(filterByIndex, 1)
+                setPhotosToSendToServer(photosToSendToServerCopy)
+            }
+            if (photo.reference) {
+                const filterByIndex = newPhotos.findIndex((phto) => phto.reference === photo.reference)
+                newPhotos.splice(filterByIndex, 1)
+            } else {
+                newPhotos.splice(index, 1)
+            }
+            setDisplayPhotos(newPhotos)
             photoRef
                 .delete()
                 .then(() => {
-                    setPhotos(newPhotos)
                     console.log('file successfully deleted')
                 })
                 .catch((error) => {
-                    console.log('error in deleting file')
+                    console.log(error)
                 })
         }
         return
@@ -287,10 +276,26 @@ export const NewTrip = ({
         scroll.scrollTo(670)
     }
 
-    const updateTripDetailsHelper = () => {
+    const updateTripDetailsHelper = async () => {
         if (!visitDetails.visitName || !visitDetails.startDate) {
             alert('Error: You need to enter a Visit Name AND Trip Date')
             return
+        }
+
+        if (photosToSendToServer.length) {
+            await uploadPhotos(
+                photosToSendToServer,
+                userPersonalDetails.uid,
+                PATHNAME.COUNTRY_CODE,
+                PATHNAME.VISIT_ID,
+                setPercentageDone,
+                setUploadingPhotos,
+            ).then(() => {
+                console.log('i am done!')
+            })
+
+            const photos = await getPhotos(PATHNAME.COUNTRY_CODE, visitDetails.visitId, userPersonalDetails)
+            setDisplayPhotos(photos)
         }
 
         setEditMode(false)
@@ -365,6 +370,7 @@ export const NewTrip = ({
                 history={history}
                 inEditMode={inEditMode}
                 setEditMode={setEditMode}
+                userPersonalDetails={userPersonalDetails}
                 updateTripDetailsHelper={updateTripDetailsHelper}
             />
             <Container uploadingPhotos={uploadingPhotos}>
@@ -385,6 +391,7 @@ export const NewTrip = ({
                             handleDate={handleDate}
                             inEditMode={inEditMode}
                             setEditMode={setEditMode}
+                            percentageDone={percentageDone}
                             updateVisitDetailsStateHelper={updateVisitDetailsStateHelper}
                             userPersonalDetails={userPersonalDetails}
                             visitDetails={visitDetails}
@@ -394,26 +401,26 @@ export const NewTrip = ({
                 </CountryBackground>
                 {inEditMode ? (
                     <div style={{ margin: '20px' }}>
-                        <VisitPhotos
-                            country={country}
-                            deletePhoto={deletePhoto}
-                            getPhotos={getPhotos}
-                            inEditMode={inEditMode}
-                            index={0}
-                            photos={photos}
-                            setUploadingPhotos={setUploadingPhotos}
-                            uploadingPhotos={uploadingPhotos}
-                            userPersonalDetails={userPersonalDetails}
-                        />
                         <SectionDivider>
                             <StyledTextareaAutosize
                                 onChange={(e) => updateVisitDetailsStateHelper(e, 0, 'description')}
                                 placeholder="Say a few words to describe the trip"
                                 rows={3}
                                 style={{ border: '1px solid #ccc', fontSize: '20px', width: '94%' }}
-                                value={visitDetails.description}
+                                value={visitDetails.description ? visitDetails.description : ''}
                             />
                         </SectionDivider>
+                        <VisitPhotos
+                            deletePhoto={deletePhoto}
+                            displayPhotos={displayPhotos}
+                            inEditMode={inEditMode}
+                            percentageDone={percentageDone}
+                            setDisplayPhotos={setDisplayPhotos}
+                            setPhotosToSendToServer={setPhotosToSendToServer}
+                            setUploadingPhotos={setUploadingPhotos}
+                            uploadingPhotos={uploadingPhotos}
+                            userPersonalDetails={userPersonalDetails}
+                        />
                         <SectionDivider>
                             <TravellersSearch
                                 addBy={addBy}
@@ -445,40 +452,28 @@ export const NewTrip = ({
                     </div>
                 ) : (
                     <div style={{ margin: '20px' }}>
-                        {[1, 2, 3].map((photo, index) => {
-                            return (
-                                <>
-                                    <VisitPhotos
-                                        country={country}
-                                        deletePhoto={deletePhoto}
-                                        getPhotos={getPhotos}
-                                        inEditMode={inEditMode}
-                                        index={index}
-                                        photos={photos}
-                                        setUploadingPhotos={setUploadingPhotos}
-                                        uploadingPhotos={uploadingPhotos}
-                                        userPersonalDetails={userPersonalDetails}
-                                    />
+                        <>
+                            {visitDetails && <Description>{visitDetails.description}</Description>}
+                            <VisitPhotos
+                                deletePhoto={deletePhoto}
+                                displayPhotos={displayPhotos}
+                                inEditMode={inEditMode}
+                                percentageDone={percentageDone}
+                                setDisplayPhotos={setDisplayPhotos}
+                                setPhotosToSendToServer={setPhotosToSendToServer}
+                                setUploadingPhotos={setUploadingPhotos}
+                                uploadingPhotos={uploadingPhotos}
+                            />
 
-                                    <div>
-                                        {index === 0 && visitDetails && (
-                                            <Description>{visitDetails.description}</Description>
-                                        )}
-
-                                        {index === 1 && (
-                                            <div>
-                                                <VisitTravellers
-                                                    inEditMode={inEditMode}
-                                                    removeTraveller={removeTraveller}
-                                                    travellers={travellers}
-                                                />
-                                                <VisitMap country={country} mapMarkers={mapMarkers} />
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
-                            )
-                        })}
+                            <div>
+                                <VisitTravellers
+                                    inEditMode={inEditMode}
+                                    removeTraveller={removeTraveller}
+                                    travellers={travellers}
+                                />
+                                <VisitMap country={country} mapMarkers={mapMarkers} />
+                            </div>
+                        </>
                     </div>
                 )}
             </Container>

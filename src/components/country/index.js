@@ -24,15 +24,15 @@ const Container = styled.div`
 
 const CountryName = styled.div`
     color: #fff;
-    font-size: 23px;
-    font-weight: 900;
+    font-size: 30px;
+    font-weight: 500;
     overflow: hidden;
     margin-top: 200px;
     margin-left: 20px;
     text-overflow: ellipsis;
     text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.5);
     white-space: nowrap;
-    width: 150px;
+    width: 250px;
 
     & > img {
         margin-left: 5px;
@@ -43,6 +43,7 @@ const CountryName = styled.div`
         font-size: 20px;
         margin-top: 100px;
         margin-left: 10px;
+        width: 150px;
     }
 `
 

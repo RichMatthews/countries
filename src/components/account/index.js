@@ -71,34 +71,34 @@ export const Account = ({ userPersonalDetails }) => {
     const [photo, setPhoto] = useState(null)
 
     const onDrop = (e) => {
-        uploadPhotos(e.target.files)
+        // uploadPhotos(e.target.files)
     }
 
-    const uploadPhotos = (uploadedPhotos) => {
-        const uploadImageAsPromise = (imageFile) => {
-            return new Promise((resolve, reject) => {
-                const storage = firebaseApp.storage().ref(`${userPersonalDetails.uid}/personalDetails/profilePhoto`)
-                var task = storage.put(imageFile)
-                setPhoto(imageFile)
-                task.on(
-                    'state_changed',
-                    function progress(snapshot) {
-                        // var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-                        // uploader.value = percentage
-                    },
-                    function error(err) {
-                        console.log('photo error:', err)
-                    },
-                    function complete() {
-                        var downloadURL = task.snapshot.downloadURL
-                        console.log('=+++', downloadURL)
-                    },
-                )
-            })
-        }
-        var imageFile = uploadedPhotos[0]
-        uploadImageAsPromise(imageFile)
-    }
+    // const uploadPhotos = (uploadedPhotos) => {
+    //     const uploadImageAsPromise = (imageFile) => {
+    //         return new Promise((resolve, reject) => {
+    //             const storage = firebaseApp.storage().ref(`${userPersonalDetails.uid}/personalDetails/profilePhoto`)
+    //             var task = storage.put(imageFile)
+    //             setPhoto(imageFile)
+    //             task.on(
+    //                 'state_changed',
+    //                 function progress(snapshot) {
+    //                     // var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+    //                     // uploader.value = percentage
+    //                 },
+    //                 function error(err) {
+    //                     console.log('photo error:', err)
+    //                 },
+    //                 function complete() {
+    //                     var downloadURL = task.snapshot.downloadURL
+    //                     console.log('=+++', downloadURL)
+    //                 },
+    //             )
+    //         })
+    //     }
+    //     var imageFile = uploadedPhotos[0]
+    //     uploadImageAsPromise(imageFile)
+    // }
 
     const getPhotos = async () => {
         const storage = firebaseApp.storage()

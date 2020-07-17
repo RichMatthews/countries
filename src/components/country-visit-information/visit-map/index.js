@@ -46,16 +46,6 @@ const Marker = (props) => (
 )
 
 export const VisitMap = ({ country, mapMarkers }) => {
-    useEffect(() => {
-        const googleMapsApiScript = document.createElement('script')
-        const googlePlacesApiScript = document.createElement('script')
-        googleMapsApiScript.src = 'https://maps.google.com/maps/api/js?key=AIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M'
-        googlePlacesApiScript.src =
-            'https://maps.googleapis.com/maps/api/js?key=AIzaSyBe80OhcYpEiTJ7xcYPySebKTUS30OW28M&libraries=places'
-        document.body.appendChild(googleMapsApiScript)
-        document.body.appendChild(googlePlacesApiScript)
-    }, [])
-
     const markerClicked = (marker) => {
         console.log('clicked...')
         console.log('The marker that was clicked is', marker)

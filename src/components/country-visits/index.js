@@ -1,12 +1,8 @@
-import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { compose } from 'redux'
 import { connect } from 'react-redux'
-import { useHistory, useLocation, withRouter } from 'react-router-dom'
-import { animateScroll as scroll } from 'react-scroll'
+import { useLocation, withRouter } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
-import 'react-datepicker/dist/react-datepicker.css'
-import TextareaAutosize from 'react-autosize-textarea'
 import 'react-google-places-autocomplete/dist/index.min.css'
 import uid from 'uid'
 import { KIERAN_GREY } from 'styles'
@@ -18,18 +14,19 @@ const LoadingContainer = styled.div`
     display: flex;
     flex-direction: column;
     margin: auto;
-    margin-top: 50px;
+    padding-top: 100px;
     width: 300px;
 
     @media (max-width: 700px) {
-        margin-top: 80px;
+        padding-top: 100px;
     }
 `
 
 const Container = styled.div`
+    align-items: center;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    padding-top: 100px;
 `
 
 const CountryName = styled.div`
@@ -44,6 +41,7 @@ const TripContainer = styled.div`
     color: #fff;
     height: 30vh;
     position: relative;
+    margin: 10px;
     width: 80vw;
 `
 
@@ -63,11 +61,10 @@ const TripTitle = styled.div`
 
 export const CountryVisits = ({ userTrips }) => {
     const location = useLocation()
-    const history = useHistory()
     const [trips, setTrips] = useState(null)
     const countryCodeFromUrl = location.pathname.split('/')[1]
     const foundCountry = userTrips.visitedCountries.find((ctry) => ctry.countryCode === countryCodeFromUrl)
-    console.log(foundCountry, 'fc')
+
     useEffect(() => {
         if (foundCountry && foundCountry.visits) {
             setTrips(Object.values(foundCountry.visits))
@@ -88,13 +85,13 @@ export const CountryVisits = ({ userTrips }) => {
                 ))}
             </Container>
         ) : (
-            <div>
+            <Container>
                 <div>Trips to</div>
                 <CountryName>{foundCountry.name}</CountryName>
                 <Link to={`/${countryCodeFromUrl}/trips/${uid()}`}>
                     <div>Click here to record a trip</div>
                 </Link>
-            </div>
+            </Container>
         )
     ) : (
         <LoadingContainer>
@@ -110,9 +107,4 @@ const mapState = ({ countries, userPersonalDetails, userTrips }) => ({
     userTrips,
 })
 
-const mapDispatch = {
-    // updateCapitalCitiesInFirebase,
-    // updateTripDetails,
-}
-
-export const CONNECTED_COUNTRY_VISITS = compose(withRouter, connect(mapState, mapDispatch))(CountryVisits)
+export const CONNECTED_COUNTRY_VISITS = compose(withRouter, connect(mapState, null))(CountryVisits)

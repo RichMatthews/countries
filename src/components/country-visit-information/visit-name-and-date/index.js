@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import AutosizeInput from 'react-input-autosize'
 import DatePicker from 'react-datepicker'
 import moment from 'moment'
 
@@ -53,6 +52,12 @@ const VisitDate = styled.div`
     margin-bottom: 5px;
 `
 
+const StyledDatePicker = styled(DatePicker)`
+    .styledDatepicker > input {
+        background: #red !important;
+    }
+`
+
 export const VisitNameAndDate = ({
     handleDate,
     inEditMode,
@@ -71,10 +76,11 @@ export const VisitNameAndDate = ({
                     placeholder="Trip title goes here"
                     value={visitDetails.visitName}
                 />
-                <DatePicker
-                    selected={visitDetails.startDate ? new Date(visitDetails.startDate * 1000) : new Date()}
-                    onChange={(date) => handleDate(date)}
+                <StyledDatePicker
+                    className="styledDatepicker"
                     dateFormat="MMMM yyyy"
+                    onChange={(date) => handleDate(date)}
+                    selected={visitDetails.startDate ? new Date(visitDetails.startDate * 1000) : new Date()}
                     showMonthYearPicker
                     showFullMonthYearPicker
                 />

@@ -6,6 +6,14 @@ export const findCountryCode = (country, countryCodes) => {
     return ''
 }
 
+export const findCountryFromCountryCode = (code, countryCodes) => {
+    const foundCountry = countryCodes.find((ctry) => ctry.code === code.toUpperCase())
+    if (foundCountry) {
+        return foundCountry.name
+    }
+    return ''
+}
+
 export const countryCodes = [
     {
         code: 'AF',

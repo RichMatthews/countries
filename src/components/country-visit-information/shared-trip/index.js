@@ -4,6 +4,8 @@ import { connect } from 'react-redux'
 import { compose } from 'redux'
 import { animateScroll as scroll } from 'react-scroll'
 
+import { countryCodes, findCountryFromCountryCode } from 'utils/findCountryCode'
+
 import {
     Container,
     CountryBackground,
@@ -12,9 +14,8 @@ import {
     Description,
     TripsSection,
 } from 'components/country-visit-information'
-import { firebaseApp } from '../../../config.js'
 
-import { TopBar } from '../top-bar'
+import { firebaseApp } from '../../../config.js'
 import { VisitTravellers } from '../visit-travellers'
 import { VisitMap } from '../visit-map'
 import { VisitNameAndDate } from '../visit-name-and-date'
@@ -22,27 +23,28 @@ import { VisitPhotos } from '../visit-photos'
 
 export const SharedTrip = ({ countries, userPersonalDetails, userTrips }) => {
     const [tripDetails, setTripDetails] = useState(null)
-    const [photos, setPhotos] = useState([])
+    const [displayPhotos, setDisplayPhotos] = useState([])
+    const countryCode = window.location.pathname.split('/')[2]
+    const country = findCountryFromCountryCode(countryCode, countryCodes)
 
-    const history = useHistory()
     useEffect(() => {
         getDetails()
     }, [])
 
     const getDetails = () => {
         const id = window.location.pathname.split('/')[1]
-        const country = window.location.pathname.split('/')[2]
-        const visitName = window.location.pathname.split('/')[4]
+
+        const visitId = window.location.pathname.split('/')[4]
+
+        console.log(country, 'ttttttt')
 
         firebaseApp
             .database()
-            .ref(`users/${id}/countries/${country}/visits`)
+            .ref(`users/${id}/countries/${country}/visits/${visitId}`)
             .once('value')
             .then((snapshot) => {
                 if (snapshot.val()) {
-                    const trips = snapshot.val()
-                    const findTrip = trips.find((trip) => trip.visitName.toLowerCase() === visitName.replace(/-/g, ' '))
-                    setTripDetails(findTrip)
+                    setTripDetails(snapshot.val())
                 }
                 return {}
             })
@@ -52,51 +54,12 @@ export const SharedTrip = ({ countries, userPersonalDetails, userTrips }) => {
         scroll.scrollTo(670)
     }
 
-    const getPhotos = async () => {
-        const storage = firebaseApp.storage()
-        let gsReference
-        if (process.env.NODE_ENV === 'development') {
-            gsReference = storage.refFromURL('gs://countries-development.appspot.com/')
-        } else {
-            gsReference = storage.refFromURL('gs://countries-5e1e5.appspot.com/')
-        }
-        // gsReference = gsReference.child(`${userPersonalDetails.uid}/${country.countryCode}`)
-        gsReference = gsReference.child(`${userPersonalDetails.uid}/es`)
-
-        const { items: references } = await gsReference.listAll()
-        const result = references.map(async (reference) => {
-            const url = await reference.getDownloadURL()
-            let response = null
-            try {
-                response = await fetch(url)
-            } catch (error) {
-                console.log('ERROR GETTING PHOTOS:', error)
-                response = error
-            }
-
-            return {
-                response,
-                url,
-                reference: reference.fullPath,
-            }
-        })
-
-        let referencesWithUrls = await Promise.all(result)
-        referencesWithUrls = referencesWithUrls.filter((result) => !(result.response instanceof Error))
-        const updatedPhotos = referencesWithUrls.map((pr) => {
-            return pr
-        })
-        setPhotos(updatedPhotos)
-    }
-
     return tripDetails ? (
         <div>
-            <TopBar history={history} inEditMode={false} setEditMode={null} updateTripDetailsHelper={null} />
             <Container>
-                <CountryBackground country={null}>
+                <CountryBackground country={countryCode}>
                     <CountryDetailsSection>
-                        <div>1 trip</div>
-                        <CountryHeading>{null}</CountryHeading>
+                        <CountryHeading>{tripDetails.visitName}</CountryHeading>
                         <img src="/images/down-arrow.svg" height="60" width="60" onClick={scrollTo} alt="" />
                     </CountryDetailsSection>
                 </CountryBackground>
@@ -105,28 +68,26 @@ export const SharedTrip = ({ countries, userPersonalDetails, userTrips }) => {
                         handleDate={null}
                         inEditMode={false}
                         setEditMode={null}
+                        percentageDone={null}
                         updateVisitDetailsStateHelper={null}
                         userPersonalDetails={userPersonalDetails}
                         visitDetails={tripDetails}
                     />
                 </TripsSection>
-                <div>
-                    <VisitPhotos
-                        country={null}
-                        deletePhoto={null}
-                        getPhotos={getPhotos}
-                        inEditMode={false}
-                        index={0}
-                        photos={photos}
-                        setUploadingPhotos={null}
-                        uploadingPhotos={null}
-                        userPersonalDetails={userPersonalDetails}
-                    />
 
-                    <Description>{tripDetails.Description}</Description>
-                    <VisitTravellers inEditMode={false} removeTraveller={null} travellers={tripDetails.travellers} />
-                </div>
+                <Description>{tripDetails.Description}</Description>
+                <VisitPhotos
+                    deletePhoto={null}
+                    displayPhotos={displayPhotos}
+                    inEditMode={false}
+                    percentageDone={null}
+                    setDisplayPhotos={setDisplayPhotos}
+                    setUploadingPhotos={null}
+                    uploadingPhotos={null}
+                    userPersonalDetails={userPersonalDetails}
+                />
 
+                <VisitTravellers inEditMode={false} removeTraveller={null} travellers={tripDetails.travellers} />
                 <VisitMap country={null} mapMarkers={tripDetails.places} />
             </Container>
         </div>

@@ -25,18 +25,32 @@ const Container = styled.div`
     }
 `
 
-export const TopBar = ({ history, inEditMode, setEditMode, updateTripDetailsHelper }) => (
-    <Container>
-        <img onClick={() => history.push('/visited')} src="/images/back-arrow.svg" height="30" width="30" alt="" />
-        <div>
-            {inEditMode ? (
-                <span onClick={updateTripDetailsHelper}>Save</span>
-            ) : (
-                <span onClick={() => setEditMode(true)}>
-                    <img src="/images/share.svg" height="30" width="30" alt="" style={{ marginRight: '20px' }} />
-                    <img src="/images/edit.svg" height="30" width="30" alt="" />
-                </span>
-            )}
-        </div>
-    </Container>
-)
+export const TopBar = ({ history, inEditMode, setEditMode, updateTripDetailsHelper, userPersonalDetails }) => {
+    const createShareLink = () => {
+        const createdLink = window.location.origin + '/' + userPersonalDetails.uid + window.location.pathname
+        alert(createdLink)
+    }
+
+    return (
+        <Container>
+            <img onClick={() => history.push('/visited')} src="/images/back-arrow.svg" height="30" width="30" alt="" />
+            <div>
+                {inEditMode ? (
+                    <span onClick={updateTripDetailsHelper}>Save</span>
+                ) : (
+                    <span>
+                        <img
+                            src="/images/share.svg"
+                            height="30"
+                            width="30"
+                            alt=""
+                            onClick={() => createShareLink()}
+                            style={{ marginRight: '20px' }}
+                        />
+                        <img src="/images/edit.svg" height="30" width="30" alt="" onClick={() => setEditMode(true)} />
+                    </span>
+                )}
+            </div>
+        </Container>
+    )
+}
