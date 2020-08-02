@@ -6,8 +6,11 @@ export const uploadPhotos = (uploadedPhotos, userId, countryCode, visitId, setPe
         const uploadImageAsPromise = (imageFile) => {
             return new Promise((resolve, reject) => {
                 const storage = firebaseApp.storage().ref(`${userId}/${countryCode}/${visitId}/${imageFile.name}`)
+                const cache = {
+                    cacheControl: 'public,max-age=604800',
+                }
 
-                var task = storage.put(imageFile)
+                var task = storage.put(imageFile, cache)
 
                 task.on(
                     'state_changed',

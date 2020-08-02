@@ -19,10 +19,18 @@ const calculateMilesTravelled = (countries) => {
     countries.forEach((country) => {
         if (country.visits) {
             Object.values(country.visits).forEach((visit) => {
-                return (totalMiles = totalMiles + visit.totalDistanceTravelledForTrip)
+                if (!isNaN(visit.totalDistanceTravelledForTrip)) {
+                    totalMiles = totalMiles + visit.totalDistanceTravelledForTrip
+                }
             })
         }
     })
+
+    console.log(totalMiles, 'to?')
+
+    if (isNaN(totalMiles)) {
+        return 0
+    }
 
     return totalMiles
 }

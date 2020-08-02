@@ -72,6 +72,8 @@ export const Login = ({ currentUser, setNewUserInformation, setRawUserFromFireba
             .auth()
             .getRedirectResult()
             .then((result) => {
+                console.log(result, 'rezzzz???')
+                setLoading(false)
                 if (result && result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
                     setNewUserInformation({
                         email: result.user.email,
@@ -90,6 +92,9 @@ export const Login = ({ currentUser, setNewUserInformation, setRawUserFromFireba
                         window.location.href = 'visited'
                     }, 1500)
                 }
+            })
+            .catch((e) => {
+                console.log('ERROR IS:', e)
             })
     }, [currentUser])
 

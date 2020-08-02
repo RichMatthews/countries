@@ -15,7 +15,7 @@ const Container = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 15px;
+    padding: 20px;
     position: ${({ location }) => (location.pathname === '/' ? 'fixed' : 'fixed')};
     z-index: 1;
     width: 100%;
@@ -44,6 +44,14 @@ const StyledLink = styled(Link)`
 
 const Title = styled.div`
     align-items: center;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    & > div {
+        display: flex;
+        align-items: center;
+    }
 `
 
 const RightHandSide = styled.div`
@@ -58,26 +66,6 @@ const RightHandSide = styled.div`
     justify-content: center;
     height: 100%;
     min-width: 0;
-
-    & > :first-child {
-        display: flex;
-    }
-    & > :not(:first-child) {
-        display: none;
-    }
-`
-
-const MAPPALink = styled(Link)`
-    align-items: center;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    text-decoration: none;
-
-    @media (min-width: 700px) {
-        font-size: 15px;
-    }
 `
 
 const NotificationHandler = styled.div`
@@ -108,32 +96,34 @@ const MobileProfile = styled.div`
     background-image: url(/images/nav-bg.jpg);
     box-sizing: border-box;
     color: #fff;
-    font-size: 20px;
     height: 100%;
     position: absolute;
     width: 100%;
     opacity: 0.4;
 `
 
-const ImageContainer = styled.div`
-    width: 60px;
-    height: 60px;
-    position: relative;
-    overflow: hidden;
-    border-radius: 50%;
-
+const MobileImageContainer = styled.div`
     & > img {
+        align-items: center;
+        border-radius: 50%;
         display: flex;
         justify-content: center;
-        align-items: center;
         height: 100%;
         width: -webkit-fill-available;
     }
-`
 
-const MobileImageContainer = styled(ImageContainer)`
-    height: 50px;
-    width: 50px;
+    & > div {
+        align-items: center;
+        background: red;
+        border-radius: 50%;
+        display: flex;
+        font-size: 24px;
+        height: 50px;
+        justify-content: center;
+        overflow: hidden;
+        text-align: center;
+        width: 50px;
+    }
 `
 
 const MobileMenu = styled.div`
@@ -158,17 +148,12 @@ const MobileMenu = styled.div`
 
 const MobileUserDetails = styled.div`
     color: #ccc;
-    margin-left: 10px;
     font-size: 13px;
     text-align: center;
     & > div:first-child {
         font-size: 20px;
         color: #fff;
     }
-`
-
-const Image = styled.img`
-    width: 30px;
 `
 
 const MenuHeading = styled.div`
@@ -194,6 +179,15 @@ const Close = styled.div`
     right: 20px;
 `
 
+const ImageLogo = styled.img`
+    margin-right: 5px;
+    width: 30px;
+`
+
+const TextLogo = styled.img`
+    width: 100px;
+`
+
 export const Mobile = ({
     currentUser,
     clearNotifications,
@@ -216,75 +210,71 @@ export const Mobile = ({
     return (
         <Container location={location} user={userPersonalDetails}>
             <Title>
-                {/* <img src={'/images/globe.svg'} width="30" alt="" /> */}
-                <MAPPALink to="/">Travel Toucan</MAPPALink>
+                <div>
+                    <ImageLogo src={'/images/toucan-image-logo.svg'} alt="" />
+                    <TextLogo src={'/images/toucan-text-logo.svg'} alt="" />
+                </div>
+                <img src="/images/menu.svg" width="25px" onClick={() => setShowMobileMenu(!showMobileMenu)} />
             </Title>
             <RightHandSide loggedIn={userPersonalDetails} user={userPersonalDetails}>
-                <div>
-                    <div onClick={() => setShowMobileMenu(!showMobileMenu)}>
-                        <img src="/images/menu.svg" width="30px" />
-                    </div>
-                    <MobileMenu showMenu={showMobileMenu}>
-                        {userPersonalDetails ? (
-                            <MobileProfile user={currentUser.isLoggedIn}>
-                                <Close onClick={() => setShowMobileMenu(false)}>close</Close>
-                            </MobileProfile>
-                        ) : null}
+                <MobileMenu showMenu={showMobileMenu}>
+                    {userPersonalDetails ? <MobileProfile user={currentUser.isLoggedIn}></MobileProfile> : null}
 
-                        <UserName>
-                            {currentUser.isLoggedIn ? (
-                                <>
-                                    <MobileImageContainer>
+                    <UserName>
+                        {currentUser.isLoggedIn ? (
+                            <>
+                                <MobileImageContainer>
+                                    {userPersonalDetails.profilePhoto ? (
                                         <img
                                             src={userPersonalDetails.profilePhoto}
                                             onError={(e) => (e.target.src = '/images/account.svg')}
                                             alt=""
                                         />
-                                    </MobileImageContainer>
-                                    <MobileUserDetails>
-                                        <div>{userPersonalDetails.displayName}</div>
-                                        <div>Standard user</div>
-                                    </MobileUserDetails>
-                                </>
-                            ) : (
-                                <MenuHeading>Menu</MenuHeading>
-                            )}
-                        </UserName>
-                        <StyledLinks>
-                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/visited">
-                                {/* <Image src="/images/broke.png" alt="" /> */}
-                                <div>Visited</div>
-                            </StyledLink>
-                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/map">
-                                {/* <Image src="/images/broke.png" alt="" /> */}
-                                <div>Your Map</div>
-                            </StyledLink>
-                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/stats">
-                                {/* <Image src="/images/broke.png" alt="" /> */}
-                                <div>Stats</div>
-                            </StyledLink>
-                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/achievements">
-                                {/* <Image src="/images/broke.png" alt="" /> */}
-                                <div>Achievements</div>
-                            </StyledLink>
-                            <StyledLink onClick={() => setShowMobileMenu(false)} to="/account">
-                                {/* <Image src="/images/broke.png" alt="" /> */}
-                                <div>Account & Settings</div>
-                            </StyledLink>
-                            {currentUser.isLoggedIn ? (
-                                <StyledLink onClick={logUserOut} to="/">
-                                    {/* <Image src="/images/logout.png" alt="" /> */}
-                                    <div>Logout</div>
-                                </StyledLink>
-                            ) : (
-                                <StyledLink to="/login" onClick={() => setShowMobileMenu(false)}>
-                                    <Image src="/images/logout.png" alt="" />
-                                    <div>Login</div>
-                                </StyledLink>
-                            )}
-                        </StyledLinks>
-                    </MobileMenu>
-                </div>
+                                    ) : (
+                                        <div>
+                                            {userPersonalDetails.displayName &&
+                                                userPersonalDetails.displayName
+                                                    .split(' ')[0][0]
+                                                    .concat(userPersonalDetails.displayName.split(' ')[1][0])}
+                                        </div>
+                                    )}
+                                </MobileImageContainer>
+                                <MobileUserDetails>
+                                    <div>{userPersonalDetails.displayName}</div>
+                                    <div>Standard user</div>
+                                </MobileUserDetails>
+                            </>
+                        ) : (
+                            <MenuHeading>Menu</MenuHeading>
+                        )}
+                    </UserName>
+                    <StyledLinks>
+                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/visited">
+                            <div>Visited</div>
+                        </StyledLink>
+                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/map">
+                            <div>Your Map</div>
+                        </StyledLink>
+                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/stats">
+                            <div>Stats</div>
+                        </StyledLink>
+                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/achievements">
+                            <div>Achievements</div>
+                        </StyledLink>
+                        <StyledLink onClick={() => setShowMobileMenu(false)} to="/account">
+                            <div>Account & Settings</div>
+                        </StyledLink>
+                        <StyledLink
+                            onClick={currentUser.isLoggedIn ? () => logUserOut() : () => setShowMobileMenu(false)}
+                            to={currentUser.isLoggedIn ? '/' : '/login'}
+                        >
+                            <div>{currentUser.isLoggedIn ? 'Logout' : 'Login'}</div>
+                        </StyledLink>
+                        <Close onClick={() => setShowMobileMenu(false)}>
+                            <img src="/images/close.svg" width="25" />
+                        </Close>
+                    </StyledLinks>
+                </MobileMenu>
             </RightHandSide>
             {userNotifications.length > 0 ? (
                 <NotificationHandler onClick={clearNotificationsAndRedirectToAchievementsPage}>

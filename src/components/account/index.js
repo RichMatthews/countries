@@ -7,8 +7,9 @@ import { updateProfilePhoto } from 'redux/action-creators/user/update-profile-ph
 import { firebaseApp } from '../../config.js'
 
 const Container = styled.div`
-    background-image: url(/images/wavy-bg.jpg);
-    background-size: 100%;
+    background-image: url(/images/account-bg.png);
+    background-size: cover;
+    background-position: center top;
     background-repeat: no-repeat;
     height: 15vh;
     padding-top: 100px;
@@ -64,6 +65,18 @@ const SectionContent = styled.div`
     display: flex;
     justify-content: space-between;
     padding: 10px 0 10px 0;
+`
+
+const PhotoContainer = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+`
+
+const Label = styled.label`
+    & > input {
+        display: none;
+    }
 `
 
 export const Account = ({ userPersonalDetails }) => {
@@ -139,10 +152,16 @@ export const Account = ({ userPersonalDetails }) => {
     return Object.keys(userPersonalDetails).length ? (
         <Container>
             <Inner>
-                <div>
-                    <ProfilePhoto src={photo ? photo : profilePhoto} width="100" onClick={() => updateProfilePhoto} />
-                    <input type="file" onChange={(e) => onDrop(e)} />
-                </div>
+                <PhotoContainer>
+                    <Label>
+                        <ProfilePhoto
+                            src={photo ? photo : profilePhoto}
+                            width="100"
+                            onClick={() => updateProfilePhoto}
+                        />
+                        <input type="file" id="files" onChange={(e) => onDrop(e)} />
+                    </Label>
+                </PhotoContainer>
                 <UserName>{name}</UserName>
                 <Location>{homeLocation.city}</Location>
             </Inner>

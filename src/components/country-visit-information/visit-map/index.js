@@ -1,6 +1,12 @@
 import GoogleMapReact from 'google-map-react'
-import React, { useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
+
+const Heading = styled.h3`
+    font-size: 20px;
+    font-weight: 600;
+    text-align: left;
+`
 
 const MarkerName = styled.div`
     background: white;
@@ -45,26 +51,29 @@ const Marker = (props) => (
     </div>
 )
 
-export const VisitMap = ({ country, mapMarkers }) => {
+export const VisitMap = ({ country, inEditMode, mapMarkers, setMapMarkers }) => {
     const markerClicked = (marker) => {
-        console.log('clicked...')
-        console.log('The marker that was clicked is', marker)
+        if (window.confirm('Are you sure you want to remove this place?')) {
+            const foundMarker = mapMarkers.filter((mrkr) => mrkr.name !== marker.name)
+            setMapMarkers(foundMarker)
+        }
     }
 
     const initGeocoder = ({ map, maps }) => {
         var latlng = mapMarkers
         var latlngbounds = new maps.LatLngBounds()
-        if (latlng.length) {
-            for (var i = 0; i < latlng.length; i++) {
-                latlngbounds.extend(latlng[i])
+        try {
+            if (latlng.length) {
+                for (var i = 0; i < latlng.length; i++) {
+                    latlngbounds.extend(latlng[i])
+                }
+                map.fitBounds(latlngbounds)
+                map.setZoom(map.getZoom() - 1)
+                if (map.getZoom() > 15) {
+                    map.setZoom(5)
+                }
             }
-            map.fitBounds(latlngbounds)
-            map.setCenter(country.name)
-            map.setZoom(map.getZoom() - 1)
-            if (map.getZoom() > 15) {
-                map.setZoom(5)
-            }
-        } else {
+        } catch (e) {
             const Geocoder = new maps.Geocoder()
             Geocoder.geocode({ address: country.name }, (results, status) => {
                 if (status == maps.GeocoderStatus.OK) {
@@ -78,7 +87,8 @@ export const VisitMap = ({ country, mapMarkers }) => {
     }
 
     return mapMarkers && mapMarkers.length > 0 ? (
-        <div style={{ height: '400px', margin: 'auto', paddingBottom: '50px' }}>
+        <div style={{ height: '300px', margin: 'auto', paddingBottom: '50px' }}>
+            <Heading>Trip Journey</Heading>
             <GoogleMapReact
                 key={mapMarkers}
                 onGoogleApiLoaded={initGeocoder}
@@ -103,7 +113,7 @@ export const VisitMap = ({ country, mapMarkers }) => {
                         lat={marker.lat}
                         lng={marker.lng}
                         name={marker.name}
-                        onChildClick={() => markerClicked(marker)}
+                        onChildClick={() => inEditMode && markerClicked(marker)}
                     />
                 ))}
             </GoogleMapReact>

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 
@@ -18,9 +18,9 @@ const Inner = styled.div`
 `
 
 const FlagContainer = styled.div`
-    height: 65px;
+    height: 50px;
     margin: 5px;
-    width: 65px;
+    width: 50px;
 
     & > img {
         height: 100%;
@@ -38,8 +38,10 @@ export const TotalCountries = ({ userTrips }) => (
         <Inner>
             {userTrips.visitedCountries.map((country) => (
                 <FlagContainer key={country.name}>
-                    <img src={country.smallFlag} alt="" />
-                    {/* <span>{country.visits ? `${country.visits.length} visits` : `1 visit`}</span> */}
+                    <img
+                        src={`https://lipis.github.io/flag-icon-css/flags/4x3/${country.countryCode.toLowerCase()}.svg`}
+                        alt=""
+                    />
                 </FlagContainer>
             ))}
         </Inner>

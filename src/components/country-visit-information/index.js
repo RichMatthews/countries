@@ -89,14 +89,6 @@ export const CountryHeading = styled.div`
     width: 330px;
 `
 
-export const TripsSection = styled.div`
-    color: #757474;
-    display: flex;
-    flex-direction: column;
-    margin: 55px 0 55px 0;
-    text-align: center;
-`
-
 const LoadingContainer = styled.div`
     align-items: center;
     color: ${KIERAN_GREY};
@@ -167,10 +159,6 @@ export const NewTrip = ({
     const [visitDetails, setVisitDetails] = useState({ description: '', visitName: '' })
     const [percentageDone, setPercentageDone] = useState(0)
 
-    useEffect(() => {
-        window.scrollTo(0, 0)
-    }, [])
-
     const PATHNAME = {
         COUNTRY_CODE: location.pathname.split('/')[1],
         VISIT_ID: location.pathname.split('/')[3],
@@ -180,13 +168,21 @@ export const NewTrip = ({
     )
 
     useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
+
+    useEffect(() => {
         if (FOUND_COUNTRY_FROM_COUNTRY_CODE && FOUND_COUNTRY_FROM_COUNTRY_CODE.visits) {
             const foundVisit = Object.values(FOUND_COUNTRY_FROM_COUNTRY_CODE.visits).find(
                 (visit) => visit.visitId === PATHNAME.VISIT_ID,
             )
-
-            setVisitDetails(foundVisit)
-            setEditMode(false)
+            if (foundVisit) {
+                setVisitDetails(foundVisit)
+                setEditMode(false)
+            } else {
+                setVisitDetails({ ...visitDetails, visitId: PATHNAME.VISIT_ID })
+                setEditMode(true)
+            }
         } else {
             setVisitDetails({ ...visitDetails, visitId: PATHNAME.VISIT_ID })
             setEditMode(true)
@@ -216,14 +212,15 @@ export const NewTrip = ({
     }, [visitDetails])
 
     useEffect(() => {
-        if (FOUND_COUNTRY_FROM_COUNTRY_CODE && visitDetails.visitId && userPersonalDetails) {
-            getAndSetPhotos()
+        if (visitDetails && visitDetails.visitId) {
+            if (FOUND_COUNTRY_FROM_COUNTRY_CODE && visitDetails.visitId && userPersonalDetails) {
+                getAndSetPhotos()
+            }
         }
-    }, [userTrips.visitedCountries])
+    }, [visitDetails])
 
     const getAndSetPhotos = async () => {
         const photos = await getPhotos(PATHNAME.COUNTRY_CODE, PATHNAME.VISIT_ID, userPersonalDetails)
-        console.log('UP DATED now', photos)
         setDisplayPhotos(photos)
     }
 
@@ -447,7 +444,12 @@ export const NewTrip = ({
                                 setHasVisitedCapital={setHasVisitedCapital}
                                 setMapMarkers={setMapMarkers}
                             />
-                            <VisitMap country={country} mapMarkers={mapMarkers} />
+                            <VisitMap
+                                country={country}
+                                mapMarkers={mapMarkers}
+                                setMapMarkers={setMapMarkers}
+                                inEditMode={true}
+                            />
                         </SectionDivider>
                     </div>
                 ) : (
@@ -471,7 +473,12 @@ export const NewTrip = ({
                                     removeTraveller={removeTraveller}
                                     travellers={travellers}
                                 />
-                                <VisitMap country={country} mapMarkers={mapMarkers} />
+                                <VisitMap
+                                    country={country}
+                                    mapMarkers={mapMarkers}
+                                    setMapMarkers={setMapMarkers}
+                                    inEditMode={false}
+                                />
                             </div>
                         </>
                     </div>

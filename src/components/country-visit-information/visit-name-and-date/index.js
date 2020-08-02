@@ -66,7 +66,7 @@ export const VisitNameAndDate = ({
     updateVisitDetailsStateHelper,
     userPersonalDetails,
 }) => {
-    const isVisitNameAndDate = visitDetails && visitDetails.visitName && visitDetails.startDate
+    console.log(inEditMode, 'EDIT MODE? ?????')
     if (inEditMode) {
         return (
             <>
@@ -86,7 +86,7 @@ export const VisitNameAndDate = ({
                 />
             </>
         )
-    } else if (isVisitNameAndDate && !inEditMode) {
+    } else {
         return (
             <>
                 <VisitName>{visitDetails.visitName}</VisitName>
@@ -97,7 +97,5 @@ export const VisitNameAndDate = ({
                 </Author>
             </>
         )
-    } else {
-        return <AddNewButton onClick={() => setEditMode(true)}>Tap here to create a trip</AddNewButton>
     }
 }

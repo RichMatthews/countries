@@ -83,6 +83,9 @@ export const CountryVisits = ({ userTrips }) => {
                         </TripContainer>
                     </StyledLink>
                 ))}
+                <Link to={`/${countryCodeFromUrl}/trips/${uid()}`}>
+                    <div>Click here to record another trip</div>
+                </Link>
             </Container>
         ) : (
             <Container>
